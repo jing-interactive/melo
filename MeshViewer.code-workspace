@@ -1,0 +1,29 @@
+{
+  "folders": [
+    {
+      "path": "."
+    },
+    {
+      "path": "../Cinder/include/cinder"
+    },
+    {
+      "path": "../Cinder/src/cinder"
+    },
+    {
+      "path": "../Cinder/blocks/Cinder-ImGui"
+    },
+    {
+      "path": "../Cinder/blocks/Cinder-VNM"
+    }
+  ],
+  "settings": {
+    "files.associations": {
+      "*.view": "json",
+      "*.txv": "json",
+      "xiosbase": "cpp",
+      "array": "cpp",
+      "tuple": "cpp",
+      "utility": "cpp"
+    }
+  }
+}

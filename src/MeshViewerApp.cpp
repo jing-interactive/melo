@@ -7,10 +7,51 @@
 #include "AssetManager.h"
 #include "MiniConfig.h"
 
+#include "syoyo/tiny_gltf.h"
+#include "syoyo/tiny_obj_loader.h"
+
 using namespace ci;
 using namespace ci::app;
 using namespace std;
 
+namespace am
+{
+    TriMeshRef gltfMesh(const string& filename)
+    {
+        fs::path fullPath = getAssetPath(filename);
+        TriMeshRef mesh;
+        
+        tinygltf::Model model;
+        tinygltf::TinyGLTF loader;
+        std::string err;
+        std::string warn;
+        std::string input_filename(fullPath.string());
+        std::string ext = fullPath.extension().string();
+        
+        bool ret = false;
+        if (ext.compare(".glb") == 0) {
+            // assume binary glTF.
+            ret = loader.LoadBinaryFromFile(&model, &err, &warn, input_filename.c_str());
+        } else {
+            // assume ascii glTF.
+            ret = loader.LoadASCIIFromFile(&model, &err, &warn, input_filename.c_str());
+        }
+        
+        if (!warn.empty()) {
+            CI_LOG_W(warn);
+        }
+        
+        if (!err.empty()) {
+            CI_LOG_E(err);
+        }
+        if (!ret) {
+            CI_LOG_F("Failed to load .glTF") << fullPath;
+            App::get()->quit();
+        }
+        
+        return mesh;
+    }
+}
 class MeshViewerApp : public App
 {
   public:
@@ -18,7 +59,7 @@ class MeshViewerApp : public App
     {
         log::makeLogger<log::LoggerFile>();
         
-        auto aabb = am::triMesh(MESH_NAME)->calcBoundingBox();
+        auto aabb = am::gltfMesh(MESH_NAME)->calcBoundingBox();
         mCam.lookAt(aabb.getMax() * 2.0f, aabb.getCenter());
         mCamUi = CameraUi( &mCam, getWindow(), -1 );
         

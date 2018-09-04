@@ -1,6 +1,6 @@
 ITEM_DEF(int, APP_WIDTH, 1024)
 ITEM_DEF(int, APP_HEIGHT, 768)
-ITEM_DEF(string, MESH_NAME, "Teapot")
+ITEM_DEF(string, MESH_NAME, "Cube/Cube.gltf")
 ITEM_DEF(string, TEX0_NAME, "checkerboard")
 ITEM_DEF(string, TEX1_NAME, "checkerboard")
 ITEM_DEF(string, TEX2_NAME, "checkerboard")
