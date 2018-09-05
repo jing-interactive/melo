@@ -14,8 +14,7 @@
   ],
   "settings": {
     "files.associations": {
-      "*.view": "json",
-      "*.txv": "json",
+      "*.gltf": "json",
       "xiosbase": "cpp",
       "array": "cpp",
       "tuple": "cpp",
