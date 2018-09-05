@@ -9,7 +9,7 @@
             "command": "msbuild",
             "args": [
                 // Ask msbuild to generate full paths for file names.
-                "${workspaceFolder}/vc2015/{workspaceFolderBasename}.sln",
+                "${workspaceFolder}/vc2015/${workspaceFolderBasename}.sln",
                 "/property:GenerateFullPaths=true",
                 "/t:build"
             ],
