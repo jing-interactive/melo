@@ -1,3 +1,4 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
@@ -23,6 +24,9 @@
     </Filter>
     <Filter Include="Blocks\vnm\include">
       <UniqueIdentifier>{4AC6FC6B-6529-4495-BFF9-6D6A97BEB257}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blocks\syoyo">
+      <UniqueIdentifier>{6aa2cfb5-7479-4425-87bb-56104f08facb}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -86,10 +90,31 @@
     <ClInclude Include="..\..\Cinder\blocks\Cinder-VNM\include\TuioHelper.h">
       <Filter>Blocks\vnm\include</Filter>
     </ClInclude>
+    <ClCompile Include="..\include\syoyo\tiny_gltf.cc">
+      <Filter>Blocks\syoyo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\syoyo\tiny_obj_loader.cc">
+      <Filter>Blocks\syoyo</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Resources.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\syoyo\json.hpp">
+      <Filter>Blocks\syoyo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\syoyo\stb_image.h">
+      <Filter>Blocks\syoyo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\syoyo\stb_image_write.h">
+      <Filter>Blocks\syoyo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\syoyo\tiny_gltf.h">
+      <Filter>Blocks\syoyo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\syoyo\tiny_obj_loader.h">
+      <Filter>Blocks\syoyo</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
