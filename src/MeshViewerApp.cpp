@@ -7,8 +7,28 @@
 #include "AssetManager.h"
 #include "MiniConfig.h"
 
+#include "Cinder-Nodes/include/Node3D.h"
+
+struct TriMeshNode : public Node3D
+{
+    TriMeshRef triMesh;
+    
+    TriMeshNode(TriMeshRef triMesh) : triMesh(triMesh)
+    {}
+    
+    void draw()
+    {
+        if (triMesh)
+        {
+            gl::draw(*triMesh);
+        }
+    }
+    
+    virtual inline std::string toString() const { return "TriMeshNode"; }
+};
+
 #include "syoyo/tiny_gltf.h"
-#include "syoyo/tiny_obj_loader.h"
+//#include "syoyo/tiny_obj_loader.h"
 
 using namespace ci;
 using namespace ci::app;
