@@ -19,9 +19,20 @@ using namespace std;
 namespace cigltf
 {
     struct Modal;
+
+    typedef std::shared_ptr<struct Node> NodeRef;
+    struct Node : public nodes::Node3D
+    {
+        int mesh;
+        void draw() {}
+    };
+
     struct Scene;
     struct Node;
-    struct Mesh;
+    struct Mesh
+    {
+        vector<gl::VboMeshRef> primitive;
+    };
     struct Camera;
     struct Light;
 
@@ -36,17 +47,27 @@ namespace cigltf
 
     struct Skin;
     struct Animation;
+
+    struct Model
+    {
+        tinygltf::Model tiny_model;
+        vector<NodeRef> nodes;
+        vector<shared_ptr<Camera>> cameras;
+        vector<gl::Texture2dRef> textures; // texture + image
+        vector<gl::SamplerRef> samplers;
+        vector<gl::BufferObjRef> bufferViews;
+        vector<Mesh> meshes;
+    };
 } // namespace cigltf
 
 namespace cigltf
 {
-    TriMeshRef gltfMesh(const string& filename)
+    shared_ptr<Modal> gltfMesh(const string& filename)
     {
         fs::path fullPath = getAssetPath(filename);
-        TriMeshRef mesh;
 
-        tinygltf::Model model;
         tinygltf::TinyGLTF loader;
+        tinygltf::Model tiny_model;
         std::string err;
         std::string warn;
         std::string input_filename(fullPath.string());
@@ -56,12 +77,12 @@ namespace cigltf
         if (ext.compare(".glb") == 0)
         {
             // assume binary glTF.
-            ret = loader.LoadBinaryFromFile(&model, &err, &warn, input_filename.c_str());
+            ret = loader.LoadBinaryFromFile(&tiny_model, &err, &warn, input_filename.c_str());
         }
         else
         {
             // assume ascii glTF.
-            ret = loader.LoadASCIIFromFile(&model, &err, &warn, input_filename.c_str());
+            ret = loader.LoadASCIIFromFile(&tiny_model, &err, &warn, input_filename.c_str());
         }
 
         if (!warn.empty())
@@ -79,7 +100,33 @@ namespace cigltf
             App::get()->quit();
         }
 
-        return mesh;
+        shared_ptr<Modal> ciModal = make_shared<Modal>();
+        ciModal->tiny_model = tiny_model;
+
+        for (auto& it : model.bufferViews)
+        {
+            auto pData = model.buffers[it.buffer].data.data();
+            auto obj = gl::BufferObj::create(it.target, byteLength, pData, GL_DYNAMIC_DRAW);
+            ciModal.bufferViews.emplace_back(obj);
+        }
+
+        for (auto& it : model.samplers)
+        {
+            auto fmt = gl::Sampler::Format()
+                           .setWrap(it.warpS, it.warpT, it.wrapR)
+                           .minFilter(it.minFilter)
+                           .maxFilter(it.maxFilter);
+            auto obj = gl::Sampler::create(fmt);
+            ciModal.samplers.emplace_back(obj);
+        }
+
+        for (auto& it : model.textures)
+        {
+            Image& source = model.images[it.source];
+            auto obj = gl::Texture2d::create()
+        }
+
+        return ciModal;
     }
 } // namespace cigltf
 
