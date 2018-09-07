@@ -25,6 +25,7 @@
 		7413D57A2140225F00498D75 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 7413D5702140225F00498D75 /* .gitignore */; };
 		7413D57C2140225F00498D75 /* Node.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7413D5732140225F00498D75 /* Node.cpp */; };
 		7413D57E2140225F00498D75 /* Node3D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7413D5752140225F00498D75 /* Node3D.cpp */; };
+		741B6ACE2142E4ED00719B90 /* cigltf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 741B6ACD2142E4ED00719B90 /* cigltf.cpp */; };
 		74228D6A213E83AB0066530B /* tiny_obj_loader.cc in Sources */ = {isa = PBXBuildFile; fileRef = 74228D66213E83AB0066530B /* tiny_obj_loader.cc */; };
 		74228D6B213E83AB0066530B /* tiny_gltf.cc in Sources */ = {isa = PBXBuildFile; fileRef = 74228D67213E83AB0066530B /* tiny_gltf.cc */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
@@ -70,6 +71,8 @@
 		7413D5702140225F00498D75 /* .gitignore */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		7413D5732140225F00498D75 /* Node.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Node.cpp; sourceTree = "<group>"; };
 		7413D5752140225F00498D75 /* Node3D.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Node3D.cpp; sourceTree = "<group>"; };
+		741B6ACC2142E4D900719B90 /* cigltf.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = cigltf.h; path = ../src/cigltf.h; sourceTree = "<group>"; };
+		741B6ACD2142E4ED00719B90 /* cigltf.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = cigltf.cpp; path = ../src/cigltf.cpp; sourceTree = "<group>"; };
 		74228D63213E83AB0066530B /* json.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = json.hpp; sourceTree = "<group>"; };
 		74228D64213E83AB0066530B /* stb_image_write.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_image_write.h; sourceTree = "<group>"; };
 		74228D65213E83AB0066530B /* stb_image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_image.h; sourceTree = "<group>"; };
@@ -125,6 +128,8 @@
 		080E96DDFE201D6D7F000001 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				741B6ACD2142E4ED00719B90 /* cigltf.cpp */,
+				741B6ACC2142E4D900719B90 /* cigltf.h */,
 				BEAC7383671F4D3186648613 /* MeshViewerApp.cpp */,
 			);
 			name = Source;
@@ -369,6 +374,7 @@
 				7413D57C2140225F00498D75 /* Node.cpp in Sources */,
 				F6D85CC6EECE4A0E87E277DC /* AssetManager.cpp in Sources */,
 				74228D6A213E83AB0066530B /* tiny_obj_loader.cc in Sources */,
+				741B6ACE2142E4ED00719B90 /* cigltf.cpp in Sources */,
 				7413D57E2140225F00498D75 /* Node3D.cpp in Sources */,
 				248C10CEEF4E402D9D256B49 /* MiniConfig.cpp in Sources */,
 				74228D6B213E83AB0066530B /* tiny_gltf.cc in Sources */,
@@ -381,6 +387,7 @@
 		C01FCF4B08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				COMBINE_HIDPI_IMAGES = YES;
 				CONFIGURATION_BUILD_DIR = "../$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
 				COPY_PHASE_STRIP = NO;
@@ -408,6 +415,7 @@
 		C01FCF4C08A954540054247B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				COMBINE_HIDPI_IMAGES = YES;
 				CONFIGURATION_BUILD_DIR = "../$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
 				DEAD_CODE_STRIPPING = YES;
