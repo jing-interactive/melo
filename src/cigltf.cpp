@@ -214,19 +214,20 @@ NodeGLTF::Ref NodeGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Node& prope
     if (!property.translation.empty())
     {
         ref->setPosition(
-        { property.translation[0], property.translation[1], property.translation[2] });
+            {property.translation[0], property.translation[1], property.translation[2]});
     }
     if (!property.scale.empty())
     {
-        ref->setScale({ property.scale[0], property.scale[1], property.scale[2] });
+        ref->setScale({property.scale[0], property.scale[1], property.scale[2]});
     }
     if (!property.rotation.empty())
     {
-        ref->setRotation({ (float)property.rotation[3], (float)property.rotation[0],
-            (float)property.rotation[1],
-            (float)property.rotation[2] }); // (w, x, y, z)
+        ref->setRotation({(float)property.rotation[3], (float)property.rotation[0],
+                          (float)property.rotation[1],
+                          (float)property.rotation[2]}); // (w, x, y, z)
     }
     ref->rootGLTF = rootGLTF;
+    ref->setName(property.name);
 
     return ref;
 }
@@ -466,7 +467,7 @@ BufferViewGLTF::Ref BufferViewGLTF::create(RootGLTFRef rootGLTF,
     CI_ASSERT(property.buffer != -1);
     CI_ASSERT(property.byteLength != -1);
     CI_ASSERT(property.byteOffset != -1);
-    CI_ASSERT_MSG(property.byteStride == 0, "TODO: non zero byteStride");
+    // CI_ASSERT_MSG(property.byteStride == 0, "TODO: non zero byteStride");
 
     BufferViewGLTF::Ref ref = make_shared<BufferViewGLTF>();
     ref->property = property;

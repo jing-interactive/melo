@@ -28,7 +28,7 @@ struct MeshViewerApp : public App
         // mCam.lookAt(aabb.getMax() * 2.0f, aabb.getCenter());
         mCamUi = CameraUi(&mCam, getWindow(), -1);
 
-        createConfigUI({200, 200});
+        createConfigUI({300, 300});
         gl::enableDepth();
 
         getWindow()->getSignalResize().connect(
@@ -57,7 +57,9 @@ struct MeshViewerApp : public App
             gl::ScopedTextureBind tex3(am::texture2d(TEX3_NAME), 3);
             gl::ScopedGlslProg glsl(mGlslProg);
 
+            gl::setWireframeEnabled(WIRE_FRAME);
             mRootGLTF->draw();
+            gl::disableWireframe();
         });
     }
 
