@@ -102,6 +102,8 @@
   <ItemGroup />
   <ItemGroup />
   <ItemGroup>
+    <ClInclude Include="..\..\Cinder\blocks\Cinder-Nodes\include\Node.h" />
+    <ClInclude Include="..\..\Cinder\blocks\Cinder-Nodes\include\Node3D.h" />
     <ClInclude Include="..\include\Resources.h" />
     <ClInclude Include="..\include\item.def" />
     <ClInclude Include="..\..\Cinder\blocks\Cinder-VNM\include\AnsiToUtf.h" />
@@ -123,10 +125,14 @@
     <ClInclude Include="..\include\syoyo\stb_image_write.h" />
     <ClInclude Include="..\include\syoyo\tiny_gltf.h" />
     <ClInclude Include="..\include\syoyo\tiny_obj_loader.h" />
+    <ClInclude Include="..\src\cigltf.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Cinder\blocks\Cinder-Nodes\src\Node.cpp" />
+    <ClCompile Include="..\..\Cinder\blocks\Cinder-Nodes\src\Node3D.cpp" />
     <ClCompile Include="..\include\syoyo\tiny_gltf.cc" />
     <ClCompile Include="..\include\syoyo\tiny_obj_loader.cc" />
+    <ClCompile Include="..\src\cigltf.cpp" />
     <ClCompile Include="..\src\MeshViewerApp.cpp" />
     <ClCompile Include="..\..\Cinder\blocks\Cinder-VNM\src\AssetManager.cpp" />
     <ClCompile Include="..\..\Cinder\blocks\Cinder-VNM\src\MiniConfig.cpp" />

@@ -28,6 +28,9 @@
     <Filter Include="Blocks\syoyo">
       <UniqueIdentifier>{6aa2cfb5-7479-4425-87bb-56104f08facb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Blocks\Nodes">
+      <UniqueIdentifier>{acb72117-e32f-478d-be93-25c7b6715f35}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\MeshViewerApp.cpp">
@@ -43,9 +46,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Cinder\blocks\Cinder-VNM\src\AssetManager.cpp">
-      <Filter>Blocks\vnm\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Cinder\blocks\Cinder-VNM\src\MiniConfig.cpp">
       <Filter>Blocks\vnm\src</Filter>
     </ClCompile>
     <ClInclude Include="..\..\Cinder\blocks\Cinder-VNM\include\AnsiToUtf.h">
@@ -96,6 +96,18 @@
     <ClCompile Include="..\include\syoyo\tiny_obj_loader.cc">
       <Filter>Blocks\syoyo</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\cigltf.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Cinder\blocks\Cinder-VNM\src\MiniConfig.cpp">
+      <Filter>Blocks\vnm\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Cinder\blocks\Cinder-Nodes\src\Node3D.cpp">
+      <Filter>Blocks\Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Cinder\blocks\Cinder-Nodes\src\Node.cpp">
+      <Filter>Blocks\Nodes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Resources.h">
@@ -115,6 +127,15 @@
     </ClInclude>
     <ClInclude Include="..\include\syoyo\tiny_obj_loader.h">
       <Filter>Blocks\syoyo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\cigltf.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Cinder\blocks\Cinder-Nodes\include\Node.h">
+      <Filter>Blocks\Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Cinder\blocks\Cinder-Nodes\include\Node3D.h">
+      <Filter>Blocks\Nodes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

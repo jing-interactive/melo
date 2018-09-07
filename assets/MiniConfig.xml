@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <APP_WIDTH>1024</APP_WIDTH>
 <APP_HEIGHT>768</APP_HEIGHT>
-<MESH_NAME>Cube/Cube.gltf</MESH_NAME>
+<MESH_NAME>adamHead/adamHead.gltf</MESH_NAME>
 <TEX0_NAME>checkerboard</TEX0_NAME>
 <TEX1_NAME>checkerboard</TEX1_NAME>
 <TEX2_NAME>checkerboard</TEX2_NAME>
