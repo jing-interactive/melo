@@ -28,7 +28,7 @@ struct MeshViewerApp : public App
         // mCam.lookAt(aabb.getMax() * 2.0f, aabb.getCenter());
         mCamUi = CameraUi(&mCam, getWindow(), -1);
 
-        createConfigUI({300, 300});
+        createConfigUI({400, 300});
         gl::enableDepth();
 
         getWindow()->getSignalResize().connect(
@@ -39,13 +39,13 @@ struct MeshViewerApp : public App
                 quit();
         });
 
-        //mGlslProg = am::glslProg(VS_NAME, FS_NAME);
-        //mGlslProg->uniform("uTex0", 0);
-        //mGlslProg->uniform("uTex1", 1);
-        //mGlslProg->uniform("uTex2", 2);
-        //mGlslProg->uniform("uTex3", 3);
 
-        getSignalUpdate().connect([&] { mRootGLTF->update(); });
+        getSignalUpdate().connect([&] {
+            mRootGLTF->flipV = FLIP_V;
+            mRootGLTF->flipV = FLIP_V;
+            mRootGLTF->cameraPosition = mCam.getEyePoint();
+            mRootGLTF->update();
+        });
 
         getWindow()->getSignalDraw().connect([&] {
             gl::setMatrices(mCam);
@@ -53,14 +53,8 @@ struct MeshViewerApp : public App
 
             if (XYZ_VISIBLE)
             {
-                gl::drawCoordinateFrame(1, 0.1, 0.01);
+                gl::drawCoordinateFrame(10, 0.1, 0.01);
             }
-
-            //gl::ScopedTextureBind tex0(am::texture2d(TEX0_NAME), 0);
-            //gl::ScopedTextureBind tex1(am::texture2d(TEX1_NAME), 1);
-            //gl::ScopedTextureBind tex2(am::texture2d(TEX2_NAME), 2);
-            //gl::ScopedTextureBind tex3(am::texture2d(TEX3_NAME), 3);
-            //gl::ScopedGlslProg glsl(mGlslProg);
 
             gl::setWireframeEnabled(WIRE_FRAME);
             mRootGLTF->draw();

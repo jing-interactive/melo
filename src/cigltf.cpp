@@ -195,7 +195,7 @@ void RootGLTF::draw()
     gl::ScopedTextureBind scpIrr(irradianceTexture, 6);
     gl::ScopedTextureBind scpBrdf(brdfLUTTexture, 7);
 
-    scene->draw(); 
+    scene->draw();
 }
 
 void NodeGLTF::setup()
@@ -384,6 +384,7 @@ MaterialGLTF::Ref MaterialGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Mat
 void MaterialGLTF::preDraw()
 {
     ciShader->uniform("u_flipV", rootGLTF->flipV);
+    ciShader->uniform("u_Camera", rootGLTF->cameraPosition);
 
     ciShader->bind();
     if (baseColorTexture)
@@ -557,7 +558,8 @@ TextureGLTF::Ref TextureGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Textu
 
 void TextureGLTF::preDraw(uint8_t texUnit)
 {
-    if (texUnit == -1) return;
+    if (texUnit == -1)
+        return;
 
     textureUnit = texUnit;
     ciTexture->bind(textureUnit);
@@ -566,7 +568,8 @@ void TextureGLTF::preDraw(uint8_t texUnit)
 
 void TextureGLTF::postDraw()
 {
-    if (textureUnit == -1) return;
+    if (textureUnit == -1)
+        return;
 
     ciTexture->unbind(textureUnit);
     ciSampler->unbind(textureUnit);

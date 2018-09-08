@@ -98,11 +98,11 @@ vec3 getNormal()
     vec3 tex_dy = dFdy(vec3(v_UV, 0.0));
     vec3 t = (tex_dy.t * pos_dx - tex_dx.t * pos_dy) / (tex_dx.s * tex_dy.t - tex_dy.s * tex_dx.t);
 
-#ifdef HAS_NORMALS
-    vec3 ng = normalize(v_Normal);
-#else
-    vec3 ng = cross(pos_dx, pos_dy);
-#endif
+    #ifdef HAS_NORMALS
+        vec3 ng = normalize(v_Normal);
+    #else
+        vec3 ng = cross(pos_dx, pos_dy);
+    #endif
 
     t = normalize(t - ng * dot(ng, t));
     vec3 b = normalize(cross(ng, t));

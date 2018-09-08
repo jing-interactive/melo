@@ -223,6 +223,7 @@ struct RootGLTF
     gl::TextureCubeMapRef irradianceTexture;
     gl::Texture2dRef brdfLUTTexture;
     bool flipV = true;
+    vec3 cameraPosition;
 
     SceneGLTF::Ref scene; // default scene
 };
