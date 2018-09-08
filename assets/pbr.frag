@@ -209,7 +209,7 @@ void main()
 
     // The albedo may be defined from a base texture or a flat color
 #ifdef HAS_BASECOLORMAP
-    vec4 baseColor = (texture2D(u_BaseColorSampler, v_UV)) * u_BaseColorFactor;
+    vec4 baseColor = (texture(u_BaseColorSampler, v_UV)) * u_BaseColorFactor;
 #else
     vec4 baseColor = u_BaseColorFactor;
 #endif
@@ -277,7 +277,7 @@ void main()
 #endif
 
 #ifdef HAS_EMISSIVEMAP
-    vec3 emissive = (texture2D(u_EmissiveSampler, v_UV)).rgb * u_EmissiveFactor;
+    vec3 emissive = (texture(u_EmissiveSampler, v_UV)).rgb * u_EmissiveFactor;
     color += emissive;
 #endif
 
