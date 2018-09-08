@@ -99,6 +99,7 @@ struct MaterialGLTF
 {
     typedef std::shared_ptr<MaterialGLTF> Ref;
     tinygltf::Material property;
+    RootGLTFRef rootGLTF;
 
     gl::GlslProgRef ciShader;
 
@@ -217,6 +218,11 @@ struct RootGLTF
     std::vector<TextureGLTF::Ref> textures;
 
     fs::path gltfPath;
+
+    gl::TextureCubeMapRef radianceTexture;
+    gl::TextureCubeMapRef irradianceTexture;
+    gl::Texture2dRef brdfLUTTexture;
+    bool flipV = true;
 
     SceneGLTF::Ref scene; // default scene
 };

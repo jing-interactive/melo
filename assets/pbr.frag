@@ -129,12 +129,12 @@ vec3 getNormal()
     vec3 getIBLContribution(PBRInfo pbrInputs, vec3 n, vec3 reflection)
     {
         float mipCount = 9.0; // resolution of 512x512
-        float lod = (pbrInputs.perceptualRoughness * mipCount);
         // retrieve a scale and bias to F0. See [1], Figure 3
         vec3 brdf = texture(u_brdfLUT, vec2(pbrInputs.NdotV, 1.0 - pbrInputs.perceptualRoughness)).rgb;
         vec3 diffuseLight = texture(u_DiffuseEnvSampler, n).rgb;
 
     #ifdef HAS_TEX_LOD
+        float lod = (pbrInputs.perceptualRoughness * mipCount);
         vec3 specularLight = textureLod(u_SpecularEnvSampler, reflection, lod).rgb;
     #else
         vec3 specularLight = texture(u_SpecularEnvSampler, reflection).rgb;
@@ -209,7 +209,7 @@ void main()
 
     // The albedo may be defined from a base texture or a flat color
 #ifdef HAS_BASECOLORMAP
-    vec4 baseColor = SRGBtoLINEAR(texture2D(u_BaseColorSampler, v_UV)) * u_BaseColorFactor;
+    vec4 baseColor = (texture2D(u_BaseColorSampler, v_UV)) * u_BaseColorFactor;
 #else
     vec4 baseColor = u_BaseColorFactor;
 #endif
@@ -277,10 +277,10 @@ void main()
 #endif
 
 #ifdef HAS_EMISSIVEMAP
-    vec3 emissive = SRGBtoLINEAR(texture2D(u_EmissiveSampler, v_UV)).rgb * u_EmissiveFactor;
+    vec3 emissive = (texture2D(u_EmissiveSampler, v_UV)).rgb * u_EmissiveFactor;
     color += emissive;
 #endif
 
-    oColor = baseColor;
-    // oColor = vec4(pow(color,vec3(1.0/2.2)), baseColor.a);
+    // oColor = vec4(ao, v_UV,1);
+    oColor = vec4(pow(color,vec3(1.0/2.2)), baseColor.a);
 }

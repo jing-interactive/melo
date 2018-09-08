@@ -15,6 +15,8 @@ uniform mat4 ciModelMatrix;
 out vec3 v_Position;
 out vec2 v_UV;
 
+uniform bool u_flipV = true;
+
 #ifdef HAS_NORMALS
     #ifdef HAS_TANGENTS
         out mat3 v_TBN;
@@ -42,6 +44,9 @@ void main()
 
     #ifdef HAS_UV
         v_UV = ciTexCoord0;
+        if (u_flipV) {
+            v_UV.t = 1.0 - v_UV.t;
+        }
     #else
         v_UV = vec2(0.,0.);
     #endif

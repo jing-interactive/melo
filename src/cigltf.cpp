@@ -1,5 +1,6 @@
 #include "cigltf.h"
 #include "AssetManager.h"
+#include "MiniConfig.h"
 #include "cinder/Log.h"
 
 using namespace std;
@@ -145,6 +146,10 @@ RootGLTFRef RootGLTF::create(const fs::path& gltfPath)
     ref->property = root;
     ref->gltfPath = gltfPath;
 
+    ref->radianceTexture = am::textureCubeMap(RADIANCE_TEX);
+    ref->irradianceTexture = am::textureCubeMap(IRRADIANCE_TEX);
+    ref->brdfLUTTexture = am::texture2d(BRDF_LUT_TEX);
+
     for (auto& item : root.buffers)
         ref->buffers.emplace_back(BufferGLTF::create(ref, item));
     for (auto& item : root.bufferViews)
@@ -184,7 +189,14 @@ RootGLTFRef RootGLTF::create(const fs::path& gltfPath)
 
 void RootGLTF::update() { scene->update(); }
 
-void RootGLTF::draw() { scene->draw(); }
+void RootGLTF::draw()
+{
+    gl::ScopedTextureBind scpRad(radianceTexture, 5);
+    gl::ScopedTextureBind scpIrr(irradianceTexture, 6);
+    gl::ScopedTextureBind scpBrdf(brdfLUTTexture, 7);
+
+    scene->draw(); 
+}
 
 void NodeGLTF::setup()
 {
@@ -295,6 +307,7 @@ MaterialGLTF::Ref MaterialGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Mat
 {
     MaterialGLTF::Ref ref = make_shared<MaterialGLTF>();
     ref->property = property;
+    ref->rootGLTF = rootGLTF;
 
     for (auto& kv : property.values)
     {
@@ -340,6 +353,9 @@ MaterialGLTF::Ref MaterialGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Mat
     if (ref->occlusionTexture)
         fmt.define("HAS_OCCLUSIONMAP");
 
+    if (rootGLTF->radianceTexture && rootGLTF->irradianceTexture && rootGLTF->brdfLUTTexture)
+        fmt.define("HAS_IBL");
+
     auto ciShader = am::glslProg("pbr.vert", "pbr.frag", fmt);
     CI_ASSERT_MSG(ciShader, "Shader compile fails");
     ref->ciShader = ciShader;
@@ -349,11 +365,16 @@ MaterialGLTF::Ref MaterialGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Mat
     auto uniformBlocks = ciShader->getActiveUniformBlocks();
     auto attribs = ciShader->getActiveAttributes();
 #endif
+
     ciShader->uniform("u_BaseColorSampler", 0);
     ciShader->uniform("u_NormalSampler", 1);
     ciShader->uniform("u_EmissiveSampler", 2);
     ciShader->uniform("u_MetallicRoughnessSampler", 3);
     ciShader->uniform("u_OcclusionSampler", 4);
+
+    ciShader->uniform("u_DiffuseEnvSampler", 5);
+    ciShader->uniform("u_SpecularEnvSampler", 6);
+    ciShader->uniform("u_brdfLUT", 7);
 
     CI_ASSERT_MSG(!ref->specularGlossinessTexture, "TODO: support SpecularGlossiness workflow");
 
@@ -362,6 +383,8 @@ MaterialGLTF::Ref MaterialGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Mat
 
 void MaterialGLTF::preDraw()
 {
+    ciShader->uniform("u_flipV", rootGLTF->flipV);
+
     ciShader->bind();
     if (baseColorTexture)
         baseColorTexture->preDraw(0);
@@ -519,8 +542,9 @@ TextureGLTF::Ref TextureGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Textu
     ref->property = property;
 
     ImageGLTF::Ref source = rootGLTF->images[property.source];
-    ref->ciTexture = gl::Texture2d::create(*source->surface);
-    ref->ciTexture->setLabel(property.name);
+    auto texFormat = gl::Texture2d::Format().mipmap();
+    ref->ciTexture = gl::Texture2d::create(*source->surface, texFormat);
+    ref->ciTexture->setLabel(source->property.uri);
 
     auto sampler = rootGLTF->samplers[property.sampler];
     ref->ciSampler = gl::Sampler::create(sampler->ciFormat);
