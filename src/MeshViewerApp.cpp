@@ -7,8 +7,6 @@
 #include "AssetManager.h"
 #include "MiniConfig.h"
 
-#include "Cinder-Nodes/include/Node3D.h"
-
 #include "cigltf.h"
 
 using namespace ci;
@@ -52,7 +50,6 @@ struct MeshViewerApp : public App
         });
 
         getSignalUpdate().connect([&] {
-            mRootGLTF->flipV = FLIP_V;
             mRootGLTF->flipV = FLIP_V;
             mRootGLTF->cameraPosition = mCam.getEyePoint();
             mRootGLTF->update();
