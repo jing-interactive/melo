@@ -1,6 +1,7 @@
 GROUP_DEF(App)
 ITEM_DEF(int, APP_WIDTH, 1024)
 ITEM_DEF(int, APP_HEIGHT, 768)
+ITEM_DEF(bool, XYZ_VISIBLE, false)
 
 GROUP_DEF(Model)
 ITEM_DEF(string, MESH_NAME, "Cube/Cube.gltf")

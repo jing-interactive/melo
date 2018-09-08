@@ -27,11 +27,9 @@ SamplerGLTF::Ref SamplerGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Sampl
     Ref ref = make_shared<SamplerGLTF>();
     ref->property = property;
 
-    ref->oglTexFormat.minFilter((GLenum)property.minFilter)
+    ref->ciFormat.minFilter((GLenum)property.minFilter)
         .magFilter((GLenum)property.magFilter)
-        .wrapS(property.wrapS)
-        .wrapT(property.wrapT)
-        .wrapR(property.wrapR);
+        .wrap(property.wrapS, property.wrapT, property.wrapR);
 
     return ref;
 }
@@ -43,7 +41,7 @@ void PrimitiveGLTF::draw()
         material->preDraw();
     }
 
-    gl::draw(oglVboMesh);
+    gl::draw(ciVboMesh);
 
     if (material)
     {
@@ -298,24 +296,97 @@ MaterialGLTF::Ref MaterialGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Mat
     MaterialGLTF::Ref ref = make_shared<MaterialGLTF>();
     ref->property = property;
 
-    auto fn = [&](TextureGLTF::Ref& tex, int idx) {
-        if (idx != -1)
-            tex = rootGLTF->textures[idx];
-    };
+    for (auto& kv : property.values)
+    {
+        if (kv.first == "baseColorTexture")
+            ref->baseColorTexture = rootGLTF->textures[kv.second.TextureIndex()];
+        if (kv.first == "metallicRoughnessTexture")
+            ref->metallicRoughnessTexture = rootGLTF->textures[kv.second.TextureIndex()];
 
-#if 0
-    // TODO: PBR
-    fn(ref->emissiveTexture, property.emissiveTexture.index);
-    fn(ref->normalTexture, property.normalTexture.index);
-    fn(ref->occlusionTexture, property.occlusionTexture.index);
+        if (kv.first == "diffuseTexture")
+            ref->diffuseTexture = rootGLTF->textures[kv.second.TextureIndex()];
+        if (kv.first == "specularGlossinessTexture")
+            ref->specularGlossinessTexture = rootGLTF->textures[kv.second.TextureIndex()];
+    }
 
-    fn(ref->baseColorTexture, property.pbrMetallicRoughness.baseColorTexture.index);
-    fn(ref->metallicRoughnessTexture, property.pbrMetallicRoughness.metallicRoughnessTexture.index);
+    for (auto& kv : property.additionalValues)
+    {
+        if (kv.first == "emissiveTexture")
+            ref->emissiveTexture = rootGLTF->textures[kv.second.TextureIndex()];
+        if (kv.first == "normalTexture")
+            ref->normalTexture = rootGLTF->textures[kv.second.TextureIndex()];
+        if (kv.first == "occlusionTexture")
+            ref->occlusionTexture = rootGLTF->textures[kv.second.TextureIndex()];
+    }
+
+    CI_ASSERT_MSG(property.extensions.empty(), "TODO: support Material::extensions");
+
+    auto fmt = gl::GlslProg::Format();
+    fmt.define("HAS_UV");
+    fmt.define("HAS_TANGENTS");
+    fmt.define("HAS_NORMALS");
+    if (ref->baseColorTexture)
+        fmt.define("HAS_BASECOLORMAP");
+    if (ref->metallicRoughnessTexture)
+        fmt.define("HAS_METALROUGHNESSMAP");
+    if (ref->diffuseTexture)
+        fmt.define("HAS_DIFFUSEMAP");
+    if (ref->specularGlossinessTexture)
+        fmt.define("HAS_SPECULARGLOSSINESSMAP");
+    if (ref->emissiveTexture)
+        fmt.define("HAS_EMISSIVEMAP");
+    if (ref->normalTexture)
+        fmt.define("HAS_NORMALMAP");
+    if (ref->occlusionTexture)
+        fmt.define("HAS_OCCLUSIONMAP");
+
+    auto ciShader = am::glslProg("pbr.vert", "pbr.frag", fmt);
+    CI_ASSERT_MSG(ciShader, "Shader compile fails");
+    ref->ciShader = ciShader;
+
+#ifndef NDEBUG
+    auto uniforms = ciShader->getActiveUniforms();
+    auto uniformBlocks = ciShader->getActiveUniformBlocks();
+    auto attribs = ciShader->getActiveAttributes();
 #endif
+    ciShader->uniform("u_BaseColorSampler", 0);
+    ciShader->uniform("u_NormalSampler", 1);
+    ciShader->uniform("u_EmissiveSampler", 2);
+    ciShader->uniform("u_MetallicRoughnessSampler", 3);
+    ciShader->uniform("u_OcclusionSampler", 4);
 
-    ref->oglShader = am::glslProg("lambert texture");
+    CI_ASSERT_MSG(!ref->specularGlossinessTexture, "TODO: support SpecularGlossiness workflow");
 
     return ref;
+}
+
+void MaterialGLTF::preDraw()
+{
+    ciShader->bind();
+    if (baseColorTexture)
+        baseColorTexture->preDraw(0);
+    if (normalTexture)
+        normalTexture->preDraw(1);
+    if (emissiveTexture)
+        emissiveTexture->preDraw(2);
+    if (metallicRoughnessTexture)
+        metallicRoughnessTexture->preDraw(3);
+    if (occlusionTexture)
+        occlusionTexture->preDraw(4);
+}
+
+void MaterialGLTF::postDraw()
+{
+    if (baseColorTexture)
+        baseColorTexture->postDraw();
+    if (normalTexture)
+        normalTexture->postDraw();
+    if (emissiveTexture)
+        emissiveTexture->postDraw();
+    if (metallicRoughnessTexture)
+        metallicRoughnessTexture->postDraw();
+    if (occlusionTexture)
+        occlusionTexture->postDraw();
 }
 
 geom::Attrib getAttribFromString(const string& str)
@@ -433,32 +504,49 @@ PrimitiveGLTF::Ref PrimitiveGLTF::create(RootGLTFRef rootGLTF, const tinygltf::P
         numVertices = acc->property.count;
     }
 
-    ref->oglVboMesh =
+    ref->ciVboMesh =
         gl::VboMesh::create(numVertices, oglPrimitiveMode, oglVboLayouts, indices->property.count,
                             (GLenum)indices->property.componentType, oglIndexVbo);
 
     return ref;
 }
 
+void PrimitiveGLTF::update() {}
+
 TextureGLTF::Ref TextureGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Texture& property)
 {
     TextureGLTF::Ref ref = make_shared<TextureGLTF>();
     ref->property = property;
 
-    SamplerGLTF::Ref sampler = rootGLTF->samplers[property.sampler];
     ImageGLTF::Ref source = rootGLTF->images[property.source];
+    ref->ciTexture = gl::Texture2d::create(*source->surface);
+    ref->ciTexture->setLabel(property.name);
 
-    // FIXME: ugly
-#if 0
-    auto oglTexFormat = sampler->oglTexFormat;
-    oglTexFormat.target((GLenum)property.target);
-    oglTexFormat.internalFormat((GLenum)property.internalFormat);
-    oglTexFormat.dataType((GLenum)property.type);
-#endif
+    auto sampler = rootGLTF->samplers[property.sampler];
+    ref->ciSampler = gl::Sampler::create(sampler->ciFormat);
+    ref->ciSampler->setLabel(sampler->property.name);
 
-    ref->oglTexture = gl::Texture2d::create(*source->surface);
+    ref->textureUnit = -1;
 
     return ref;
+}
+
+void TextureGLTF::preDraw(uint8_t texUnit)
+{
+    if (texUnit == -1) return;
+
+    textureUnit = texUnit;
+    ciTexture->bind(textureUnit);
+    ciSampler->bind(textureUnit);
+}
+
+void TextureGLTF::postDraw()
+{
+    if (textureUnit == -1) return;
+
+    ciTexture->unbind(textureUnit);
+    ciSampler->unbind(textureUnit);
+    textureUnit = -1;
 }
 
 BufferViewGLTF::Ref BufferViewGLTF::create(RootGLTFRef rootGLTF,
@@ -480,6 +568,7 @@ BufferViewGLTF::Ref BufferViewGLTF::create(RootGLTFRef rootGLTF,
     ref->cpuBuffer = Buffer::create(offsetedData, property.byteLength);
     ref->gpuBuffer = gl::Vbo::create((GLenum)property.target, ref->cpuBuffer->getSize(),
                                      ref->cpuBuffer->getData());
+    ref->gpuBuffer->setLabel(property.name);
 
     return ref;
 }

@@ -75,8 +75,7 @@ struct SamplerGLTF
     typedef std::shared_ptr<SamplerGLTF> Ref;
     tinygltf::Sampler property;
 
-    // TODO: support texture1d / 3d
-    gl::Texture2d::Format oglTexFormat;
+    gl::Sampler::Format ciFormat;
 
     static Ref create(RootGLTFRef rootGLTF, const tinygltf::Sampler& property);
 };
@@ -86,7 +85,12 @@ struct TextureGLTF
     typedef std::shared_ptr<TextureGLTF> Ref;
     tinygltf::Texture property;
 
-    gl::Texture2dRef oglTexture;
+    gl::Texture2dRef ciTexture;
+    gl::SamplerRef ciSampler;
+    uint8_t textureUnit;
+
+    void preDraw(uint8_t texUnit = 0);
+    void postDraw();
 
     static Ref create(RootGLTFRef rootGLTF, const tinygltf::Texture& property);
 };
@@ -96,21 +100,25 @@ struct MaterialGLTF
     typedef std::shared_ptr<MaterialGLTF> Ref;
     tinygltf::Material property;
 
-    gl::GlslProgRef oglShader;
+    gl::GlslProgRef ciShader;
 
     TextureGLTF::Ref emissiveTexture;
     TextureGLTF::Ref normalTexture;
     TextureGLTF::Ref occlusionTexture;
 
-    // PBR
+    // MetallicRoughness
     TextureGLTF::Ref baseColorTexture;
     TextureGLTF::Ref metallicRoughnessTexture;
 
+    // SpecularGlossiness
+    TextureGLTF::Ref diffuseTexture;
+    TextureGLTF::Ref specularGlossinessTexture;
+
     static Ref create(RootGLTFRef rootGLTF, const tinygltf::Material& property);
 
-    void preDraw() { oglShader->bind(); }
+    void preDraw();
 
-    void postDraw() {}
+    void postDraw();
 };
 
 struct PrimitiveGLTF
@@ -120,11 +128,11 @@ struct PrimitiveGLTF
 
     MaterialGLTF::Ref material;
 
-    gl::VboMeshRef oglVboMesh;
+    gl::VboMeshRef ciVboMesh;
 
     static Ref create(RootGLTFRef rootGLTF, const tinygltf::Primitive& property);
 
-    void update() {}
+    void update();
 
     void draw();
 };
