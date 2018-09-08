@@ -115,6 +115,16 @@ struct MaterialGLTF
     TextureGLTF::Ref diffuseTexture;
     TextureGLTF::Ref specularGlossinessTexture;
 
+    enum MaterialType
+    {
+        MATERIAL_PBR_METAL_ROUGHNESS,
+        MATERIAL_PBR_SPEC_GLOSSINESS,
+        MATERIAL_UNLIT,
+
+        MATERIAL_COUNT,
+    };
+    MaterialType materialType;
+
     static Ref create(RootGLTFRef rootGLTF, const tinygltf::Material& property);
 
     void preDraw();

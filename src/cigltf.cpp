@@ -213,7 +213,10 @@ NodeGLTF::Ref NodeGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Node& prope
     if (property.camera != -1)
         ref->camera = rootGLTF->cameras[property.camera];
     if (property.mesh != -1)
+    {
         ref->mesh = rootGLTF->meshes[property.mesh];
+        ref->setName(ref->mesh->property.name);
+    }
     if (property.skin != -1)
         ref->skin = rootGLTF->skins[property.skin];
 
@@ -237,7 +240,9 @@ NodeGLTF::Ref NodeGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Node& prope
                           (float)property.rotation[2]}); // (w, x, y, z)
     }
     ref->rootGLTF = rootGLTF;
-    ref->setName(property.name);
+
+    if (!property.name.empty())
+        ref->setName(property.name);
 
     return ref;
 }
@@ -332,7 +337,22 @@ MaterialGLTF::Ref MaterialGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Mat
             ref->occlusionTexture = rootGLTF->textures[kv.second.TextureIndex()];
     }
 
-    CI_ASSERT_MSG(property.extensions.empty(), "TODO: support Material::extensions");
+    ref->materialType = MATERIAL_PBR_METAL_ROUGHNESS;
+    for (auto& kv : property.extensions)
+    {
+        if (kv.first == "KHR_materials_unlit")
+        {
+            ref->materialType = MATERIAL_UNLIT;
+        }
+        else if (kv.first == "KHR_materials_pbrSpecularGlossiness")
+        {
+            ref->materialType = MATERIAL_PBR_SPEC_GLOSSINESS;
+        }
+        else
+        {
+            CI_ASSERT_MSG(0, "TODO: support more Material::extensions");
+        }
+    }
 
     auto fmt = gl::GlslProg::Format();
     fmt.define("HAS_UV");
@@ -359,7 +379,21 @@ MaterialGLTF::Ref MaterialGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Mat
         fmt.define("HAS_TEX_LOD");
     }
 
-    auto ciShader = am::glslProg("pbr.vert", "pbr.frag", fmt);
+    gl::GlslProgRef ciShader;
+    
+    if (ref->materialType == MATERIAL_PBR_METAL_ROUGHNESS)
+    {
+        ciShader = am::glslProg("pbr.vert", "pbr.frag", fmt);
+    }
+    else if (ref->materialType == MATERIAL_PBR_SPEC_GLOSSINESS)
+    {
+        ciShader = am::glslProg("pbr.vert", "pbr.frag", fmt);
+        CI_ASSERT_MSG(0, "TODO: support SpecularGlossiness workflow");
+    }
+    else if (ref->materialType == MATERIAL_UNLIT)
+    {
+        ciShader = am::glslProg("texture");
+    }
     CI_ASSERT_MSG(ciShader, "Shader compile fails");
     ref->ciShader = ciShader;
 
@@ -378,8 +412,6 @@ MaterialGLTF::Ref MaterialGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Mat
     ciShader->uniform("u_DiffuseEnvSampler", 5);
     ciShader->uniform("u_SpecularEnvSampler", 6);
     ciShader->uniform("u_brdfLUT", 7);
-
-    CI_ASSERT_MSG(!ref->specularGlossinessTexture, "TODO: support SpecularGlossiness workflow");
 
     return ref;
 }

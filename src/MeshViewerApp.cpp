@@ -41,8 +41,11 @@ struct MeshViewerApp : public App
         createConfigUI({400, 300});
         gl::enableDepth();
 
-        getWindow()->getSignalResize().connect(
-            [&] { mCam.setAspectRatio(getWindowAspectRatio()); });
+        getWindow()->getSignalResize().connect([&] {
+            APP_WIDTH = getWindowWidth();
+            APP_HEIGHT = getWindowHeight();
+            mCam.setAspectRatio(getWindowAspectRatio());
+        });
 
         getWindow()->getSignalKeyUp().connect([&](KeyEvent& event) {
             if (event.getCode() == KeyEvent::KEY_ESCAPE)
@@ -76,7 +79,7 @@ struct MeshViewerApp : public App
     }
 };
 
-CINDER_APP(MeshViewerApp, RendererGl, [](App::Settings* settings) {
+CINDER_APP(MeshViewerApp, RendererGl(RendererGl::Options().msaa(4)), [](App::Settings* settings) {
     readConfig();
     settings->setWindowSize(APP_WIDTH, APP_HEIGHT);
     settings->setMultiTouchEnabled(false);
