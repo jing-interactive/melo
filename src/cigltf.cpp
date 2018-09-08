@@ -354,7 +354,10 @@ MaterialGLTF::Ref MaterialGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Mat
         fmt.define("HAS_OCCLUSIONMAP");
 
     if (rootGLTF->radianceTexture && rootGLTF->irradianceTexture && rootGLTF->brdfLUTTexture)
+    {
         fmt.define("HAS_IBL");
+        fmt.define("HAS_TEX_LOD");
+    }
 
     auto ciShader = am::glslProg("pbr.vert", "pbr.frag", fmt);
     CI_ASSERT_MSG(ciShader, "Shader compile fails");

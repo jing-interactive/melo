@@ -17,6 +17,11 @@ using namespace std;
 
 struct MeshViewerApp : public App
 {
+    CameraPersp mCam;
+    CameraUi mCamUi;
+    gl::GlslProgRef mGlslProg;
+    gl::BatchRef mSkyBoxBatch;
+
     RootGLTFRef mRootGLTF;
 
     void setup() override
@@ -25,7 +30,14 @@ struct MeshViewerApp : public App
 
         mRootGLTF = RootGLTF::create(getAssetPath(MESH_NAME));
 
+        auto skyBoxShader = am::glslProg("SkyBox.vert", "SkyBox.frag");
+        skyBoxShader->uniform("uCubeMapTex", 0);
+
+        mSkyBoxBatch = gl::Batch::create(geom::Cube().size(vec3(100)), skyBoxShader);
+
         // mCam.lookAt(aabb.getMax() * 2.0f, aabb.getCenter());
+        mCam.setNearClip(1);
+        mCam.setFarClip(1000);
         mCamUi = CameraUi(&mCam, getWindow(), -1);
 
         createConfigUI({400, 300});
@@ -38,7 +50,6 @@ struct MeshViewerApp : public App
             if (event.getCode() == KeyEvent::KEY_ESCAPE)
                 quit();
         });
-
 
         getSignalUpdate().connect([&] {
             mRootGLTF->flipV = FLIP_V;
@@ -56,16 +67,16 @@ struct MeshViewerApp : public App
                 gl::drawCoordinateFrame(10, 0.1, 0.01);
             }
 
+            {
+                gl::ScopedTextureBind scpTex(mRootGLTF->radianceTexture, 0);
+                mSkyBoxBatch->draw();
+            }
+
             gl::setWireframeEnabled(WIRE_FRAME);
             mRootGLTF->draw();
             gl::disableWireframe();
         });
     }
-
-  private:
-    CameraPersp mCam;
-    CameraUi mCamUi;
-    gl::GlslProgRef mGlslProg;
 };
 
 CINDER_APP(MeshViewerApp, RendererGl, [](App::Settings* settings) {
