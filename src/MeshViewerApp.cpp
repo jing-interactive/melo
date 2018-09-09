@@ -27,6 +27,7 @@ struct MeshViewerApp : public App
         log::makeLogger<log::LoggerFile>();
 
         mRootGLTF = RootGLTF::create(getAssetPath(MESH_NAME));
+        if (!mRootGLTF) quit();
 
         auto skyBoxShader = am::glslProg("SkyBox.vert", "SkyBox.frag");
         skyBoxShader->uniform("uCubeMapTex", 0);
@@ -34,7 +35,7 @@ struct MeshViewerApp : public App
         mSkyBoxBatch = gl::Batch::create(geom::Cube().size(vec3(100)), skyBoxShader);
 
         // mCam.lookAt(aabb.getMax() * 2.0f, aabb.getCenter());
-        mCam.setNearClip(1);
+        mCam.setNearClip(0.1);
         mCam.setFarClip(1000);
         mCamUi = CameraUi(&mCam, getWindow(), -1);
 

@@ -119,6 +119,8 @@ struct MaterialGLTF
     TextureGLTF::Ref baseColorTexture;
     vec3 baseColorFacor;
     TextureGLTF::Ref metallicRoughnessTexture;
+    float metallicFactor = 1;
+    float roughnessFactor = 1;
 
     // SpecularGlossiness
     TextureGLTF::Ref diffuseTexture;
