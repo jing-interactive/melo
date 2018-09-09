@@ -32,14 +32,14 @@ struct MeshViewerApp : public App
         auto skyBoxShader = am::glslProg("SkyBox.vert", "SkyBox.frag");
         skyBoxShader->uniform("uCubeMapTex", 0);
 
-        mSkyBoxBatch = gl::Batch::create(geom::Cube().size(vec3(100)), skyBoxShader);
+        mSkyBoxBatch = gl::Batch::create(geom::Cube().size(vec3(400)), skyBoxShader);
 
-        // mCam.lookAt(aabb.getMax() * 2.0f, aabb.getCenter());
+        mCam.lookAt({ CAM_POS_X ,CAM_POS_Y, CAM_POS_Z }, vec3(), vec3(0, 1, 0));
         mCam.setNearClip(0.1);
         mCam.setFarClip(1000);
         mCamUi = CameraUi(&mCam, getWindow(), -1);
 
-        createConfigUI({400, 300});
+        createConfigUI({400, 400});
         gl::enableDepth();
 
         getWindow()->getSignalResize().connect([&] {
