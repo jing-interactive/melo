@@ -25,8 +25,25 @@ uniform vec3 u_LightColor = vec3(1.0, 1.0, 1.0);
     uniform sampler2D u_brdfLUT;
 #endif
 
-#ifdef HAS_BASECOLORMAP
-    uniform sampler2D u_BaseColorSampler;
+#ifdef PBR_SPECCULAR_GLOSSINESS_WORKFLOW
+    #ifdef HAS_DIFFUSEMAP
+        uniform sampler2D u_DiffuseSampler;
+    #endif
+
+    #ifdef HAS_SPECGLOSSINESSMAP
+        uniform sampler2D u_SpecularGlossinessSampler;
+    #endif
+    uniform vec4 u_SpecularGlossinessValues = vec4(1.0, 1.0, 1.0, 1.0);
+    uniform vec4 u_DiffuseFactor = vec4(1.0, 1.0, 1.0, 1.0);
+#else
+    #ifdef HAS_BASECOLORMAP
+        uniform sampler2D u_BaseColorSampler;
+    #endif
+    #ifdef HAS_METALROUGHNESSMAP
+        uniform sampler2D u_MetallicRoughnessSampler;
+    #endif
+    uniform vec2 u_MetallicRoughnessValues = vec2(1.0, 1.0);
+    uniform vec4 u_BaseColorFactor = vec4(1.0, 1.0, 1.0, 1.0);
 #endif
 
 #ifdef HAS_NORMALMAP
@@ -39,18 +56,15 @@ uniform vec3 u_LightColor = vec3(1.0, 1.0, 1.0);
     uniform vec3 u_EmissiveFactor       = vec3(0.1, 0.1, 0.1);
 #endif
 
-#ifdef HAS_METALROUGHNESSMAP
-    uniform sampler2D u_MetallicRoughnessSampler;
-#endif
-
 #ifdef HAS_OCCLUSIONMAP
     uniform sampler2D u_OcclusionSampler;
     uniform float u_OcclusionStrength   = 1.0;
 #endif
 
-uniform vec2 u_MetallicRoughnessValues = vec2(1.0, 1.0);
-uniform vec4 u_BaseColorFactor = vec4(1.0, 1.0, 1.0, 1.0);
 uniform vec3 u_Camera = vec3(1.0, 1.0, 1.0);
+
+// TODO: ifdef
+uniform float u_OcclusionFactor = 1.0;
 
 in vec3 v_Position;
 in vec2 v_UV;
@@ -82,9 +96,6 @@ struct PBRInfo
     vec3 diffuseColor;            // color contribution from diffuse lighting
     vec3 specularColor;           // color contribution from specular lighting
 };
-
-const float M_PI = 3.141592653589793;
-const float c_MinRoughness = 0.04;
 
 // Find the normal for this fragment, pulling either from a predefined normal map
 // or from the interpolated mesh normal and tangent attributes.
@@ -130,14 +141,14 @@ vec3 getNormal()
     {
         float mipCount = 9.0; // resolution of 512x512
         // retrieve a scale and bias to F0. See [1], Figure 3
-        vec3 brdf = texture(u_brdfLUT, vec2(pbrInputs.NdotV, 1.0 - pbrInputs.perceptualRoughness)).rgb;
-        vec3 diffuseLight = texture(u_DiffuseEnvSampler, n).rgb;
+        vec3 brdf = SRGBtoLINEAR(texture(u_brdfLUT, vec2(pbrInputs.NdotV, 1.0 - pbrInputs.perceptualRoughness))).rgb;
+        vec3 diffuseLight = SRGBtoLINEAR(texture(u_DiffuseEnvSampler, n)).rgb;
 
     #ifdef HAS_TEX_LOD
         float lod = (pbrInputs.perceptualRoughness * mipCount);
-        vec3 specularLight = textureLod(u_SpecularEnvSampler, reflection, lod).rgb;
+        vec3 specularLight = SRGBtoLINEAR(textureLod(u_SpecularEnvSampler, reflection, lod)).rgb;
     #else
-        vec3 specularLight = texture(u_SpecularEnvSampler, reflection).rgb;
+        vec3 specularLight = SRGBtoLINEAR(texture(u_SpecularEnvSampler, reflection)).rgb;
     #endif
 
         vec3 diffuse = diffuseLight * pbrInputs.diffuseColor;
@@ -189,34 +200,69 @@ float microfacetDistribution(PBRInfo pbrInputs)
 
 void main()
 {
-    // Metallic and Roughness material properties are packed together
-    // In glTF, these factors can be specified by fixed scalar values
-    // or from a metallic-roughness map
-    float perceptualRoughness = u_MetallicRoughnessValues.y;
-    float metallic = u_MetallicRoughnessValues.x;
-#ifdef HAS_METALROUGHNESSMAP
-    // Roughness is stored in the 'g' channel, metallic is stored in the 'b' channel.
-    // This layout intentionally reserves the 'r' channel for (optional) occlusion map data
-    vec4 mrSample = texture(u_MetallicRoughnessSampler, v_UV);
-    perceptualRoughness = mrSample.g * perceptualRoughness;
-    metallic = mrSample.b * metallic;
+    float perceptualRoughness;
+    float metallic;
+    vec3 diffuseColor;
+    vec4 baseColor;
+
+#ifdef PBR_SPECCULAR_GLOSSINESS_WORKFLOW
+    // Values from specular glossiness workflow are converted to metallic roughness
+    #ifdef HAS_SPECGLOSSINESSMAP
+        vec3 specular = SRGBtoLINEAR(texture(u_SpecularGlossinessSampler, v_UV)).rgb;
+        perceptualRoughness = 1.0 - texture(u_SpecularGlossinessSampler, v_UV).a;
+    #else
+        vec3 specular = u_SpecularGlossinessValues.rgb;
+        perceptualRoughness = 1.0 - u_SpecularGlossinessValues.a;
+    #endif
+
+    const float epsilon = 1e-6;
+
+    #ifdef HAS_BASECOLORMAP
+        // TODO: lacks diffuse factor
+        vec4 baseDiff = SRGBtoLINEAR(texture(u_DiffuseSampler, v_UV));
+    #else
+        vec4 baseDiff = u_DiffuseFactor;
+    #endif
+
+    float maxSpecular = max(max(specular.r, specular.g), specular.b);
+
+    // Convert metallic value from specular glossiness inputs
+    metallic = convertMetallic(baseDiff.rgb, specular, maxSpecular);
+
+    vec3 baseColorDiffusePart = baseDiff.rgb * ((1.0 - maxSpecular) / (1 - c_MinRoughness) / max(1 - metallic, epsilon)) * u_DiffuseFactor.rgb;
+    vec3 baseColorSpecularPart = specular - (vec3(c_MinRoughness) * (1 - metallic) * (1 / max(metallic, epsilon))) * u_SpecularGlossinessValues.rgb;
+    baseColor = vec4(mix(baseColorDiffusePart, baseColorSpecularPart, metallic * metallic), baseDiff.a);
+#else
+    #ifdef HAS_METALROUGHNESSMAP
+        // Metallic and Roughness material properties are packed together
+        // In glTF, these factors can be specified by fixed scalar values
+        // or from a metallic-roughness map
+        perceptualRoughness = u_MetallicRoughnessValues.y;
+        metallic = u_MetallicRoughnessValues.x;    
+        // Roughness is stored in the 'g' channel, metallic is stored in the 'b' channel.
+        // This layout intentionally reserves the 'r' channel for (optional) occlusion map data
+        vec4 mrSample = texture(u_MetallicRoughnessSampler, v_UV);
+        perceptualRoughness = mrSample.g * perceptualRoughness;
+        metallic = mrSample.b * metallic;
+    #endif
+        perceptualRoughness = clamp(perceptualRoughness, c_MinRoughness, 1.0);
+        metallic = clamp(metallic, 0.0, 1.0);
+
+        // The albedo may be defined from a base texture or a flat color
+    #ifdef HAS_BASECOLORMAP
+        baseColor = SRGBtoLINEAR(texture(u_BaseColorSampler, v_UV)) * u_BaseColorFactor;
+    #else
+        baseColor = u_BaseColorFactor;
+    #endif
 #endif
-    perceptualRoughness = clamp(perceptualRoughness, c_MinRoughness, 1.0);
-    metallic = clamp(metallic, 0.0, 1.0);
+    vec3 f0 = vec3(0.04);
+    diffuseColor = baseColor.rgb * (vec3(1.0) - f0);
+    diffuseColor *= 1.0 - metallic;
+
     // Roughness is authored as perceptual roughness; as is convention,
     // convert to material roughness by squaring the perceptual roughness [2].
     float alphaRoughness = perceptualRoughness * perceptualRoughness;
-
-    // The albedo may be defined from a base texture or a flat color
-#ifdef HAS_BASECOLORMAP
-    vec4 baseColor = (texture(u_BaseColorSampler, v_UV)) * u_BaseColorFactor;
-#else
-    vec4 baseColor = u_BaseColorFactor;
-#endif
-
-    vec3 f0 = vec3(0.04);
-    vec3 diffuseColor = baseColor.rgb * (vec3(1.0) - f0);
-    diffuseColor *= 1.0 - metallic;
+        
     vec3 specularColor = mix(f0, baseColor.rgb, metallic);
 
     // Compute reflectance.
@@ -277,7 +323,7 @@ void main()
 #endif
 
 #ifdef HAS_EMISSIVEMAP
-    vec3 emissive = (texture(u_EmissiveSampler, v_UV)).rgb * u_EmissiveFactor;
+    vec3 emissive = SRGBtoLINEAR(texture(u_EmissiveSampler, v_UV)).rgb * u_EmissiveFactor;
     color += emissive;
 #endif
 

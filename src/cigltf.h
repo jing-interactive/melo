@@ -103,17 +103,30 @@ struct MaterialGLTF
 
     gl::GlslProgRef ciShader;
 
+    bool doubleSided;
+
     TextureGLTF::Ref emissiveTexture;
+    vec3 emissiveFactor;
+
     TextureGLTF::Ref normalTexture;
+    int normalTextureCoord = 0;
+    float normalTextureScale;
+
     TextureGLTF::Ref occlusionTexture;
+    float occlusionFactor;
 
     // MetallicRoughness
     TextureGLTF::Ref baseColorTexture;
+    vec3 baseColorFacor;
     TextureGLTF::Ref metallicRoughnessTexture;
 
     // SpecularGlossiness
     TextureGLTF::Ref diffuseTexture;
+    int diffuseTextureCoord = 0;
+    vec4 diffuseFactor;
     TextureGLTF::Ref specularGlossinessTexture;
+    vec3 specularFactor;
+    float glossinessFactor;
 
     enum MaterialType
     {

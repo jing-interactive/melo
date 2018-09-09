@@ -314,39 +314,116 @@ MaterialGLTF::Ref MaterialGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Mat
     ref->property = property;
     ref->rootGLTF = rootGLTF;
 
+    ref->doubleSided = false;
+
     for (auto& kv : property.values)
     {
         if (kv.first == "baseColorTexture")
             ref->baseColorTexture = rootGLTF->textures[kv.second.TextureIndex()];
-        if (kv.first == "metallicRoughnessTexture")
+        else if (kv.first == "metallicRoughnessTexture")
             ref->metallicRoughnessTexture = rootGLTF->textures[kv.second.TextureIndex()];
-
-        if (kv.first == "diffuseTexture")
-            ref->diffuseTexture = rootGLTF->textures[kv.second.TextureIndex()];
-        if (kv.first == "specularGlossinessTexture")
-            ref->specularGlossinessTexture = rootGLTF->textures[kv.second.TextureIndex()];
     }
 
     for (auto& kv : property.additionalValues)
     {
         if (kv.first == "emissiveTexture")
             ref->emissiveTexture = rootGLTF->textures[kv.second.TextureIndex()];
-        if (kv.first == "normalTexture")
+        else if (kv.first == "normalTexture")
+        {
             ref->normalTexture = rootGLTF->textures[kv.second.TextureIndex()];
-        if (kv.first == "occlusionTexture")
+            ref->normalTextureScale = kv.second.Factor();
+            //ref->normalTextureCoord = kv.second.;
+        }
+        else if (kv.first == "occlusionTexture")
             ref->occlusionTexture = rootGLTF->textures[kv.second.TextureIndex()];
+        else if (kv.first == "doubleSided")
+            ref->doubleSided = kv.second.bool_value;
     }
 
     ref->materialType = MATERIAL_PBR_METAL_ROUGHNESS;
-    for (auto& kv : property.extensions)
+    for (auto& ext : property.extensions)
     {
-        if (kv.first == "KHR_materials_unlit")
+        if (ext.first == "KHR_materials_unlit")
         {
             ref->materialType = MATERIAL_UNLIT;
         }
-        else if (kv.first == "KHR_materials_pbrSpecularGlossiness")
+        else if (ext.first == "KHR_materials_pbrSpecularGlossiness")
         {
             ref->materialType = MATERIAL_PBR_SPEC_GLOSSINESS;
+            CI_ASSERT(ext.second.IsObject());
+            const auto& fields = ext.second.Get<tinygltf::Value::Object>();
+            for (auto& kv : fields)
+            {
+                if (kv.first == "diffuseTexture")
+                {
+                    CI_ASSERT(kv.second.IsObject());
+                    auto obj = kv.second.Get<tinygltf::Value::Object>();
+                    int index = obj["index"].Get<int>();
+                    ref->diffuseTexture = rootGLTF->textures[index];
+                    if (obj.find("texCoord") != obj.end())
+                    {
+                        ref->diffuseTextureCoord = obj["texCoord"].Get<int>();
+                    }
+                }
+                else if (kv.first == "specularGlossinessTexture")
+                {
+                    CI_ASSERT(kv.second.IsObject());
+                    auto obj = kv.second.Get<tinygltf::Value::Object>();
+                    int index = obj["index"].Get<int>();
+                    ref->specularGlossinessTexture = rootGLTF->textures[index];
+                    //if (obj.find("texCoord") != obj.end())
+                    //{
+                    //    ref->specularGlossinessTexture = obj["texCoord"].Get<int>();
+                    //}
+                }
+                else if (kv.first == "diffuseFactor")
+                {
+                    CI_ASSERT(kv.second.ArrayLen() == 4);
+                    auto& arr = kv.second.Get<vector<tinygltf::Value>>();
+                    if (arr[0].IsInt())
+                    {
+                        ref->diffuseFactor.r = arr[0].Get<int>();
+                        ref->diffuseFactor.g = arr[1].Get<int>();
+                        ref->diffuseFactor.b = arr[2].Get<int>();
+                        ref->diffuseFactor.a = arr[3].Get<int>();
+                    }
+                    else if (arr[0].IsNumber())
+                    {
+                        ref->diffuseFactor.r = arr[0].Get<double>();
+                        ref->diffuseFactor.g = arr[1].Get<double>();
+                        ref->diffuseFactor.b = arr[2].Get<double>();
+                        ref->diffuseFactor.a = arr[3].Get<double>();
+                    }
+                }
+                else if (kv.first == "specularFactor")
+                {
+                    CI_ASSERT(kv.second.ArrayLen() >= 3);
+                    auto& arr = kv.second.Get<vector<tinygltf::Value>>();
+                    if (arr[0].IsInt())
+                    {
+                        ref->specularFactor.r = arr[0].Get<int>();
+                        ref->specularFactor.g = arr[1].Get<int>();
+                        ref->specularFactor.b = arr[2].Get<int>();
+                    }
+                    else if (arr[0].IsNumber())
+                    {
+                        ref->specularFactor.r = arr[0].Get<double>();
+                        ref->specularFactor.g = arr[1].Get<double>();
+                        ref->specularFactor.b = arr[2].Get<double>();
+                    }
+                }
+                else if (kv.first == "glossinessFactor")
+                {
+                    if (kv.second.IsInt())
+                    {
+                        ref->glossinessFactor = kv.second.Get<int>();
+                    }
+                    else if (kv.second.IsNumber())
+                    {
+                        ref->glossinessFactor = kv.second.Get<double>();
+                    }
+                }
+            }
         }
         else
         {
@@ -380,15 +457,15 @@ MaterialGLTF::Ref MaterialGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Mat
     }
 
     gl::GlslProgRef ciShader;
-    
+
     if (ref->materialType == MATERIAL_PBR_METAL_ROUGHNESS)
     {
         ciShader = am::glslProg("pbr.vert", "pbr.frag", fmt);
     }
     else if (ref->materialType == MATERIAL_PBR_SPEC_GLOSSINESS)
     {
+        fmt.define("PBR_SPECCULAR_GLOSSINESS_WORKFLOW");
         ciShader = am::glslProg("pbr.vert", "pbr.frag", fmt);
-        CI_ASSERT_MSG(0, "TODO: support SpecularGlossiness workflow");
     }
     else if (ref->materialType == MATERIAL_UNLIT)
     {
@@ -403,10 +480,18 @@ MaterialGLTF::Ref MaterialGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Mat
     auto attribs = ciShader->getActiveAttributes();
 #endif
 
-    ciShader->uniform("u_BaseColorSampler", 0);
+    if (ref->materialType == MATERIAL_PBR_METAL_ROUGHNESS)
+    {
+        ciShader->uniform("u_BaseColorSampler", 0);
+        ciShader->uniform("u_MetallicRoughnessSampler", 3);
+    }
+    else if (ref->materialType == MATERIAL_PBR_SPEC_GLOSSINESS)
+    {
+        ciShader->uniform("u_DiffuseSampler", 0);
+        ciShader->uniform("u_SpecularGlossinessSampler", 3);
+    }
     ciShader->uniform("u_NormalSampler", 1);
     ciShader->uniform("u_EmissiveSampler", 2);
-    ciShader->uniform("u_MetallicRoughnessSampler", 3);
     ciShader->uniform("u_OcclusionSampler", 4);
 
     ciShader->uniform("u_DiffuseEnvSampler", 5);
