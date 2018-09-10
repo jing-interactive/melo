@@ -7,6 +7,7 @@
 #include "AssetManager.h"
 #include "MiniConfig.h"
 #include "cinder/params/Params.h"
+#include "cinder/Arcball.h"
 
 #include "cigltf.h"
 
@@ -18,6 +19,8 @@ struct MeshViewerApp : public App
 {
     CameraPersp mCam;
     CameraUi mCamUi;
+    Arcball mArcball;
+
     gl::GlslProgRef mGlslProg;
     gl::BatchRef mSkyBoxBatch;
     int mMeshFileId = -1;
@@ -54,8 +57,6 @@ struct MeshViewerApp : public App
         mSkyBoxBatch = gl::Batch::create(geom::Cube().size(vec3(400)), skyBoxShader);
 
         mCam.lookAt({ CAM_POS_X ,CAM_POS_Y, CAM_POS_Z }, vec3(), vec3(0, 1, 0));
-        mCam.setNearClip(0.1);
-        mCam.setFarClip(1000);
         mCamUi = CameraUi(&mCam, getWindow(), -1);
 
         mMeshFilenames = listGlTFFiles();
@@ -87,6 +88,8 @@ struct MeshViewerApp : public App
             CAM_POS_X = mCam.getEyePoint().x;
             CAM_POS_Y = mCam.getEyePoint().y;
             CAM_POS_Z = mCam.getEyePoint().z;
+            mCam.setNearClip(CAM_Z_NEAR);
+            mCam.setFarClip(CAM_Z_FAR);
 
             mRootGLTF->flipV = FLIP_V;
             mRootGLTF->cameraPosition = mCam.getEyePoint();
