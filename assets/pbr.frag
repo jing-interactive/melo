@@ -63,9 +63,6 @@ uniform vec3 u_LightColor = vec3(1.0, 1.0, 1.0);
 
 uniform vec3 u_Camera = vec3(1.0, 1.0, 1.0);
 
-// TODO: ifdef
-uniform float u_OcclusionFactor = 1.0;
-
 in vec3 v_Position;
 in vec2 v_UV;
 #ifdef HAS_NORMALS

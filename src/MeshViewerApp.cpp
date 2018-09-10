@@ -73,9 +73,12 @@ struct MeshViewerApp : public App
                 mSkyBoxBatch->draw();
             }
 
-            gl::setWireframeEnabled(WIRE_FRAME);
-            mRootGLTF->draw();
-            gl::disableWireframe();
+            {
+                gl::setWireframeEnabled(WIRE_FRAME);
+                mRootGLTF->currentScene->setScale(MESH_SCALE);
+                mRootGLTF->draw();
+                gl::disableWireframe();
+            }
         });
     }
 };

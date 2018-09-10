@@ -113,18 +113,6 @@ void NodeGLTF::draw()
     }
 }
 
-void SceneGLTF::update()
-{
-    for (auto& node : nodes)
-        node->treeUpdate();
-}
-
-void SceneGLTF::draw()
-{
-    for (auto& node : nodes)
-        node->treeDraw();
-}
-
 RootGLTFRef RootGLTF::create(const fs::path& gltfPath)
 {
     if (!fs::exists(gltfPath))
@@ -206,12 +194,12 @@ RootGLTFRef RootGLTF::create(const fs::path& gltfPath)
 
     if (root.defaultScene == -1)
         root.defaultScene = 0;
-    ref->scene = ref->scenes[root.defaultScene];
+    ref->currentScene = ref->scenes[root.defaultScene];
 
     return ref;
 }
 
-void RootGLTF::update() { scene->update(); }
+void RootGLTF::update() { currentScene->treeUpdate(); }
 
 void RootGLTF::draw()
 {
@@ -219,7 +207,7 @@ void RootGLTF::draw()
     gl::ScopedTextureBind scpIrr(irradianceTexture, 6);
     gl::ScopedTextureBind scpBrdf(brdfLUTTexture, 7);
 
-    scene->draw();
+    currentScene->treeDraw();
 }
 
 void NodeGLTF::setup()
@@ -274,11 +262,11 @@ NodeGLTF::Ref NodeGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Node& prope
 SceneGLTF::Ref SceneGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Scene& property)
 {
     SceneGLTF::Ref ref = make_shared<SceneGLTF>();
-    ref->property = property;
+    ref->sceneProperty = property;
 
     for (auto& item : property.nodes)
     {
-        ref->nodes.push_back(rootGLTF->nodes[item]);
+        ref->addChild(rootGLTF->nodes[item]);
     }
 
     return ref;
@@ -299,24 +287,16 @@ AccessorGLTF::Ref AccessorGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Acc
 
 ImageGLTF::Ref ImageGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Image& property)
 {
-
     ImageGLTF::Ref ref = make_shared<ImageGLTF>();
     ref->property = property;
 
 #if 0
     ref->surface = am::surface((rootGLTF->gltfPath.parent_path() / property.uri).string());
 #else
-    if (property.uri.empty())
-    {
-        CI_ASSERT_MSG(0, "TODO: support mimeType");
-    }
-    else
-    {
-        ref->surface = Surface::create((uint8_t*)property.image.data(), property.width,
-                                       property.height, property.width * property.component,
-                                       (property.component == 4) ? SurfaceChannelOrder::RGBA
-                                                                 : SurfaceChannelOrder::RGB);
-    }
+    ref->surface = Surface::create((uint8_t*)property.image.data(), property.width,
+                                    property.height, property.width * property.component,
+                                    (property.component == 4) ? SurfaceChannelOrder::RGBA
+                                                                : SurfaceChannelOrder::RGB);
 #endif
 
     return ref;
@@ -348,6 +328,11 @@ MaterialGLTF::Ref MaterialGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Mat
     {
         if (kv.first == "baseColorTexture")
             ref->baseColorTexture = rootGLTF->textures[kv.second.TextureIndex()];
+        else if (kv.first == "baseColorFactor")
+        {
+            CI_ASSERT(kv.second.number_array.size() == 4);
+            ref->baseColorFacor = glm::make_vec4(kv.second.number_array.data());
+        }
         else if (kv.first == "metallicRoughnessTexture")
             ref->metallicRoughnessTexture = rootGLTF->textures[kv.second.TextureIndex()];
         else if (kv.first == "metallicFactor")
@@ -360,6 +345,11 @@ MaterialGLTF::Ref MaterialGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Mat
     {
         if (kv.first == "emissiveTexture")
             ref->emissiveTexture = rootGLTF->textures[kv.second.TextureIndex()];
+        else if (kv.first == "emissiveFactor")
+        {
+            CI_ASSERT(kv.second.number_array.size() == 3);
+            ref->emissiveFactor = glm::make_vec3(kv.second.number_array.data());
+        }
         else if (kv.first == "normalTexture")
         {
             ref->normalTexture = rootGLTF->textures[kv.second.TextureIndex()];
@@ -411,7 +401,7 @@ MaterialGLTF::Ref MaterialGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Mat
                 else if (kv.first == "diffuseFactor")
                 {
                     CI_ASSERT(kv.second.ArrayLen() == 4);
-                    auto& arr = kv.second.Get<vector<tinygltf::Value>>();
+                    auto& arr = kv.second.Get<tinygltf::Value::Array>();
                     if (arr[0].IsInt())
                     {
                         ref->diffuseFactor.r = arr[0].Get<int>();
@@ -430,7 +420,7 @@ MaterialGLTF::Ref MaterialGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Mat
                 else if (kv.first == "specularFactor")
                 {
                     CI_ASSERT(kv.second.ArrayLen() >= 3);
-                    auto& arr = kv.second.Get<vector<tinygltf::Value>>();
+                    auto& arr = kv.second.Get<tinygltf::Value::Array>();
                     if (arr[0].IsInt())
                     {
                         ref->specularFactor.r = arr[0].Get<int>();
@@ -537,7 +527,16 @@ void MaterialGLTF::preDraw()
 {
     ciShader->uniform("u_flipV", rootGLTF->flipV);
     ciShader->uniform("u_Camera", rootGLTF->cameraPosition);
+
+    ciShader->uniform("u_SpecularGlossinessValues", vec4(specularFactor, glossinessFactor));
+    ciShader->uniform("u_DiffuseFactor", diffuseFactor);
+
     ciShader->uniform("u_MetallicRoughnessValues", vec2(metallicFactor, roughnessFactor));
+    ciShader->uniform("u_BaseColorFactor", baseColorFacor);
+
+    ciShader->uniform("u_NormalScale", normalTextureScale);
+    ciShader->uniform("u_EmissiveFactor", normalTextureScale);
+    ciShader->uniform("u_OcclusionStrength", occlusionStrength);
 
     ciShader->bind();
     if (baseColorTexture)

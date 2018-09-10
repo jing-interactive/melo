@@ -103,21 +103,21 @@ struct MaterialGLTF
 
     gl::GlslProgRef ciShader;
 
-    bool doubleSided;
+    bool doubleSided = false;
 
     TextureGLTF::Ref emissiveTexture;
-    vec3 emissiveFactor;
+    vec3 emissiveFactor = { 0,0,0 };
 
     TextureGLTF::Ref normalTexture;
     int normalTextureCoord = 0;
-    float normalTextureScale;
+    float normalTextureScale = 1;
 
     TextureGLTF::Ref occlusionTexture;
-    float occlusionFactor;
+    float occlusionStrength = 1;
 
     // MetallicRoughness
     TextureGLTF::Ref baseColorTexture;
-    vec3 baseColorFacor;
+    vec4 baseColorFacor = { 1,1,1,1 };
     TextureGLTF::Ref metallicRoughnessTexture;
     float metallicFactor = 1;
     float roughnessFactor = 1;
@@ -125,10 +125,10 @@ struct MaterialGLTF
     // SpecularGlossiness
     TextureGLTF::Ref diffuseTexture;
     int diffuseTextureCoord = 0;
-    vec4 diffuseFactor;
+    vec4 diffuseFactor = { 1,1,1,1 };
     TextureGLTF::Ref specularGlossinessTexture;
-    vec3 specularFactor;
-    float glossinessFactor;
+    vec3 specularFactor = { 1,1,1 };
+    float glossinessFactor = 1;
 
     enum MaterialType
     {
@@ -205,17 +205,12 @@ struct NodeGLTF : public nodes::Node3D
     void draw();
 };
 
-struct SceneGLTF
+struct SceneGLTF : public NodeGLTF
 {
     typedef std::shared_ptr<SceneGLTF> Ref;
-    tinygltf::Scene property;
-
-    std::vector<NodeGLTF::Ref> nodes; // The root nodes of a scene
+    tinygltf::Scene sceneProperty;
 
     static Ref create(RootGLTFRef rootGLTF, const tinygltf::Scene& property);
-
-    void update();
-    void draw();
 };
 
 struct RootGLTF
@@ -250,5 +245,5 @@ struct RootGLTF
     bool flipV = true;
     vec3 cameraPosition;
 
-    SceneGLTF::Ref scene; // default scene
+    SceneGLTF::Ref currentScene;
 };
