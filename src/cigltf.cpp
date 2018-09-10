@@ -163,6 +163,12 @@ RootGLTFRef RootGLTF::create(const fs::path& gltfPath)
     ref->irradianceTexture = am::textureCubeMap(IRRADIANCE_TEX);
     ref->brdfLUTTexture = am::texture2d(BRDF_LUT_TEX);
 
+    {
+        tinygltf::Material mtrl = { "default" };
+        mtrl.extensions["KHR_materials_unlit"] = {};
+        ref->fallbackMaterial = MaterialGLTF::create(ref, mtrl);
+    }
+
     for (auto& item : root.buffers)
         ref->buffers.emplace_back(BufferGLTF::create(ref, item));
     for (auto& item : root.bufferViews)
@@ -666,7 +672,14 @@ PrimitiveGLTF::Ref PrimitiveGLTF::create(RootGLTFRef rootGLTF, const tinygltf::P
     ref->property = property;
 
     AccessorGLTF::Ref indices = rootGLTF->accessors[property.indices];
-    ref->material = rootGLTF->materials[property.material];
+    if (property.material == -1)
+    {
+        ref->material = rootGLTF->fallbackMaterial;
+    }
+    else
+    {
+        ref->material = rootGLTF->materials[property.material];
+    }
 
     GLenum oglPrimitiveMode = (GLenum)property.mode;
     auto oglIndexVbo = indices->gpuBuffer;

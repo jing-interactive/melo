@@ -245,5 +245,7 @@ struct RootGLTF
     bool flipV = true;
     vec3 cameraPosition;
 
+    MaterialGLTF::Ref fallbackMaterial; // if (material == -1)
+
     SceneGLTF::Ref currentScene;
 };

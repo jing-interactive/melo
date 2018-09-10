@@ -6,6 +6,7 @@
 
 #include "AssetManager.h"
 #include "MiniConfig.h"
+#include "cinder/params/Params.h"
 
 #include "cigltf.h"
 
@@ -19,15 +20,33 @@ struct MeshViewerApp : public App
     CameraUi mCamUi;
     gl::GlslProgRef mGlslProg;
     gl::BatchRef mSkyBoxBatch;
+    int mMeshFileId = -1;
+    vector<string> mMeshFilenames;
 
     RootGLTFRef mRootGLTF;
+
+    vector<string> listGlTFFiles()
+    {
+        vector<string> files;
+        auto assetRoot = getAssetPath("");
+        for (auto& p : fs::recursive_directory_iterator(assetRoot, fs::directory_options::follow_directory_symlink))
+        {
+            auto& ext = p.path().extension();
+            if (ext == ".gltf" || ext == ".glb")
+            {
+                auto filename = p.path().generic_string();
+                filename.replace(filename.find(assetRoot.generic_string()), assetRoot.generic_string().size(), ""); // Lefe trim the assets prefix
+
+                files.push_back(filename);
+            }
+        }
+
+        return files;
+    }
 
     void setup() override
     {
         log::makeLogger<log::LoggerFile>();
-
-        mRootGLTF = RootGLTF::create(getAssetPath(MESH_NAME));
-        if (!mRootGLTF) quit();
 
         auto skyBoxShader = am::glslProg("SkyBox.vert", "SkyBox.frag");
         skyBoxShader->uniform("uCubeMapTex", 0);
@@ -39,7 +58,10 @@ struct MeshViewerApp : public App
         mCam.setFarClip(1000);
         mCamUi = CameraUi(&mCam, getWindow(), -1);
 
-        createConfigUI({400, 400});
+        mMeshFilenames = listGlTFFiles();
+        auto params = createConfigUI({ 400, 400 });
+        ADD_ENUM_TO_INT(params.get(), MESH_FILE_ID, mMeshFilenames);
+
         gl::enableDepth();
 
         getWindow()->getSignalResize().connect([&] {
@@ -54,6 +76,14 @@ struct MeshViewerApp : public App
         });
 
         getSignalUpdate().connect([&] {
+
+            if (mMeshFileId != MESH_FILE_ID)
+            {
+                mMeshFileId = MESH_FILE_ID;
+                mRootGLTF = RootGLTF::create(getAssetPath(mMeshFilenames[mMeshFileId]));
+                if (!mRootGLTF) quit();
+            }
+
             mRootGLTF->flipV = FLIP_V;
             mRootGLTF->cameraPosition = mCam.getEyePoint();
             mRootGLTF->update();
@@ -67,6 +97,8 @@ struct MeshViewerApp : public App
             {
                 gl::drawCoordinateFrame(10, 0.1, 0.01);
             }
+
+            if (!mRootGLTF) return;
 
             {
                 gl::ScopedTextureBind scpTex(mRootGLTF->radianceTexture, 0);
