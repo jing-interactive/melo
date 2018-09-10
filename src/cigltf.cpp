@@ -2,6 +2,7 @@
 #include "AssetManager.h"
 #include "MiniConfig.h"
 #include "cinder/Log.h"
+#include "cinder/app/App.h"
 #include <xutility>
 
 using namespace std;
@@ -31,7 +32,9 @@ SamplerGLTF::Ref SamplerGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Sampl
 
     ref->ciFormat.minFilter((GLenum)property.minFilter)
         .magFilter((GLenum)property.magFilter)
-        .wrap(property.wrapS, property.wrapT, property.wrapR);
+        .wrap(property.wrapS, property.wrapT, property.wrapR)
+        .label(property.name)
+        ;
 
     return ref;
 }
@@ -197,7 +200,11 @@ RootGLTFRef RootGLTF::create(const fs::path& gltfPath)
     for (auto& item : root.nodes)
         ref->nodes.emplace_back(NodeGLTF::create(ref, item));
     for (auto& item : root.scenes)
-        ref->scenes.emplace_back(SceneGLTF::create(ref, item));
+    {
+        auto scene = SceneGLTF::create(ref, item);
+        scene->setName(gltfPath.generic_string());
+        ref->scenes.emplace_back(scene);
+    }
 
     if (root.defaultScene == -1)
         root.defaultScene = 0;
@@ -287,6 +294,7 @@ AccessorGLTF::Ref AccessorGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Acc
     auto bufferView = rootGLTF->bufferViews[property.bufferView];
     ref->property = property;
     ref->byteStride = bufferView->property.byteStride;
+    ref->cpuBuffer = bufferView->cpuBuffer;
     ref->gpuBuffer = bufferView->gpuBuffer;
 
     return ref;
@@ -493,12 +501,20 @@ MaterialGLTF::Ref MaterialGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Mat
 
     if (ref->materialType == MATERIAL_PBR_METAL_ROUGHNESS)
     {
-        ciShader = am::glslProg("pbr.vert", "pbr.frag", fmt);
+        fmt.vertex(DataSourcePath::create(app::getAssetPath("pbr.vert")));
+        fmt.fragment(DataSourcePath::create(app::getAssetPath("pbr.frag")));
+        fmt.label("pbr.vert/pbr.frag");
+
+        ciShader = gl::GlslProg::create(fmt);
     }
     else if (ref->materialType == MATERIAL_PBR_SPEC_GLOSSINESS)
     {
         fmt.define("PBR_SPECCULAR_GLOSSINESS_WORKFLOW");
-        ciShader = am::glslProg("pbr.vert", "pbr.frag", fmt);
+        fmt.vertex(DataSourcePath::create(app::getAssetPath("pbr.vert")));
+        fmt.fragment(DataSourcePath::create(app::getAssetPath("pbr.frag")));
+        fmt.label("pbr.vert/pbr.frag");
+
+        ciShader = gl::GlslProg::create(fmt);
     }
     else if (ref->materialType == MATERIAL_UNLIT)
     {
@@ -549,6 +565,11 @@ void MaterialGLTF::preDraw()
     ciShader->uniform("u_EmissiveFactor", emissiveFactor);
     ciShader->uniform("u_OcclusionStrength", occlusionStrength);
 
+    if (doubleSided)
+    {
+        gl::enableFaceCulling(false);
+    }
+
     ciShader->bind();
     if (baseColorTexture)
         baseColorTexture->preDraw(0);
@@ -564,6 +585,11 @@ void MaterialGLTF::preDraw()
 
 void MaterialGLTF::postDraw()
 {
+    if (doubleSided)
+    {
+        gl::enableFaceCulling(true);
+    }
+
     if (baseColorTexture)
         baseColorTexture->postDraw();
     if (normalTexture)
@@ -605,6 +631,37 @@ geom::Attrib getAttribFromString(const string& str)
 
     CI_ASSERT_MSG(0, str.c_str());
     return geom::USER_DEFINED;
+}
+
+int32_t GetComponentSizeInBytes(uint32_t componentType) {
+    if (componentType == TINYGLTF_COMPONENT_TYPE_BYTE) {
+        return 1;
+    }
+    else if (componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE) {
+        return 1;
+    }
+    else if (componentType == TINYGLTF_COMPONENT_TYPE_SHORT) {
+        return 2;
+    }
+    else if (componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT) {
+        return 2;
+    }
+    else if (componentType == TINYGLTF_COMPONENT_TYPE_INT) {
+        return 4;
+    }
+    else if (componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT) {
+        return 4;
+    }
+    else if (componentType == TINYGLTF_COMPONENT_TYPE_FLOAT) {
+        return 4;
+    }
+    else if (componentType == TINYGLTF_COMPONENT_TYPE_DOUBLE) {
+        return 8;
+    }
+    else {
+        // Unknown componenty type
+        return -1;
+    }
 }
 
 geom::DataType getDataType(uint32_t componentType)
@@ -671,7 +728,6 @@ PrimitiveGLTF::Ref PrimitiveGLTF::create(RootGLTFRef rootGLTF, const tinygltf::P
     PrimitiveGLTF::Ref ref = make_shared<PrimitiveGLTF>();
     ref->property = property;
 
-    AccessorGLTF::Ref indices = rootGLTF->accessors[property.indices];
     if (property.material == -1)
     {
         ref->material = rootGLTF->fallbackMaterial;
@@ -682,8 +738,20 @@ PrimitiveGLTF::Ref PrimitiveGLTF::create(RootGLTFRef rootGLTF, const tinygltf::P
     }
 
     GLenum oglPrimitiveMode = (GLenum)property.mode;
-    auto oglIndexVbo = indices->gpuBuffer;
-    oglIndexVbo->setTarget(GL_ELEMENT_ARRAY_BUFFER);
+
+    AccessorGLTF::Ref indices = rootGLTF->accessors[property.indices];
+
+    gl::VboRef oglIndexVbo;
+    if (indices->property.byteOffset == 0)
+    {
+        oglIndexVbo = indices->gpuBuffer;
+        oglIndexVbo->setTarget(GL_ELEMENT_ARRAY_BUFFER);
+    }
+    else
+    {
+        int bytesPerUnit = GetComponentSizeInBytes(indices->property.componentType);
+        oglIndexVbo = gl::Vbo::create(GL_ELEMENT_ARRAY_BUFFER, bytesPerUnit * indices->property.count, (uint8_t*)indices->cpuBuffer->getData() + indices->property.byteOffset);
+    }
 
     vector<pair<geom::BufferLayout, gl::VboRef>> oglVboLayouts;
     size_t numVertices = 0;

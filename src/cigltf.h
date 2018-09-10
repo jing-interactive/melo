@@ -33,7 +33,7 @@ struct BufferViewGLTF
     typedef std::shared_ptr<BufferViewGLTF> Ref;
     tinygltf::BufferView property;
 
-    BufferRef cpuBuffer;
+    BufferRef cpuBuffer; // points to BufferGLTF::cpuBuffer 
     gl::VboRef gpuBuffer;
 
     static Ref create(RootGLTFRef rootGLTF, const tinygltf::BufferView& property);
@@ -43,8 +43,10 @@ struct AccessorGLTF
 {
     typedef std::shared_ptr<AccessorGLTF> Ref;
     tinygltf::Accessor property;
+
     int byteStride;       // from tinygltf::BufferView
-    gl::VboRef gpuBuffer; // points to BufferViewGLTF::gpuBuffer
+    BufferRef cpuBuffer;  // points to BufferViewGLTF::cpuBuffer 
+    gl::VboRef gpuBuffer; // points to BufferViewGLTF::gpuBuffer or re-create in case of offseted IBO
 
     static Ref create(RootGLTFRef rootGLTF, const tinygltf::Accessor& property);
 };
