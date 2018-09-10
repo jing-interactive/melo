@@ -402,7 +402,7 @@ MaterialGLTF::Ref MaterialGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Mat
                     CI_ASSERT(kv.second.IsObject());
                     auto obj = kv.second.Get<tinygltf::Value::Object>();
                     int index = obj["index"].Get<int>();
-                    ref->diffuseTexture = rootGLTF->textures[index];
+                    ref->baseColorTexture = rootGLTF->textures[index];
                     if (obj.find("texCoord") != obj.end())
                     {
                         ref->diffuseTextureCoord = obj["texCoord"].Get<int>();
@@ -413,7 +413,7 @@ MaterialGLTF::Ref MaterialGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Mat
                     CI_ASSERT(kv.second.IsObject());
                     auto obj = kv.second.Get<tinygltf::Value::Object>();
                     int index = obj["index"].Get<int>();
-                    ref->specularGlossinessTexture = rootGLTF->textures[index];
+                    ref->metallicRoughnessTexture = rootGLTF->textures[index];
                     // if (obj.find("texCoord") != obj.end())
                     //{
                     //    ref->specularGlossinessTexture = obj["texCoord"].Get<int>();
@@ -479,13 +479,9 @@ MaterialGLTF::Ref MaterialGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Mat
     fmt.define("HAS_TANGENTS");
     fmt.define("HAS_NORMALS");
     if (ref->baseColorTexture)
-        fmt.define("HAS_BASECOLORMAP");
+        fmt.define(ref->materialType == MATERIAL_PBR_METAL_ROUGHNESS ? "HAS_BASECOLORMAP" : "HAS_DIFFUSEMAP");
     if (ref->metallicRoughnessTexture)
-        fmt.define("HAS_METALROUGHNESSMAP");
-    if (ref->diffuseTexture)
-        fmt.define("HAS_DIFFUSEMAP");
-    if (ref->specularGlossinessTexture)
-        fmt.define("HAS_SPECULARGLOSSINESSMAP");
+        fmt.define(ref->materialType == MATERIAL_PBR_METAL_ROUGHNESS ? "HAS_METALROUGHNESSMAP" : "HAS_SPECULARGLOSSINESSMAP");
     if (ref->emissiveTexture)
         fmt.define("HAS_EMISSIVEMAP");
     if (ref->normalTexture)
@@ -567,9 +563,19 @@ void MaterialGLTF::preDraw()
     ciShader->uniform("u_EmissiveFactor", emissiveFactor);
     ciShader->uniform("u_OcclusionStrength", occlusionStrength);
 
+    auto ctx = gl::context();
     if (doubleSided)
     {
-        gl::enableFaceCulling(false);
+        ctx->pushBoolState(GL_CULL_FACE, false);
+    }
+    if (alphaMode == OPAQUE)
+    {
+        ctx->pushBoolState(GL_BLEND, false);
+    }
+    else
+    {
+        ctx->pushBoolState(GL_BLEND, true);
+        ctx->pushBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
 
     ciShader->bind();
@@ -589,7 +595,12 @@ void MaterialGLTF::postDraw()
 {
     if (doubleSided)
     {
-        gl::enableFaceCulling(true);
+        gl::context()->popBoolState(GL_CULL_FACE);
+    }
+    gl::context()->popBoolState(GL_BLEND);
+    if (alphaMode != OPAQUE)
+    {
+        gl::context()->popBlendFuncSeparate();
     }
 
     if (baseColorTexture)

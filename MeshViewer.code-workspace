@@ -18,7 +18,8 @@
       "xiosbase": "cpp",
       "array": "cpp",
       "tuple": "cpp",
-      "utility": "cpp"
+      "utility": "cpp",
+      "functional": "cpp"
     },
     "git.ignoreLimitWarning": true
   }

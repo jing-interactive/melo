@@ -35,7 +35,7 @@ struct MeshViewerApp : public App
             if (ext == ".gltf" || ext == ".glb")
             {
                 auto filename = p.path().generic_string();
-                filename.replace(filename.find(assetRoot.generic_string()), assetRoot.generic_string().size(), ""); // Lefe trim the assets prefix
+                filename.replace(filename.find(assetRoot.generic_string()), assetRoot.generic_string().size(), ""); // Left trim the assets prefix
 
                 files.push_back(filename);
             }
@@ -83,6 +83,10 @@ struct MeshViewerApp : public App
                 mRootGLTF = RootGLTF::create(getAssetPath(mMeshFilenames[mMeshFileId]));
                 if (!mRootGLTF) quit();
             }
+
+            CAM_POS_X = mCam.getEyePoint().x;
+            CAM_POS_Y = mCam.getEyePoint().y;
+            CAM_POS_Z = mCam.getEyePoint().z;
 
             mRootGLTF->flipV = FLIP_V;
             mRootGLTF->cameraPosition = mCam.getEyePoint();

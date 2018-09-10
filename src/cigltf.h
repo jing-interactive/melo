@@ -107,6 +107,15 @@ struct MaterialGLTF
 
     bool doubleSided = false;
 
+    enum AlphaMode
+    {
+        OPAQUE,
+        MASK,
+        BLEND,
+    };
+    AlphaMode alphaMode = OPAQUE;
+    float alphaCutoff = 0.5f;
+
     TextureGLTF::Ref emissiveTexture;
     vec3 emissiveFactor = {0, 0, 0};
 
@@ -125,10 +134,10 @@ struct MaterialGLTF
     float roughnessFactor = 1;
 
     // SpecularGlossiness
-    TextureGLTF::Ref diffuseTexture;
+    //TextureGLTF::Ref diffuseTexture;
     int diffuseTextureCoord = 0;
     vec4 diffuseFactor = {1, 1, 1, 1};
-    TextureGLTF::Ref specularGlossinessTexture;
+    //TextureGLTF::Ref specularGlossinessTexture;
     vec3 specularFactor = {1, 1, 1};
     float glossinessFactor = 1;
 

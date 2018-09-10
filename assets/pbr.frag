@@ -214,9 +214,8 @@ void main()
 
     const float epsilon = 1e-6;
 
-    #ifdef HAS_BASECOLORMAP
-        // TODO: lacks diffuse factor
-        vec4 baseDiff = SRGBtoLINEAR(texture(u_DiffuseSampler, v_UV));
+    #ifdef HAS_DIFFUSEMAP
+        vec4 baseDiff = SRGBtoLINEAR(texture(u_DiffuseSampler, v_UV)) * u_DiffuseFactor;
     #else
         vec4 baseDiff = u_DiffuseFactor;
     #endif
