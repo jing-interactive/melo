@@ -2,6 +2,7 @@
 #include "AssetManager.h"
 #include "MiniConfig.h"
 #include "cinder/Log.h"
+#include <xutility>
 
 using namespace std;
 
@@ -118,7 +119,7 @@ RootGLTFRef RootGLTF::create(const fs::path& gltfPath)
     if (!fs::exists(gltfPath))
     {
         CI_LOG_F("File doesn't exist: ") << gltfPath;
-        return{};
+        return {};
     }
     tinygltf::TinyGLTF loader;
     tinygltf::Model root;
@@ -151,7 +152,7 @@ RootGLTFRef RootGLTF::create(const fs::path& gltfPath)
     if (!ret)
     {
         CI_LOG_F("Failed to load .glTF") << gltfPath;
-        return{};
+        return {};
     }
 
     RootGLTFRef ref = make_shared<RootGLTF>();
@@ -203,8 +204,8 @@ void RootGLTF::update() { currentScene->treeUpdate(); }
 
 void RootGLTF::draw()
 {
-    gl::ScopedTextureBind scpRad(radianceTexture, 5);
-    gl::ScopedTextureBind scpIrr(irradianceTexture, 6);
+    gl::ScopedTextureBind scpIrr(irradianceTexture, 5);
+    gl::ScopedTextureBind scpRad(radianceTexture, 6);
     gl::ScopedTextureBind scpBrdf(brdfLUTTexture, 7);
 
     currentScene->treeDraw();
@@ -293,10 +294,10 @@ ImageGLTF::Ref ImageGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Image& pr
 #if 0
     ref->surface = am::surface((rootGLTF->gltfPath.parent_path() / property.uri).string());
 #else
-    ref->surface = Surface::create((uint8_t*)property.image.data(), property.width,
-                                    property.height, property.width * property.component,
-                                    (property.component == 4) ? SurfaceChannelOrder::RGBA
-                                                                : SurfaceChannelOrder::RGB);
+    ref->surface = Surface::create((uint8_t*)property.image.data(), property.width, property.height,
+                                   property.width * property.component,
+                                   (property.component == 4) ? SurfaceChannelOrder::RGBA
+                                                             : SurfaceChannelOrder::RGB);
 #endif
 
     return ref;
@@ -353,8 +354,12 @@ MaterialGLTF::Ref MaterialGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Mat
         else if (kv.first == "normalTexture")
         {
             ref->normalTexture = rootGLTF->textures[kv.second.TextureIndex()];
-            ref->normalTextureScale = kv.second.Factor();
-            //ref->normalTextureCoord = kv.second.;
+            auto& jsonValues = kv.second.json_double_value;
+            auto it = jsonValues.find("scale");
+            if (it != std::end(jsonValues))
+            {
+                ref->normalTextureScale = it->second;
+            }
         }
         else if (kv.first == "occlusionTexture")
             ref->occlusionTexture = rootGLTF->textures[kv.second.TextureIndex()];
@@ -393,7 +398,7 @@ MaterialGLTF::Ref MaterialGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Mat
                     auto obj = kv.second.Get<tinygltf::Value::Object>();
                     int index = obj["index"].Get<int>();
                     ref->specularGlossinessTexture = rootGLTF->textures[index];
-                    //if (obj.find("texCoord") != obj.end())
+                    // if (obj.find("texCoord") != obj.end())
                     //{
                     //    ref->specularGlossinessTexture = obj["texCoord"].Get<int>();
                     //}
@@ -535,7 +540,7 @@ void MaterialGLTF::preDraw()
     ciShader->uniform("u_BaseColorFactor", baseColorFacor);
 
     ciShader->uniform("u_NormalScale", normalTextureScale);
-    ciShader->uniform("u_EmissiveFactor", normalTextureScale);
+    ciShader->uniform("u_EmissiveFactor", emissiveFactor);
     ciShader->uniform("u_OcclusionStrength", occlusionStrength);
 
     ciShader->bind();
@@ -696,7 +701,8 @@ TextureGLTF::Ref TextureGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Textu
     ref->property = property;
 
     ImageGLTF::Ref source = rootGLTF->images[property.source];
-    auto texFormat = gl::Texture2d::Format().mipmap();
+    auto texFormat =
+        gl::Texture2d::Format().mipmap().minFilter(GL_LINEAR_MIPMAP_LINEAR).wrap(GL_REPEAT);
     ref->ciTexture = gl::Texture2d::create(*source->surface, texFormat);
     ref->ciTexture->setLabel(source->property.uri);
 
@@ -719,7 +725,8 @@ void TextureGLTF::preDraw(uint8_t texUnit)
 
     textureUnit = texUnit;
     ciTexture->bind(textureUnit);
-    if (ciSampler) ciSampler->bind(textureUnit);
+    if (ciSampler)
+        ciSampler->bind(textureUnit);
 }
 
 void TextureGLTF::postDraw()
@@ -728,7 +735,8 @@ void TextureGLTF::postDraw()
         return;
 
     ciTexture->unbind(textureUnit);
-    if (ciSampler) ciSampler->unbind(textureUnit);
+    if (ciSampler)
+        ciSampler->unbind(textureUnit);
     textureUnit = -1;
 }
 
@@ -755,8 +763,8 @@ BufferViewGLTF::Ref BufferViewGLTF::create(RootGLTFRef rootGLTF,
     }
 
     ref->cpuBuffer = Buffer::create(offsetedData, property.byteLength);
-    ref->gpuBuffer = gl::Vbo::create(boundTarget, ref->cpuBuffer->getSize(),
-                                     ref->cpuBuffer->getData());
+    ref->gpuBuffer =
+        gl::Vbo::create(boundTarget, ref->cpuBuffer->getSize(), ref->cpuBuffer->getData());
     ref->gpuBuffer->setLabel(property.name);
 
     return ref;

@@ -106,7 +106,7 @@ struct MaterialGLTF
     bool doubleSided = false;
 
     TextureGLTF::Ref emissiveTexture;
-    vec3 emissiveFactor = { 0,0,0 };
+    vec3 emissiveFactor = {0, 0, 0};
 
     TextureGLTF::Ref normalTexture;
     int normalTextureCoord = 0;
@@ -117,7 +117,7 @@ struct MaterialGLTF
 
     // MetallicRoughness
     TextureGLTF::Ref baseColorTexture;
-    vec4 baseColorFacor = { 1,1,1,1 };
+    vec4 baseColorFacor = {1, 1, 1, 1};
     TextureGLTF::Ref metallicRoughnessTexture;
     float metallicFactor = 1;
     float roughnessFactor = 1;
@@ -125,9 +125,9 @@ struct MaterialGLTF
     // SpecularGlossiness
     TextureGLTF::Ref diffuseTexture;
     int diffuseTextureCoord = 0;
-    vec4 diffuseFactor = { 1,1,1,1 };
+    vec4 diffuseFactor = {1, 1, 1, 1};
     TextureGLTF::Ref specularGlossinessTexture;
-    vec3 specularFactor = { 1,1,1 };
+    vec3 specularFactor = {1, 1, 1};
     float glossinessFactor = 1;
 
     enum MaterialType

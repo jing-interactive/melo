@@ -53,7 +53,7 @@ uniform vec3 u_LightColor = vec3(1.0, 1.0, 1.0);
 
 #ifdef HAS_EMISSIVEMAP
     uniform sampler2D u_EmissiveSampler;
-    uniform vec3 u_EmissiveFactor       = vec3(0.1, 0.1, 0.1);
+    uniform vec3 u_EmissiveFactor       = vec3(1.0, 1.0, 1.0);
 #endif
 
 #ifdef HAS_OCCLUSIONMAP
