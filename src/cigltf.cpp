@@ -33,8 +33,7 @@ SamplerGLTF::Ref SamplerGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Sampl
     ref->ciFormat.minFilter((GLenum)property.minFilter)
         .magFilter((GLenum)property.magFilter)
         .wrap(property.wrapS, property.wrapT, property.wrapR)
-        .label(property.name)
-        ;
+        .label(property.name);
 
     return ref;
 }
@@ -167,7 +166,7 @@ RootGLTFRef RootGLTF::create(const fs::path& gltfPath)
     ref->brdfLUTTexture = am::texture2d(BRDF_LUT_TEX);
 
     {
-        tinygltf::Material mtrl = { "default" };
+        tinygltf::Material mtrl = {"default"};
         mtrl.extensions["KHR_materials_unlit"] = {};
         ref->fallbackMaterial = MaterialGLTF::create(ref, mtrl);
     }
@@ -261,9 +260,12 @@ NodeGLTF::Ref NodeGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Node& prope
     }
     if (!property.rotation.empty())
     {
-        ref->setRotation({(float)property.rotation[3], (float)property.rotation[0],
-                          (float)property.rotation[1],
-                          (float)property.rotation[2]}); // (w, x, y, z)
+        ref->setRotation({
+            (float)property.rotation[0],
+            (float)property.rotation[1],
+            (float)property.rotation[2],
+            (float)property.rotation[3],
+        });
     }
     ref->rootGLTF = rootGLTF;
 
@@ -633,32 +635,42 @@ geom::Attrib getAttribFromString(const string& str)
     return geom::USER_DEFINED;
 }
 
-int32_t GetComponentSizeInBytes(uint32_t componentType) {
-    if (componentType == TINYGLTF_COMPONENT_TYPE_BYTE) {
+int32_t GetComponentSizeInBytes(uint32_t componentType)
+{
+    if (componentType == TINYGLTF_COMPONENT_TYPE_BYTE)
+    {
         return 1;
     }
-    else if (componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE) {
+    else if (componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE)
+    {
         return 1;
     }
-    else if (componentType == TINYGLTF_COMPONENT_TYPE_SHORT) {
+    else if (componentType == TINYGLTF_COMPONENT_TYPE_SHORT)
+    {
         return 2;
     }
-    else if (componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT) {
+    else if (componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT)
+    {
         return 2;
     }
-    else if (componentType == TINYGLTF_COMPONENT_TYPE_INT) {
+    else if (componentType == TINYGLTF_COMPONENT_TYPE_INT)
+    {
         return 4;
     }
-    else if (componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT) {
+    else if (componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT)
+    {
         return 4;
     }
-    else if (componentType == TINYGLTF_COMPONENT_TYPE_FLOAT) {
+    else if (componentType == TINYGLTF_COMPONENT_TYPE_FLOAT)
+    {
         return 4;
     }
-    else if (componentType == TINYGLTF_COMPONENT_TYPE_DOUBLE) {
+    else if (componentType == TINYGLTF_COMPONENT_TYPE_DOUBLE)
+    {
         return 8;
     }
-    else {
+    else
+    {
         // Unknown componenty type
         return -1;
     }
@@ -750,7 +762,9 @@ PrimitiveGLTF::Ref PrimitiveGLTF::create(RootGLTFRef rootGLTF, const tinygltf::P
     else
     {
         int bytesPerUnit = GetComponentSizeInBytes(indices->property.componentType);
-        oglIndexVbo = gl::Vbo::create(GL_ELEMENT_ARRAY_BUFFER, bytesPerUnit * indices->property.count, (uint8_t*)indices->cpuBuffer->getData() + indices->property.byteOffset);
+        oglIndexVbo =
+            gl::Vbo::create(GL_ELEMENT_ARRAY_BUFFER, bytesPerUnit * indices->property.count,
+                            (uint8_t*)indices->cpuBuffer->getData() + indices->property.byteOffset);
     }
 
     vector<pair<geom::BufferLayout, gl::VboRef>> oglVboLayouts;
