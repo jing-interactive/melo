@@ -77,7 +77,7 @@ struct SamplerGLTF
     typedef std::shared_ptr<SamplerGLTF> Ref;
     tinygltf::Sampler property;
 
-    gl::Sampler::Format ciFormat;
+    gl::SamplerRef ciSampler;
 
     static Ref create(RootGLTFRef rootGLTF, const tinygltf::Sampler& property);
 };
@@ -88,7 +88,7 @@ struct TextureGLTF
     tinygltf::Texture property;
 
     gl::Texture2dRef ciTexture;
-    gl::SamplerRef ciSampler;
+    gl::SamplerRef ciSampler; // points to SamplerGLTF::ciSampler
     uint8_t textureUnit;
 
     void preDraw(uint8_t texUnit = 0);

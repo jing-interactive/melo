@@ -30,10 +30,14 @@ SamplerGLTF::Ref SamplerGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Sampl
     Ref ref = make_shared<SamplerGLTF>();
     ref->property = property;
 
-    ref->ciFormat.minFilter((GLenum)property.minFilter)
+    auto fmt = gl::Sampler::Format()
+        .minFilter((GLenum)property.minFilter)
         .magFilter((GLenum)property.magFilter)
         .wrap(property.wrapS, property.wrapT, property.wrapR)
-        .label(property.name);
+        .label(property.name)
+        ;
+    ref->ciSampler = gl::Sampler::create(fmt);
+    ref->ciSampler->setLabel(property.name);
 
     return ref;
 }
@@ -819,8 +823,7 @@ TextureGLTF::Ref TextureGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Textu
     if (property.sampler != -1)
     {
         auto sampler = rootGLTF->samplers[property.sampler];
-        ref->ciSampler = gl::Sampler::create(sampler->ciFormat);
-        ref->ciSampler->setLabel(sampler->property.name);
+        ref->ciSampler = sampler->ciSampler;
     }
 
     ref->textureUnit = -1;
