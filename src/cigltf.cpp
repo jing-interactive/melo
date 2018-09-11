@@ -3,7 +3,6 @@
 #include "MiniConfig.h"
 #include "cinder/Log.h"
 #include "cinder/app/App.h"
-#include <xutility>
 
 using namespace std;
 
@@ -376,7 +375,7 @@ MaterialGLTF::Ref MaterialGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Mat
             ref->normalTexture = rootGLTF->textures[kv.second.TextureIndex()];
             auto& jsonValues = kv.second.json_double_value;
             auto it = jsonValues.find("scale");
-            if (it != std::end(jsonValues))
+            if (it != jsonValues.end())
             {
                 ref->normalTextureScale = it->second;
             }

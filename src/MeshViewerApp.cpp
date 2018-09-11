@@ -32,9 +32,13 @@ struct MeshViewerApp : public App
     {
         vector<string> files;
         auto assetRoot = getAssetPath("");
-        for (auto& p : fs::recursive_directory_iterator(assetRoot, fs::directory_options::follow_directory_symlink))
+        for (auto& p : fs::recursive_directory_iterator(assetRoot
+#ifdef CINDER_MSW_DESKTOP
+                                                        , fs::directory_options::follow_directory_symlink
+#endif
+            ))
         {
-            auto& ext = p.path().extension();
+            auto ext = p.path().extension();
             if (ext == ".gltf" || ext == ".glb")
             {
                 auto filename = p.path().generic_string();
