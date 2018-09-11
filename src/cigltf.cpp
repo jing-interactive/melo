@@ -516,7 +516,11 @@ MaterialGLTF::Ref MaterialGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Mat
     }
     else if (ref->materialType == MATERIAL_UNLIT)
     {
-        ciShader = am::glslProg("texture");
+        fmt.vertex(DataSourcePath::create(app::getAssetPath("pbr.vert")));
+        fmt.fragment(DataSourcePath::create(app::getAssetPath("unlit.frag")));
+        fmt.label("pbr.vert/unlit.frag");
+
+        ciShader = gl::GlslProg::create(fmt);
     }
     CI_ASSERT_MSG(ciShader, "Shader compile fails");
     ref->ciShader = ciShader;
