@@ -10,13 +10,36 @@ MeshObj::Ref MeshObj::create(RootObjRef rootObj, const tinyobj::shape_t& propert
 {
     auto ref = make_shared<MeshObj>();
     ref->property = property;
+    ref->setName(property.name);
+
+    TriMesh::Format fmt;
+    if (!rootObj->attrib.vertices.empty()) fmt.positions();
+    if (!rootObj->attrib.texcoords.empty()) fmt.texCoords();
+    if (!rootObj->attrib.normals.empty()) fmt.normals();
+    if (!rootObj->attrib.colors.empty()) fmt.colors();
+    TriMesh triMesh(fmt);
+
+    //triMesh.appendPositions();
+    CI_ASSERT_MSG(property.path.indices.empty(), "TODO: support line");
+    const auto& mesh = property.mesh;
+    for (size_t f = 0; f < mesh.indices.size() / 3; f++) {
+        tinyobj::index_t idx0 = mesh.indices[3 * f + 0];
+        tinyobj::index_t idx1 = mesh.indices[3 * f + 1];
+        tinyobj::index_t idx2 = mesh.indices[3 * f + 2];
+
+        rootObj->attrib.vertices[idx0.vertex_index];
+        rootObj->attrib.normals[idx0.vertex_index];
+        rootObj->attrib.texcoords[idx0.vertex_index];
+    }
+
+    ref->vboMesh = gl::VboMesh::create(triMesh);
 
     return ref;
 }
 
 void MeshObj::draw()
 {
-
+    gl::draw(vboMesh);
 }
 
 void MaterialObj::preDraw()

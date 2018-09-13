@@ -16,6 +16,7 @@ struct MeshObj : public nodes::Node3D
 {
     typedef std::shared_ptr<MeshObj> Ref;
     tinyobj::shape_t property;
+    gl::VboMeshRef vboMesh;
 
     static Ref create(RootObjRef rootObj, const tinyobj::shape_t& property);
 
@@ -44,6 +45,9 @@ struct RootObj : public MeshObj
 
     fs::path meshPath;
     fs::path baseDir;
+
+    bool flipV = true;
+    vec3 cameraPosition;
 
     std::vector<MaterialObj::Ref> materials;
     tinyobj::attrib_t attrib;
