@@ -162,11 +162,11 @@ RootObjRef RootObj::create(const fs::path& meshPath)
         return {};
     }
 
-    CI_LOG_I("# of vertices ") << (ref->attrib.vertices.size() / 3);
-    CI_LOG_I("# of normals  ") << (ref->attrib.normals.size() / 3);
-    CI_LOG_I("# of texcoords") << (ref->attrib.texcoords.size() / 2);
-    CI_LOG_I("# of materials") << materials.size();
-    CI_LOG_I("# of shapes   ") << shapes.size();
+    CI_LOG_I("# of vertices  ") << (ref->attrib.vertices.size() / 3);
+    CI_LOG_I("# of normals   ") << (ref->attrib.normals.size() / 3);
+    CI_LOG_I("# of texcoords ") << (ref->attrib.texcoords.size() / 2);
+    CI_LOG_I("# of materials ") << materials.size();
+    CI_LOG_I("# of shapes    ") << shapes.size();
 
     // Append `default` material
     materials.push_back(tinyobj::material_t());
