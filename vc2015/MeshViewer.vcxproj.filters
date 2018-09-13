@@ -108,6 +108,9 @@
     <ClCompile Include="..\..\Cinder\blocks\Cinder-Nodes\src\Node.cpp">
       <Filter>Blocks\Nodes</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\ciobj.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Resources.h">
@@ -136,6 +139,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Cinder\blocks\Cinder-Nodes\include\Node3D.h">
       <Filter>Blocks\Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ciobj.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

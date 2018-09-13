@@ -6,10 +6,11 @@
 
 #include "AssetManager.h"
 #include "MiniConfig.h"
-#include "cinder/params/Params.h"
 #include "cinder/Arcball.h"
+#include "cinder/params/Params.h"
 
 #include "cigltf.h"
+#include "ciobj.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -27,22 +28,27 @@ struct MeshViewerApp : public App
     vector<string> mMeshFilenames;
 
     RootGLTFRef mRootGLTF;
+    RootObjRef mRootObjRef;
 
     vector<string> listGlTFFiles()
     {
         vector<string> files;
         auto assetRoot = getAssetPath("");
-        for (auto& p : fs::recursive_directory_iterator(assetRoot
+        for (auto& p :
+             fs::recursive_directory_iterator(assetRoot
 #ifdef CINDER_MSW_DESKTOP
-                                                        , fs::directory_options::follow_directory_symlink
+                                              ,
+                                              fs::directory_options::follow_directory_symlink
 #endif
-            ))
+                                              ))
         {
             auto ext = p.path().extension();
-            if (ext == ".gltf" || ext == ".glb")
+            if (ext == ".gltf" || ext == ".glb" || ext == ".obj")
             {
                 auto filename = p.path().generic_string();
-                filename.replace(filename.find(assetRoot.generic_string()), assetRoot.generic_string().size(), ""); // Left trim the assets prefix
+                filename.replace(filename.find(assetRoot.generic_string()),
+                                 assetRoot.generic_string().size(),
+                                 ""); // Left trim the assets prefix
 
                 files.push_back(filename);
             }
@@ -60,11 +66,11 @@ struct MeshViewerApp : public App
 
         mSkyBoxBatch = gl::Batch::create(geom::Cube().size(vec3(400)), skyBoxShader);
 
-        mCam.lookAt({ CAM_POS_X ,CAM_POS_Y, CAM_POS_Z }, vec3(), vec3(0, 1, 0));
+        mCam.lookAt({CAM_POS_X, CAM_POS_Y, CAM_POS_Z}, vec3(), vec3(0, 1, 0));
         mCamUi = CameraUi(&mCam, getWindow(), -1);
 
         mMeshFilenames = listGlTFFiles();
-        auto params = createConfigUI({ 400, 400 });
+        auto params = createConfigUI({400, 400});
         ADD_ENUM_TO_INT(params.get(), MESH_FILE_ID, mMeshFilenames);
 
         gl::enableDepth();
@@ -81,12 +87,25 @@ struct MeshViewerApp : public App
         });
 
         getSignalUpdate().connect([&] {
-
             if (mMeshFileId != MESH_FILE_ID)
             {
                 mMeshFileId = MESH_FILE_ID;
-                mRootGLTF = RootGLTF::create(getAssetPath(mMeshFilenames[mMeshFileId]));
-                if (!mRootGLTF) quit();
+
+                auto path = getAssetPath(mMeshFilenames[mMeshFileId]);
+                mRootObjRef.reset();
+                mRootGLTF.reset();
+                if (path.extension() == ".obj")
+                {
+                    mRootObjRef = RootObj::create(path);
+                    if (!mRootObjRef)
+                        quit();
+                }
+                else
+                {
+                    mRootGLTF = RootGLTF::create(path);
+                    if (!mRootGLTF)
+                        quit();
+                }
             }
 
             CAM_POS_X = mCam.getEyePoint().x;
@@ -95,9 +114,12 @@ struct MeshViewerApp : public App
             mCam.setNearClip(CAM_Z_NEAR);
             mCam.setFarClip(CAM_Z_FAR);
 
-            mRootGLTF->flipV = FLIP_V;
-            mRootGLTF->cameraPosition = mCam.getEyePoint();
-            mRootGLTF->update();
+            if (mRootGLTF)
+            {
+                mRootGLTF->flipV = FLIP_V;
+                mRootGLTF->cameraPosition = mCam.getEyePoint();
+                mRootGLTF->update();
+            }
         });
 
         getWindow()->getSignalDraw().connect([&] {
@@ -109,18 +131,26 @@ struct MeshViewerApp : public App
                 gl::drawCoordinateFrame(10, 0.1, 0.01);
             }
 
-            if (!mRootGLTF) return;
-
+            if (mRootGLTF)
             {
                 gl::ScopedTextureBind scpTex(mRootGLTF->radianceTexture, 0);
                 mSkyBoxBatch->draw();
+
+                {
+                    gl::setWireframeEnabled(WIRE_FRAME);
+                    if (mRootGLTF)
+                    {
+                        mRootGLTF->currentScene->setScale(MESH_SCALE);
+                        mRootGLTF->draw();
+                    }
+
+                    gl::disableWireframe();
+                }
             }
 
+            if (mRootObjRef)
             {
-                gl::setWireframeEnabled(WIRE_FRAME);
-                mRootGLTF->currentScene->setScale(MESH_SCALE);
-                mRootGLTF->draw();
-                gl::disableWireframe();
+                mRootObjRef->draw();
             }
         });
     }

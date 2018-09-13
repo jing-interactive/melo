@@ -119,19 +119,19 @@ void NodeGLTF::draw()
     }
 }
 
-RootGLTFRef RootGLTF::create(const fs::path& gltfPath)
+RootGLTFRef RootGLTF::create(const fs::path& meshPath)
 {
-    if (!fs::exists(gltfPath))
+    if (!fs::exists(meshPath))
     {
-        CI_LOG_F("File doesn't exist: ") << gltfPath;
+        CI_LOG_F("File doesn't exist: ") << meshPath;
         return {};
     }
     tinygltf::TinyGLTF loader;
     tinygltf::Model root;
     std::string err;
     std::string warn;
-    std::string input_filename(gltfPath.string());
-    std::string ext = gltfPath.extension().string();
+    std::string input_filename(meshPath.string());
+    std::string ext = meshPath.extension().string();
 
     bool ret = false;
     if (ext.compare(".glb") == 0)
@@ -156,13 +156,13 @@ RootGLTFRef RootGLTF::create(const fs::path& gltfPath)
     }
     if (!ret)
     {
-        CI_LOG_F("Failed to load .glTF") << gltfPath;
+        CI_LOG_F("Failed to load .glTF") << meshPath;
         return {};
     }
 
     RootGLTFRef ref = make_shared<RootGLTF>();
     ref->property = root;
-    ref->gltfPath = gltfPath;
+    ref->meshPath = meshPath;
 
     ref->radianceTexture = am::textureCubeMap(RADIANCE_TEX);
     ref->irradianceTexture = am::textureCubeMap(IRRADIANCE_TEX);
@@ -204,7 +204,7 @@ RootGLTFRef RootGLTF::create(const fs::path& gltfPath)
     for (auto& item : root.scenes)
     {
         auto scene = SceneGLTF::create(ref, item);
-        scene->setName(gltfPath.generic_string());
+        scene->setName(meshPath.generic_string());
         ref->scenes.emplace_back(scene);
     }
 
@@ -311,7 +311,7 @@ ImageGLTF::Ref ImageGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Image& pr
     ref->property = property;
 
 #if 0
-    ref->surface = am::surface((rootGLTF->gltfPath.parent_path() / property.uri).string());
+    ref->surface = am::surface((rootGLTF->meshPath.parent_path() / property.uri).string());
 #else
     ref->surface = Surface::create((uint8_t*)property.image.data(), property.width, property.height,
                                    property.width * property.component,
@@ -328,7 +328,7 @@ BufferGLTF::Ref BufferGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Buffer&
     ref->property = property;
 
 #if 0
-    ref->cpuBuffer = am::buffer((rootGLTF->gltfPath.parent_path() / property.uri).string());
+    ref->cpuBuffer = am::buffer((rootGLTF->meshPath.parent_path() / property.uri).string());
 #else
     ref->cpuBuffer = Buffer::create((void*)property.data.data(), property.data.size());
 #endif
@@ -632,9 +632,9 @@ geom::Attrib getAttribFromString(const string& str)
         return geom::TANGENT;
     if (str == "BITANGENT")
         return geom::BITANGENT;
-    if (str == "JOINT")
+    if (str == "JOINTS_0")
         return geom::BONE_INDEX;
-    if (str == "WEIGHT")
+    if (str == "WEIGHTS_0")
         return geom::BONE_WEIGHT;
 
     if (str == "TEXCOORD_0")

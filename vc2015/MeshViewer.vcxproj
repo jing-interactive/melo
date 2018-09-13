@@ -55,7 +55,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\include;"..\..\Cinder\include";..\..\Cinder\blocks\Cinder-VNM\include;..\..\Cinder\blocks</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>TINYGLTF_NO_STB_IMAGE_WRITE;WIN32;_WIN32_WINNT=0x0601;_WINDOWS;NOMINMAX;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WIN32_WINNT=0x0601;_WINDOWS;NOMINMAX;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader />
@@ -79,7 +79,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>..\include;"..\..\Cinder\include";..\..\Cinder\blocks\Cinder-VNM\include;..\..\Cinder\blocks</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>TINYGLTF_NO_STB_IMAGE_WRITE;WIN32;_WIN32_WINNT=0x0601;_WINDOWS;NOMINMAX;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WIN32_WINNT=0x0601;_WINDOWS;NOMINMAX;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader />
       <WarningLevel>Level3</WarningLevel>
@@ -134,6 +134,7 @@
     <ClInclude Include="..\include\syoyo\tiny_gltf.h" />
     <ClInclude Include="..\include\syoyo\tiny_obj_loader.h" />
     <ClInclude Include="..\src\cigltf.h" />
+    <ClInclude Include="..\src\ciobj.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Cinder\blocks\Cinder-Nodes\src\Node.cpp" />
@@ -141,6 +142,7 @@
     <ClCompile Include="..\include\syoyo\tiny_gltf.cc" />
     <ClCompile Include="..\include\syoyo\tiny_obj_loader.cc" />
     <ClCompile Include="..\src\cigltf.cpp" />
+    <ClCompile Include="..\src\ciobj.cpp" />
     <ClCompile Include="..\src\MeshViewerApp.cpp" />
     <ClCompile Include="..\..\Cinder\blocks\Cinder-VNM\src\AssetManager.cpp" />
     <ClCompile Include="..\..\Cinder\blocks\Cinder-VNM\src\MiniConfig.cpp" />

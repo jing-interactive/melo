@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Cinder-Nodes/include/Node3D.h"
+
+#define TINYGLTF_NO_STB_IMAGE_WRITE
 #include "syoyo/tiny_gltf.h"
 #include <cinder/gl/gl.h>
 #include <memory>
@@ -33,7 +35,7 @@ struct BufferViewGLTF
     typedef std::shared_ptr<BufferViewGLTF> Ref;
     tinygltf::BufferView property;
 
-    BufferRef cpuBuffer; // points to BufferGLTF::cpuBuffer 
+    BufferRef cpuBuffer; // points to BufferGLTF::cpuBuffer
     gl::VboRef gpuBuffer;
 
     static Ref create(RootGLTFRef rootGLTF, const tinygltf::BufferView& property);
@@ -45,8 +47,9 @@ struct AccessorGLTF
     tinygltf::Accessor property;
 
     int byteStride;       // from tinygltf::BufferView
-    BufferRef cpuBuffer;  // points to BufferViewGLTF::cpuBuffer 
-    gl::VboRef gpuBuffer; // points to BufferViewGLTF::gpuBuffer or re-create in case of offseted IBO
+    BufferRef cpuBuffer;  // points to BufferViewGLTF::cpuBuffer
+    gl::VboRef gpuBuffer; // points to BufferViewGLTF::gpuBuffer
+    // or re-create in case of offseted IBO
 
     static Ref create(RootGLTFRef rootGLTF, const tinygltf::Accessor& property);
 };
@@ -134,10 +137,10 @@ struct MaterialGLTF
     float roughnessFactor = 1;
 
     // SpecularGlossiness
-    //TextureGLTF::Ref diffuseTexture;
+    // TextureGLTF::Ref diffuseTexture;
     int diffuseTextureCoord = 0;
     vec4 diffuseFactor = {1, 1, 1, 1};
-    //TextureGLTF::Ref specularGlossinessTexture;
+    // TextureGLTF::Ref specularGlossinessTexture;
     vec3 specularFactor = {1, 1, 1};
     float glossinessFactor = 1;
 
@@ -228,7 +231,7 @@ struct RootGLTF
 {
     tinygltf::Model property;
 
-    static RootGLTFRef create(const fs::path& gltfPath);
+    static RootGLTFRef create(const fs::path& meshPath);
 
     void update();
 
@@ -248,7 +251,7 @@ struct RootGLTF
     std::vector<SkinGLTF::Ref> skins;
     std::vector<TextureGLTF::Ref> textures;
 
-    fs::path gltfPath;
+    fs::path meshPath;
 
     gl::TextureCubeMapRef radianceTexture;
     gl::TextureCubeMapRef irradianceTexture;
