@@ -12,17 +12,6 @@ typedef std::shared_ptr<struct RootObj> RootObjRef;
 
 using namespace ci;
 
-struct MeshObj : public nodes::Node3D
-{
-    typedef std::shared_ptr<MeshObj> Ref;
-    tinyobj::shape_t property;
-    gl::VboMeshRef vboMesh;
-
-    static Ref create(RootObjRef rootObj, const tinyobj::shape_t& property);
-
-    void draw();
-};
-
 struct MaterialObj
 {
     typedef std::shared_ptr<MaterialObj> Ref;
@@ -36,12 +25,21 @@ struct MaterialObj
     void postDraw();
 };
 
+struct MeshObj : public nodes::Node3D
+{
+    typedef std::shared_ptr<MeshObj> Ref;
+    tinyobj::shape_t property;
+    gl::VboMeshRef vboMesh;
+    MaterialObj::Ref material;
+
+    static Ref create(RootObjRef rootObj, const tinyobj::shape_t& property);
+
+    virtual void draw();
+};
+
 struct RootObj : public MeshObj
 {
     static RootObjRef create(const fs::path& meshPath);
-
-    void update();
-    void draw();
 
     fs::path meshPath;
     fs::path baseDir;

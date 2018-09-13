@@ -136,27 +136,29 @@ struct MeshViewerApp : public App
                 gl::ScopedTextureBind scpTex(mRootGLTF->radianceTexture, 0);
                 mSkyBoxBatch->draw();
 
-                {
-                    gl::setWireframeEnabled(WIRE_FRAME);
-                    if (mRootGLTF)
-                    {
-                        mRootGLTF->currentScene->setScale(MESH_SCALE);
-                        mRootGLTF->draw();
-                    }
-
-                    gl::disableWireframe();
-                }
+                gl::setWireframeEnabled(WIRE_FRAME);
+                mRootGLTF->currentScene->setScale(MESH_SCALE);
+                mRootGLTF->draw();
+                gl::disableWireframe();
             }
 
             if (mRootObjRef)
             {
-                mRootObjRef->draw();
+                gl::setWireframeEnabled(WIRE_FRAME);
+                mRootObjRef->setScale(MESH_SCALE);
+                mRootObjRef->treeDraw();
+                gl::disableWireframe();
             }
         });
     }
 };
 
-CINDER_APP(MeshViewerApp, RendererGl(RendererGl::Options().msaa(4)), [](App::Settings* settings) {
+#ifndef NDEBUG
+auto gfxOption = RendererGl::Options().msaa(4).debug().debugLog(GL_DEBUG_SEVERITY_MEDIUM);
+#else
+auto gfxOption = RendererGl::Options().msaa(4);
+#endif
+CINDER_APP(MeshViewerApp, RendererGl(gfxOption), [](App::Settings* settings) {
     readConfig();
     settings->setWindowSize(APP_WIDTH, APP_HEIGHT);
     settings->setMultiTouchEnabled(false);

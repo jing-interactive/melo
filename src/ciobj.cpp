@@ -12,34 +12,87 @@ MeshObj::Ref MeshObj::create(RootObjRef rootObj, const tinyobj::shape_t& propert
     ref->property = property;
     ref->setName(property.name);
 
+    const auto& attrib = rootObj->attrib;
+
+    CI_ASSERT_MSG(property.path.indices.empty(), "TODO: support line");
+    const auto& indices = property.mesh.indices;
+    vector<vec3> positions;
+    vector<vec3> normals;
+    vector<vec2> texcoords;
+    vector<Color> colors;
+    vector<uint32_t> indexArray;
+
+    int i = 0;
+    for (const auto& index : indices)
+    {
+        if (!attrib.vertices.empty())
+        {
+            positions.push_back({ attrib.vertices[3 * index.vertex_index + 0],
+                attrib.vertices[3 * index.vertex_index + 1],
+                attrib.vertices[3 * index.vertex_index + 2]
+            });
+        }
+        if (!attrib.normals.empty())
+        {
+            normals.push_back({ attrib.normals[3 * index.normal_index + 0],
+                attrib.normals[3 * index.normal_index + 1],
+                attrib.normals[3 * index.normal_index + 2]
+            });
+        }
+        if (!attrib.texcoords.empty())
+        {
+            texcoords.push_back({ attrib.texcoords[2 * index.texcoord_index + 0],
+                attrib.texcoords[2 * index.texcoord_index + 1]
+            });
+        }
+        if (!attrib.colors.empty())
+        {
+            colors.push_back({ attrib.colors[3 * index.vertex_index + 0],
+                attrib.colors[3 * index.vertex_index + 1],
+                attrib.colors[3 * index.vertex_index + 2]
+            });
+        }
+        indexArray.push_back(i);
+        i++;
+    }
+
     TriMesh::Format fmt;
-    if (!rootObj->attrib.vertices.empty()) fmt.positions();
-    if (!rootObj->attrib.texcoords.empty()) fmt.texCoords();
-    if (!rootObj->attrib.normals.empty()) fmt.normals();
-    if (!rootObj->attrib.colors.empty()) fmt.colors();
+    fmt.positions();
+    fmt.normals();
+    if (!attrib.texcoords.empty()) fmt.texCoords();
+    if (!attrib.colors.empty()) fmt.colors();
     TriMesh triMesh(fmt);
 
-    //triMesh.appendPositions();
-    CI_ASSERT_MSG(property.path.indices.empty(), "TODO: support line");
-    const auto& mesh = property.mesh;
-    for (size_t f = 0; f < mesh.indices.size() / 3; f++) {
-        tinyobj::index_t idx0 = mesh.indices[3 * f + 0];
-        tinyobj::index_t idx1 = mesh.indices[3 * f + 1];
-        tinyobj::index_t idx2 = mesh.indices[3 * f + 2];
-
-        rootObj->attrib.vertices[idx0.vertex_index];
-        rootObj->attrib.normals[idx0.vertex_index];
-        rootObj->attrib.texcoords[idx0.vertex_index];
+    CI_ASSERT(!attrib.vertices.empty());
+    triMesh.appendPositions(positions.data(), positions.size());
+    if (!attrib.normals.empty())
+        triMesh.appendNormals(normals.data(), normals.size());
+    if (!attrib.texcoords.empty())
+        triMesh.appendTexCoords0(texcoords.data(), texcoords.size());
+    if (!attrib.colors.empty())
+        triMesh.appendColors(colors.data(), colors.size());
+    triMesh.appendIndices(indexArray.data(), indexArray.size());
+    if (attrib.normals.empty())
+    {
+        triMesh.recalculateNormals();
+        triMesh.recalculateTangents();
     }
 
     ref->vboMesh = gl::VboMesh::create(triMesh);
+    int mtrl = property.mesh.material_ids[0];
+    if (mtrl == -1) mtrl = 0;
+    ref->material = rootObj->materials[mtrl];
 
     return ref;
 }
 
 void MeshObj::draw()
 {
+    if (!vboMesh) return;
+
+    material->preDraw();
     gl::draw(vboMesh);
+    material->postDraw();
 }
 
 void MaterialObj::preDraw()
@@ -115,23 +168,14 @@ RootObjRef RootObj::create(const fs::path& meshPath)
     CI_LOG_I("# of materials") << materials.size();
     CI_LOG_I("# of shapes   ") << shapes.size();
 
-    for (auto& item : shapes)
-        ref->addChild(MeshObj::create(ref, item));
-
     // Append `default` material
     materials.push_back(tinyobj::material_t());
     for (auto& item : materials)
         ref->materials.emplace_back(MaterialObj::create(ref, item));
 
+    for (auto& item : shapes)
+        ref->addChild(MeshObj::create(ref, item));
+
     return ref;
 }
 
-void RootObj::update()
-{
-
-}
-
-void RootObj::draw()
-{
-
-}
