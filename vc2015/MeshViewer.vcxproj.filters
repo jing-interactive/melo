@@ -111,6 +111,9 @@
     <ClCompile Include="..\src\ciobj.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\read_vox.cpp">
+      <Filter>Blocks</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Resources.h">
@@ -142,6 +145,9 @@
     </ClInclude>
     <ClInclude Include="..\src\ciobj.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\read_vox.h">
+      <Filter>Blocks</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -112,6 +112,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\Cinder\blocks\Cinder-Nodes\include\Node.h" />
     <ClInclude Include="..\..\Cinder\blocks\Cinder-Nodes\include\Node3D.h" />
+    <ClInclude Include="..\include\read_vox.h" />
     <ClInclude Include="..\include\Resources.h" />
     <ClInclude Include="..\include\item.def" />
     <ClInclude Include="..\..\Cinder\blocks\Cinder-VNM\include\AnsiToUtf.h" />
@@ -139,6 +140,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\Cinder\blocks\Cinder-Nodes\src\Node.cpp" />
     <ClCompile Include="..\..\Cinder\blocks\Cinder-Nodes\src\Node3D.cpp" />
+    <ClCompile Include="..\include\read_vox.cpp" />
     <ClCompile Include="..\include\syoyo\tiny_gltf.cc" />
     <ClCompile Include="..\include\syoyo\tiny_obj_loader.cc" />
     <ClCompile Include="..\src\cigltf.cpp" />
