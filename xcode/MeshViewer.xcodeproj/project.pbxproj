@@ -28,6 +28,9 @@
 		741B6ACE2142E4ED00719B90 /* cigltf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 741B6ACD2142E4ED00719B90 /* cigltf.cpp */; };
 		74228D6A213E83AB0066530B /* tiny_obj_loader.cc in Sources */ = {isa = PBXBuildFile; fileRef = 74228D66213E83AB0066530B /* tiny_obj_loader.cc */; };
 		74228D6B213E83AB0066530B /* tiny_gltf.cc in Sources */ = {isa = PBXBuildFile; fileRef = 74228D67213E83AB0066530B /* tiny_gltf.cc */; };
+		742671DC2151D8EC0000DE3A /* read_vox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 742671DB2151D8EC0000DE3A /* read_vox.cpp */; };
+		742671E12151D9180000DE3A /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 742671DE2151D9180000DE3A /* LICENSE */; };
+		742671E22151D9180000DE3A /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 742671E02151D9180000DE3A /* README.md */; };
 		7436159D214AABF00080958A /* ciobj.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7436159C214AABF00080958A /* ciobj.cpp */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		9CD73AC15AB140A882E1628C /* CinderApp.icns in Resources */ = {isa = PBXBuildFile; fileRef = 17DC403A7D974506B9398D7B /* CinderApp.icns */; };
@@ -81,6 +84,11 @@
 		74228D67213E83AB0066530B /* tiny_gltf.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tiny_gltf.cc; sourceTree = "<group>"; };
 		74228D68213E83AB0066530B /* tiny_gltf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tiny_gltf.h; sourceTree = "<group>"; };
 		74228D69213E83AB0066530B /* tiny_obj_loader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tiny_obj_loader.h; sourceTree = "<group>"; };
+		742671DA2151D8EC0000DE3A /* read_vox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = read_vox.h; path = ../include/read_vox.h; sourceTree = "<group>"; };
+		742671DB2151D8EC0000DE3A /* read_vox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = read_vox.cpp; path = ../include/read_vox.cpp; sourceTree = "<group>"; };
+		742671DE2151D9180000DE3A /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		742671DF2151D9180000DE3A /* flythrough_camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = flythrough_camera.h; sourceTree = "<group>"; };
+		742671E02151D9180000DE3A /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		7436159C214AABF00080958A /* ciobj.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ciobj.cpp; path = ../src/ciobj.cpp; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* MeshViewer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MeshViewer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9584F0AFEEAD48FFA432C73E /* AssetManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AssetManager.h; path = "../../Cinder/blocks/Cinder-VNM/include/AssetManager.h"; sourceTree = "<group>"; };
@@ -201,6 +209,9 @@
 				74228D62213E83AB0066530B /* syoyo */,
 				FEB38ED8C7844559BF2957EB /* Resources.h */,
 				63E04ED620934A179031D036 /* MeshViewer_Prefix.pch */,
+				742671DB2151D8EC0000DE3A /* read_vox.cpp */,
+				742671DD2151D9170000DE3A /* flythrough_camera */,
+				742671DA2151D8EC0000DE3A /* read_vox.h */,
 				FE74054C98C14480BD9A49CB /* item.def */,
 			);
 			name = Headers;
@@ -305,6 +316,17 @@
 			path = ../include/syoyo;
 			sourceTree = "<group>";
 		};
+		742671DD2151D9170000DE3A /* flythrough_camera */ = {
+			isa = PBXGroup;
+			children = (
+				742671DE2151D9180000DE3A /* LICENSE */,
+				742671DF2151D9180000DE3A /* flythrough_camera.h */,
+				742671E02151D9180000DE3A /* README.md */,
+			);
+			name = flythrough_camera;
+			path = ../include/flythrough_camera;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -361,8 +383,10 @@
 				7413D5772140225F00498D75 /* README.md in Resources */,
 				7413D5792140225F00498D75 /* cinderblock.png in Resources */,
 				7413D5762140225F00498D75 /* LICENSE in Resources */,
+				742671E12151D9180000DE3A /* LICENSE in Resources */,
 				7413D5782140225F00498D75 /* cinderblock.xml in Resources */,
 				7413D57A2140225F00498D75 /* .gitignore in Resources */,
+				742671E22151D9180000DE3A /* README.md in Resources */,
 				9CD73AC15AB140A882E1628C /* CinderApp.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -379,6 +403,7 @@
 				7413D57C2140225F00498D75 /* Node.cpp in Sources */,
 				F6D85CC6EECE4A0E87E277DC /* AssetManager.cpp in Sources */,
 				74228D6A213E83AB0066530B /* tiny_obj_loader.cc in Sources */,
+				742671DC2151D8EC0000DE3A /* read_vox.cpp in Sources */,
 				741B6ACE2142E4ED00719B90 /* cigltf.cpp in Sources */,
 				7413D57E2140225F00498D75 /* Node3D.cpp in Sources */,
 				248C10CEEF4E402D9D256B49 /* MiniConfig.cpp in Sources */,
