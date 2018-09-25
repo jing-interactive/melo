@@ -285,7 +285,14 @@ SceneGLTF::Ref SceneGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Scene& pr
 
     for (auto& item : property.nodes)
     {
-        ref->addChild(rootGLTF->nodes[item]);
+        auto child = rootGLTF->nodes[item];
+#if 0
+        if (property.nodes.size() == 1)
+        {
+            child->setRotation({});
+        }
+#endif
+        ref->addChild(child);
     }
 
     return ref;

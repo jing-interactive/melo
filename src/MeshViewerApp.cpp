@@ -204,7 +204,7 @@ struct MeshViewerApp : public App
         });
 
         getWindow()->getSignalDraw().connect([&] {
-#if 0
+#if 1
             gl::setMatrices(mCam);
 #else
             gl::setMatrices(mFlyCam);
