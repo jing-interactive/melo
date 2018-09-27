@@ -1,0 +1,241 @@
+{
+  "asset": {
+    "version": "2.0",
+    "generator": "babylon.js glTF exporter for maya 2018 v1.2.12",
+    "copyright": "2017 (c) BabylonJS"
+  },
+  "extensionsUsed": ["KHR_lights"],
+  "scene": 0,
+  "scenes": [
+    { "nodes": [0, 1], "extensions": { "KHR_lights": { "light": 0 } } }
+  ],
+  "nodes": [
+    {
+      "mesh": 0,
+      "translation": [0.0, 0.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0, 1.0],
+      "scale": [1.0, 1.0, 1.0],
+      "name": "low5_largeshape"
+    },
+    {
+      "mesh": 1,
+      "translation": [0.0, 0.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0, 1.0],
+      "scale": [1.0, 1.0, 1.0],
+      "name": "low5_elemnts"
+    }
+  ],
+  "meshes": [
+    {
+      "primitives": [
+        {
+          "attributes": { "POSITION": 1, "NORMAL": 2, "TEXCOORD_0": 3 },
+          "indices": 0,
+          "mode": 4,
+          "material": 0
+        }
+      ],
+      "name": "low5_largeshape"
+    },
+    {
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 5,
+            "NORMAL": 6,
+            "COLOR_0": 7,
+            "TEXCOORD_0": 8
+          },
+          "indices": 4,
+          "mode": 4,
+          "material": 1
+        }
+      ],
+      "name": "low5_elemnts"
+    }
+  ],
+  "accessors": [
+    {
+      "bufferView": 0,
+      "componentType": 5123,
+      "count": 53250,
+      "type": "SCALAR",
+      "name": "accessorIndices"
+    },
+    {
+      "bufferView": 1,
+      "componentType": 5126,
+      "count": 12148,
+      "max": [0.666095138, 0.931404054, 0.283712953],
+      "min": [-0.5590769, -1.00033951, -0.27967754],
+      "type": "VEC3",
+      "name": "accessorPositions"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 145776,
+      "componentType": 5126,
+      "count": 12148,
+      "type": "VEC3",
+      "name": "accessorNormals"
+    },
+    {
+      "bufferView": 2,
+      "componentType": 5126,
+      "count": 12148,
+      "type": "VEC2",
+      "name": "accessorUVs"
+    },
+    {
+      "bufferView": 0,
+      "byteOffset": 106500,
+      "componentType": 5123,
+      "count": 5988,
+      "type": "SCALAR",
+      "name": "accessorIndices"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 291552,
+      "componentType": 5126,
+      "count": 1598,
+      "max": [0.604323566, 0.9669514, 0.1757028],
+      "min": [-0.6649599, -0.970956266, -0.2820433],
+      "type": "VEC3",
+      "name": "accessorPositions"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 310728,
+      "componentType": 5126,
+      "count": 1598,
+      "type": "VEC3",
+      "name": "accessorNormals"
+    },
+    {
+      "bufferView": 3,
+      "componentType": 5126,
+      "count": 1598,
+      "type": "VEC4",
+      "name": "accessorColors"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 97184,
+      "componentType": 5126,
+      "count": 1598,
+      "type": "VEC2",
+      "name": "accessorUVs"
+    }
+  ],
+  "bufferViews": [
+    { "buffer": 0, "byteLength": 118476, "name": "bufferViewScalar" },
+    {
+      "buffer": 0,
+      "byteOffset": 118476,
+      "byteLength": 329904,
+      "byteStride": 12,
+      "name": "bufferViewFloatVec3"
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 448380,
+      "byteLength": 109968,
+      "byteStride": 8,
+      "name": "bufferViewFloatVec2"
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 558348,
+      "byteLength": 25568,
+      "byteStride": 16,
+      "name": "bufferViewFloatVec4"
+    }
+  ],
+  "buffers": [{ "uri": "five.bin", "byteLength": 583916 }],
+  "materials": [
+    {
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 0
+        },
+        "metallicRoughnessTexture": {
+          "index": 1
+        },
+        "occlusionTexture": {
+          "index": 2
+        },
+        "baseColorFactor": [1.0, 1.0, 1.0, 1.0],
+        "metallicFactor": 0.0,
+        "roughnessFactor": 0.9
+      },
+      "emissiveFactor": [1.0, 1.0, 1.0],
+      "alphaMode": "OPAQUE",
+      "name": "FiveShape"
+    },
+    {
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 0
+        },
+        "metallicRoughnessTexture": {
+          "index": 1
+        },
+        "occlusionTexture": {
+          "index": 2
+        },
+        "baseColorFactor": [1.0, 1.0, 1.0, 1.0],
+        "metallicFactor": 0.0,
+        "roughnessFactor": 0.9
+      },
+      "emissiveFactor": [1.0, 1.0, 1.0],
+      "alphaMode": "OPAQUE",
+      "name": "FiveElements"
+    }
+  ],
+  "textures": [
+    {
+      "sampler": 0,
+      "source": 0
+    },
+    {
+      "sampler": 1,
+      "source": 1
+    },
+    {
+      "sampler": 2,
+      "source": 2
+    },
+    {
+      "sampler": 3,
+      "source": 3
+    }
+  ],
+  "images": [
+    {
+      "uri": "five-shape-basecolor.jpg"
+    },
+    {
+      "uri": "five-shape-roughness.png"
+    },
+    {
+      "uri": "five-shape-ao.jpg"
+    },
+    {
+      "uri": "five-shape-height.png"
+    }
+  ],
+  "samplers": [
+    { "magFilter": 9729, "minFilter": 9987, "wrapS": 10497, "wrapT": 10497 },
+    { "magFilter": 9729, "minFilter": 9987, "wrapS": 10497, "wrapT": 10497 },
+    { "magFilter": 9729, "minFilter": 9987, "wrapS": 10497, "wrapT": 10497 },
+    { "magFilter": 9729, "minFilter": 9987, "wrapS": 10497, "wrapT": 10497 }
+  ],
+  "extensions": {
+    "KHR_lights": {
+      "lights": [
+        { "color": [1.0, 1.0, 1.0], "intensity": 1.0, "type": "ambient" }
+      ]
+    }
+  }
+}
