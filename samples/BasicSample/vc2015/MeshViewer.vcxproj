@@ -54,7 +54,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\include;"..\..\Cinder\include";..\..\Cinder\blocks\Cinder-VNM\include;..\..\Cinder\blocks</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\include;;..\include;"..\..\..\..\Cinder\include";..\..\..\..\Cinder\blocks\Cinder-VNM\include;..\..\..\..\Cinder\blocks</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WIN32_WINNT=0x0601;_WINDOWS;NOMINMAX;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -64,11 +64,11 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>"..\..\Cinder\include";..\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>"..\..\..\..\Cinder\include";..\include</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>cinder.lib;OpenGL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>"..\..\Cinder\lib\msw\$(PlatformTarget)";"..\..\Cinder\lib\msw\$(PlatformTarget)\$(Configuration)\$(PlatformToolset)"</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>"..\..\..\..\Cinder\lib\msw\$(PlatformTarget)";"..\..\..\..\Cinder\lib\msw\$(PlatformTarget)\$(Configuration)\$(PlatformToolset)"</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -78,7 +78,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;"..\..\Cinder\include";..\..\Cinder\blocks\Cinder-VNM\include;..\..\Cinder\blocks</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\include;;..\include;"..\..\..\..\Cinder\include";..\..\..\..\Cinder\blocks\Cinder-VNM\include;..\..\..\..\Cinder\blocks</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WIN32_WINNT=0x0601;_WINDOWS;NOMINMAX;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader />
@@ -90,11 +90,11 @@
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
     </ProjectReference>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>"..\..\Cinder\include";..\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>"..\..\..\..\Cinder\include";..\include</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>cinder.lib;OpenGL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>"..\..\Cinder\lib\msw\$(PlatformTarget)";"..\..\Cinder\lib\msw\$(PlatformTarget)\$(Configuration)\$(PlatformToolset)"</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>"..\..\..\..\Cinder\lib\msw\$(PlatformTarget)";"..\..\..\..\Cinder\lib\msw\$(PlatformTarget)\$(Configuration)\$(PlatformToolset)"</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>
       <SubSystem>Windows</SubSystem>
@@ -110,44 +110,46 @@
   <ItemGroup />
   <ItemGroup />
   <ItemGroup>
-    <ClInclude Include="..\..\Cinder\blocks\Cinder-Nodes\include\Node.h" />
-    <ClInclude Include="..\..\Cinder\blocks\Cinder-Nodes\include\Node3D.h" />
-    <ClInclude Include="..\include\read_vox.h" />
+    <ClInclude Include="..\..\..\..\Cinder\blocks\Cinder-Nodes\include\Node.h" />
+    <ClInclude Include="..\..\..\..\Cinder\blocks\Cinder-Nodes\include\Node3D.h" />
+    <ClInclude Include="..\..\..\include\cigltf.h" />
+    <ClInclude Include="..\..\..\include\CinderMeshViewer.h" />
+    <ClInclude Include="..\..\..\include\ciobj.h" />
+    <ClInclude Include="..\..\..\include\civobx.h" />
+    <ClInclude Include="..\..\..\include\read_vox.h" />
+    <ClInclude Include="..\..\..\include\syoyo\json.hpp" />
+    <ClInclude Include="..\..\..\include\syoyo\stb_image.h" />
+    <ClInclude Include="..\..\..\include\syoyo\stb_image_write.h" />
+    <ClInclude Include="..\..\..\include\syoyo\tiny_gltf.h" />
+    <ClInclude Include="..\..\..\include\syoyo\tiny_obj_loader.h" />
     <ClInclude Include="..\include\Resources.h" />
     <ClInclude Include="..\include\item.def" />
-    <ClInclude Include="..\..\Cinder\blocks\Cinder-VNM\include\AnsiToUtf.h" />
-    <ClInclude Include="..\..\Cinder\blocks\Cinder-VNM\include\AssetManager.h" />
-    <ClInclude Include="..\..\Cinder\blocks\Cinder-VNM\include\CaptureHelper.h" />
-    <ClInclude Include="..\..\Cinder\blocks\Cinder-VNM\include\FontHelper.h" />
-    <ClInclude Include="..\..\Cinder\blocks\Cinder-VNM\include\GlslParamsBuilder.h" />
-    <ClInclude Include="..\..\Cinder\blocks\Cinder-VNM\include\GlslParamsBuilderImgui.h" />
-    <ClInclude Include="..\..\Cinder\blocks\Cinder-VNM\include\MiniConfig.h" />
-    <ClInclude Include="..\..\Cinder\blocks\Cinder-VNM\include\MiniConfigImgui.h" />
-    <ClInclude Include="..\..\Cinder\blocks\Cinder-VNM\include\MotionHelper.h" />
-    <ClInclude Include="..\..\Cinder\blocks\Cinder-VNM\include\NvOptimusEnablement.h" />
-    <ClInclude Include="..\..\Cinder\blocks\Cinder-VNM\include\OscHelper.h" />
-    <ClInclude Include="..\..\Cinder\blocks\Cinder-VNM\include\StateMachine.h" />
-    <ClInclude Include="..\..\Cinder\blocks\Cinder-VNM\include\TextureHelper.h" />
-    <ClInclude Include="..\..\Cinder\blocks\Cinder-VNM\include\TuioHelper.h" />
-    <ClInclude Include="..\include\syoyo\json.hpp" />
-    <ClInclude Include="..\include\syoyo\stb_image.h" />
-    <ClInclude Include="..\include\syoyo\stb_image_write.h" />
-    <ClInclude Include="..\include\syoyo\tiny_gltf.h" />
-    <ClInclude Include="..\include\syoyo\tiny_obj_loader.h" />
-    <ClInclude Include="..\src\cigltf.h" />
-    <ClInclude Include="..\src\ciobj.h" />
+    <ClInclude Include="..\..\..\..\Cinder\blocks\Cinder-VNM\include\AnsiToUtf.h" />
+    <ClInclude Include="..\..\..\..\Cinder\blocks\Cinder-VNM\include\AssetManager.h" />
+    <ClInclude Include="..\..\..\..\Cinder\blocks\Cinder-VNM\include\CaptureHelper.h" />
+    <ClInclude Include="..\..\..\..\Cinder\blocks\Cinder-VNM\include\FontHelper.h" />
+    <ClInclude Include="..\..\..\..\Cinder\blocks\Cinder-VNM\include\GlslParamsBuilder.h" />
+    <ClInclude Include="..\..\..\..\Cinder\blocks\Cinder-VNM\include\GlslParamsBuilderImgui.h" />
+    <ClInclude Include="..\..\..\..\Cinder\blocks\Cinder-VNM\include\MiniConfig.h" />
+    <ClInclude Include="..\..\..\..\Cinder\blocks\Cinder-VNM\include\MiniConfigImgui.h" />
+    <ClInclude Include="..\..\..\..\Cinder\blocks\Cinder-VNM\include\MotionHelper.h" />
+    <ClInclude Include="..\..\..\..\Cinder\blocks\Cinder-VNM\include\NvOptimusEnablement.h" />
+    <ClInclude Include="..\..\..\..\Cinder\blocks\Cinder-VNM\include\OscHelper.h" />
+    <ClInclude Include="..\..\..\..\Cinder\blocks\Cinder-VNM\include\StateMachine.h" />
+    <ClInclude Include="..\..\..\..\Cinder\blocks\Cinder-VNM\include\TextureHelper.h" />
+    <ClInclude Include="..\..\..\..\Cinder\blocks\Cinder-VNM\include\TuioHelper.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Cinder\blocks\Cinder-Nodes\src\Node.cpp" />
-    <ClCompile Include="..\..\Cinder\blocks\Cinder-Nodes\src\Node3D.cpp" />
-    <ClCompile Include="..\include\read_vox.cpp" />
-    <ClCompile Include="..\include\syoyo\tiny_gltf.cc" />
-    <ClCompile Include="..\include\syoyo\tiny_obj_loader.cc" />
-    <ClCompile Include="..\src\cigltf.cpp" />
-    <ClCompile Include="..\src\ciobj.cpp" />
+    <ClCompile Include="..\..\..\..\Cinder\blocks\Cinder-Nodes\src\Node.cpp" />
+    <ClCompile Include="..\..\..\..\Cinder\blocks\Cinder-Nodes\src\Node3D.cpp" />
+    <ClCompile Include="..\..\..\include\read_vox.cpp" />
+    <ClCompile Include="..\..\..\include\syoyo\tiny_gltf.cc" />
+    <ClCompile Include="..\..\..\include\syoyo\tiny_obj_loader.cc" />
+    <ClCompile Include="..\..\..\src\cigltf.cpp" />
+    <ClCompile Include="..\..\..\src\ciobj.cpp" />
     <ClCompile Include="..\src\MeshViewerApp.cpp" />
-    <ClCompile Include="..\..\Cinder\blocks\Cinder-VNM\src\AssetManager.cpp" />
-    <ClCompile Include="..\..\Cinder\blocks\Cinder-VNM\src\MiniConfig.cpp" />
+    <ClCompile Include="..\..\..\..\Cinder\blocks\Cinder-VNM\src\AssetManager.cpp" />
+    <ClCompile Include="..\..\..\..\Cinder\blocks\Cinder-VNM\src\MiniConfig.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

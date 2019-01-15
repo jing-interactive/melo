@@ -9,8 +9,7 @@
 #include "cinder/Arcball.h"
 #include "cinder/params/Params.h"
 
-#include "cigltf.h"
-#include "ciobj.h"
+#include "CinderMeshViewer.h"
 
 #define FLYTHROUGH_CAMERA_IMPLEMENTATION
 #include "flythrough_camera/flythrough_camera.h"

@@ -25,11 +25,11 @@
     <Filter Include="Blocks\vnm\include">
       <UniqueIdentifier>{4AC6FC6B-6529-4495-BFF9-6D6A97BEB257}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Blocks\syoyo">
-      <UniqueIdentifier>{6aa2cfb5-7479-4425-87bb-56104f08facb}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Blocks\Nodes">
       <UniqueIdentifier>{acb72117-e32f-478d-be93-25c7b6715f35}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blocks\MeshViewer">
+      <UniqueIdentifier>{6aa2cfb5-7479-4425-87bb-56104f08facb}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -45,109 +45,115 @@
     <ClCompile Include="..\src\MeshViewerApp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Cinder\blocks\Cinder-VNM\src\AssetManager.cpp">
+    <ClCompile Include="..\..\..\..\Cinder\blocks\Cinder-VNM\src\AssetManager.cpp">
       <Filter>Blocks\vnm\src</Filter>
     </ClCompile>
-    <ClInclude Include="..\..\Cinder\blocks\Cinder-VNM\include\AnsiToUtf.h">
+    <ClInclude Include="..\..\..\..\Cinder\blocks\Cinder-VNM\include\AnsiToUtf.h">
       <Filter>Blocks\vnm\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Cinder\blocks\Cinder-VNM\include\AssetManager.h">
+    <ClInclude Include="..\..\..\..\Cinder\blocks\Cinder-VNM\include\AssetManager.h">
       <Filter>Blocks\vnm\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Cinder\blocks\Cinder-VNM\include\CaptureHelper.h">
+    <ClInclude Include="..\..\..\..\Cinder\blocks\Cinder-VNM\include\CaptureHelper.h">
       <Filter>Blocks\vnm\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Cinder\blocks\Cinder-VNM\include\FontHelper.h">
+    <ClInclude Include="..\..\..\..\Cinder\blocks\Cinder-VNM\include\FontHelper.h">
       <Filter>Blocks\vnm\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Cinder\blocks\Cinder-VNM\include\GlslParamsBuilder.h">
+    <ClInclude Include="..\..\..\..\Cinder\blocks\Cinder-VNM\include\GlslParamsBuilder.h">
       <Filter>Blocks\vnm\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Cinder\blocks\Cinder-VNM\include\GlslParamsBuilderImgui.h">
+    <ClInclude Include="..\..\..\..\Cinder\blocks\Cinder-VNM\include\GlslParamsBuilderImgui.h">
       <Filter>Blocks\vnm\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Cinder\blocks\Cinder-VNM\include\MiniConfig.h">
+    <ClInclude Include="..\..\..\..\Cinder\blocks\Cinder-VNM\include\MiniConfig.h">
       <Filter>Blocks\vnm\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Cinder\blocks\Cinder-VNM\include\MiniConfigImgui.h">
+    <ClInclude Include="..\..\..\..\Cinder\blocks\Cinder-VNM\include\MiniConfigImgui.h">
       <Filter>Blocks\vnm\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Cinder\blocks\Cinder-VNM\include\MotionHelper.h">
+    <ClInclude Include="..\..\..\..\Cinder\blocks\Cinder-VNM\include\MotionHelper.h">
       <Filter>Blocks\vnm\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Cinder\blocks\Cinder-VNM\include\NvOptimusEnablement.h">
+    <ClInclude Include="..\..\..\..\Cinder\blocks\Cinder-VNM\include\NvOptimusEnablement.h">
       <Filter>Blocks\vnm\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Cinder\blocks\Cinder-VNM\include\OscHelper.h">
+    <ClInclude Include="..\..\..\..\Cinder\blocks\Cinder-VNM\include\OscHelper.h">
       <Filter>Blocks\vnm\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Cinder\blocks\Cinder-VNM\include\StateMachine.h">
+    <ClInclude Include="..\..\..\..\Cinder\blocks\Cinder-VNM\include\StateMachine.h">
       <Filter>Blocks\vnm\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Cinder\blocks\Cinder-VNM\include\TextureHelper.h">
+    <ClInclude Include="..\..\..\..\Cinder\blocks\Cinder-VNM\include\TextureHelper.h">
       <Filter>Blocks\vnm\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Cinder\blocks\Cinder-VNM\include\TuioHelper.h">
+    <ClInclude Include="..\..\..\..\Cinder\blocks\Cinder-VNM\include\TuioHelper.h">
       <Filter>Blocks\vnm\include</Filter>
     </ClInclude>
-    <ClCompile Include="..\include\syoyo\tiny_gltf.cc">
-      <Filter>Blocks\syoyo</Filter>
-    </ClCompile>
-    <ClCompile Include="..\include\syoyo\tiny_obj_loader.cc">
-      <Filter>Blocks\syoyo</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\cigltf.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Cinder\blocks\Cinder-VNM\src\MiniConfig.cpp">
+    <ClCompile Include="..\..\..\..\Cinder\blocks\Cinder-VNM\src\MiniConfig.cpp">
       <Filter>Blocks\vnm\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Cinder\blocks\Cinder-Nodes\src\Node3D.cpp">
+    <ClCompile Include="..\..\..\..\Cinder\blocks\Cinder-Nodes\src\Node3D.cpp">
       <Filter>Blocks\Nodes</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Cinder\blocks\Cinder-Nodes\src\Node.cpp">
+    <ClCompile Include="..\..\..\..\Cinder\blocks\Cinder-Nodes\src\Node.cpp">
       <Filter>Blocks\Nodes</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ciobj.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\..\..\include\read_vox.cpp">
+      <Filter>Blocks\MeshViewer</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\read_vox.cpp">
-      <Filter>Blocks</Filter>
+    <ClCompile Include="..\..\..\include\syoyo\tiny_gltf.cc">
+      <Filter>Blocks\MeshViewer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\include\syoyo\tiny_obj_loader.cc">
+      <Filter>Blocks\MeshViewer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\cigltf.cpp">
+      <Filter>Blocks\MeshViewer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\ciobj.cpp">
+      <Filter>Blocks\MeshViewer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Resources.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\syoyo\json.hpp">
-      <Filter>Blocks\syoyo</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\syoyo\stb_image.h">
-      <Filter>Blocks\syoyo</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\syoyo\stb_image_write.h">
-      <Filter>Blocks\syoyo</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\syoyo\tiny_gltf.h">
-      <Filter>Blocks\syoyo</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\syoyo\tiny_obj_loader.h">
-      <Filter>Blocks\syoyo</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\cigltf.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Cinder\blocks\Cinder-Nodes\include\Node.h">
+    <ClInclude Include="..\..\..\..\Cinder\blocks\Cinder-Nodes\include\Node.h">
       <Filter>Blocks\Nodes</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Cinder\blocks\Cinder-Nodes\include\Node3D.h">
+    <ClInclude Include="..\..\..\..\Cinder\blocks\Cinder-Nodes\include\Node3D.h">
       <Filter>Blocks\Nodes</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ciobj.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="..\..\..\include\cigltf.h">
+      <Filter>Blocks\MeshViewer</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\read_vox.h">
-      <Filter>Blocks</Filter>
+    <ClInclude Include="..\..\..\include\CinderMeshViewer.h">
+      <Filter>Blocks\MeshViewer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\ciobj.h">
+      <Filter>Blocks\MeshViewer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\civobx.h">
+      <Filter>Blocks\MeshViewer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\read_vox.h">
+      <Filter>Blocks\MeshViewer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\syoyo\json.hpp">
+      <Filter>Blocks\MeshViewer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\syoyo\stb_image.h">
+      <Filter>Blocks\MeshViewer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\syoyo\stb_image_write.h">
+      <Filter>Blocks\MeshViewer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\syoyo\tiny_gltf.h">
+      <Filter>Blocks\MeshViewer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\syoyo\tiny_obj_loader.h">
+      <Filter>Blocks\MeshViewer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

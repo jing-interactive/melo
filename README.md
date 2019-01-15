@@ -1,5 +1,5 @@
 # MeshViewer
-OBJ / glTF2 mesh viewer for Windows and macOS.
+OBJ / glTF2 mesh viewer library for `Cinder` and `standalone viewer` on Windows and macOS.
 
 # Features
 
