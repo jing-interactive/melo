@@ -28,12 +28,15 @@ Cinder/
     blocks/
         Cinder-VNM/
         Cinder-Nodes/
+        MeshViewer/
+            samples/BasicSample/vc2015/MeshViewer.sln
+            assets/
+                Cube/
+                    Cube.gltf
+                cerberus/
+                    Cerberus.obj
+                Awesome-gltf-files/
+                    scene.gltf
+                    scene.bin
+                Symbolic-links-are-also-supported
     include/
-MeshViewer/
-    assets/
-        Cube/
-            Cube.gltf
-        Amazing-gltf-files/
-            scene.gltf
-            scene.bin
-        Symbolic-link-is-also-supported
