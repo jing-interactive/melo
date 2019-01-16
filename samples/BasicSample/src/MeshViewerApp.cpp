@@ -18,6 +18,16 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
+#if defined( CINDER_GL_ES )
+namespace cinder {
+    namespace gl {
+        void enableWireframe() {}
+        void disableWireframe() {}
+        void setWireframeEnabled(bool enable = true) { if (enable) enableWireframe(); else disableWireframe(); }
+    }
+}
+#endif
+
 struct FlythroughCamera : public CameraPersp
 {
     double mElapsedSeconds;
@@ -150,9 +160,10 @@ struct MeshViewerApp : public App
         mCamUi = CameraUi(&mCam, getWindow(), -1);
 
         mMeshFilenames = listGlTFFiles();
+#ifndef CINDER_COCOA_TOUCH
         auto params = createConfigUI({400, 400});
         ADD_ENUM_TO_INT(params.get(), MESH_FILE_ID, mMeshFilenames);
-
+#endif
         gl::enableDepth();
 
         getWindow()->getSignalResize().connect([&] {
@@ -237,7 +248,7 @@ struct MeshViewerApp : public App
     }
 };
 
-#ifndef NDEBUG
+#if !defined(NDEBUG) && defined(CINDER_MSW)
 auto gfxOption = RendererGl::Options().msaa(4).debug().debugLog(GL_DEBUG_SEVERITY_MEDIUM);
 #else
 auto gfxOption = RendererGl::Options().msaa(4);
