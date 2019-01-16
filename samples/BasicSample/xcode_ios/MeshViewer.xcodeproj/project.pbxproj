@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		00748058165D41390024B57A /* assets in Resources */ = {isa = PBXBuildFile; fileRef = 00748057165D41390024B57A /* assets */; };
 		0087D25512CD809F002CD69F /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0087D25412CD809F002CD69F /* CoreText.framework */; };
 		00A66A361965AC8800B17EB3 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00A66A351965AC8800B17EB3 /* Accelerate.framework */; };
 		00CFDF6B1138442D0091E310 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00CFDF6A1138442D0091E310 /* CoreGraphics.framework */; };
@@ -28,6 +27,7 @@
 		749CE9CE21EF6B29008C8AA2 /* read_vox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 749CE9CB21EF6B29008C8AA2 /* read_vox.cpp */; };
 		749CE9D221EF6B2E008C8AA2 /* ciobj.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 749CE9D021EF6B2E008C8AA2 /* ciobj.cpp */; };
 		749CE9D321EF6B2E008C8AA2 /* cigltf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 749CE9D121EF6B2E008C8AA2 /* cigltf.cpp */; };
+		749CEAAB21EF6DDE008C8AA2 /* assets in Resources */ = {isa = PBXBuildFile; fileRef = 749CEAAA21EF6DDE008C8AA2 /* assets */; };
 		7618D07D802F4920BD5A245F /* CinderApp_ios.png in Resources */ = {isa = PBXBuildFile; fileRef = C388CD458F1C4048B7E31EE4 /* CinderApp_ios.png */; };
 		8594F0EA35274DB5845992F8 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6A2039EAEC3747579EB7D10F /* Images.xcassets */; };
 		C725DFFE121DAC7F00FA186B /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C727C02B121B400300192073 /* CoreMedia.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
@@ -40,7 +40,6 @@
 
 /* Begin PBXFileReference section */
 		00692BCF14FF149000D0A05E /* MeshViewer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MeshViewer.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		00748057165D41390024B57A /* assets */ = {isa = PBXFileReference; lastKnownFileType = folder; name = assets; path = ../assets; sourceTree = "<group>"; };
 		0087D25412CD809F002CD69F /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
 		00A66A351965AC8800B17EB3 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		00CFDF6A1138442D0091E310 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -92,6 +91,7 @@
 		749CE9CB21EF6B29008C8AA2 /* read_vox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = read_vox.cpp; sourceTree = "<group>"; };
 		749CE9D021EF6B2E008C8AA2 /* ciobj.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ciobj.cpp; sourceTree = "<group>"; };
 		749CE9D121EF6B2E008C8AA2 /* cigltf.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cigltf.cpp; sourceTree = "<group>"; };
+		749CEAAA21EF6DDE008C8AA2 /* assets */ = {isa = PBXFileReference; lastKnownFileType = folder; name = assets; path = ../../../assets; sourceTree = "<group>"; };
 		956169CB696646E4B9004A7B /* item.def */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = item.def; path = ../include/item.def; sourceTree = "<group>"; };
 		BDC171696B3D41C3902D1875 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C388CD458F1C4048B7E31EE4 /* CinderApp_ios.png */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = CinderApp_ios.png; path = ../resources/CinderApp_ios.png; sourceTree = "<group>"; };
@@ -179,7 +179,7 @@
 		00692BD914FF149000D0FFFF /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				00748057165D41390024B57A /* assets */,
+				749CEAAA21EF6DDE008C8AA2 /* assets */,
 				C388CD458F1C4048B7E31EE4 /* CinderApp_ios.png */,
 				6A2039EAEC3747579EB7D10F /* Images.xcassets */,
 				1D74E2693EA84DA1992FD423 /* LaunchScreen.xib */,
@@ -386,8 +386,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				00748058165D41390024B57A /* assets in Resources */,
 				7618D07D802F4920BD5A245F /* CinderApp_ios.png in Resources */,
+				749CEAAB21EF6DDE008C8AA2 /* assets in Resources */,
 				8594F0EA35274DB5845992F8 /* Images.xcassets in Resources */,
 				6E4A6C5B79A540D5AEBE0BA6 /* LaunchScreen.xib in Resources */,
 			);

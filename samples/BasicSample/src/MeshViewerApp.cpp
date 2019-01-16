@@ -153,6 +153,8 @@ struct MeshViewerApp : public App
 
         auto skyBoxShader = am::glslProg("SkyBox.vert", "SkyBox.frag");
         skyBoxShader->uniform("uCubeMapTex", 0);
+        skyBoxShader->uniform("uExposure", 2);
+        skyBoxShader->uniform("uGamma", 2);
 
         mSkyBoxBatch = gl::Batch::create(geom::Cube().size(vec3(400)), skyBoxShader);
 

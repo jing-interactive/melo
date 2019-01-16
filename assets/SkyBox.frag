@@ -1,8 +1,8 @@
 #include "common.glsl"
 
 uniform samplerCube uCubeMapTex;
-uniform float       uExposure = 2;
-uniform float       uGamma = 2;
+uniform float       uExposure;
+uniform float       uGamma;
 
 in vec3     vDirection;
 

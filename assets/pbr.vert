@@ -15,7 +15,7 @@ uniform mat4 ciModelMatrix;
 out vec3 v_Position; // in world space
 out vec2 v_UV;
 
-uniform bool u_flipV = true;
+uniform bool u_flipV;
 
 #ifdef HAS_NORMALS
     #ifdef HAS_TANGENTS
