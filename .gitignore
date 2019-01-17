@@ -47,3 +47,6 @@ x64
 MiniConfig.xml
 
 !assets/cornell_box/*.obj
+
+Debug/
+Release/
