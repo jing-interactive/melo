@@ -102,9 +102,6 @@
     <ClCompile Include="..\..\..\include\read_vox.cpp">
       <Filter>Blocks\MeshViewer</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\include\syoyo\tiny_gltf.cc">
-      <Filter>Blocks\MeshViewer</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\include\syoyo\tiny_obj_loader.cc">
       <Filter>Blocks\MeshViewer</Filter>
     </ClCompile>
@@ -112,6 +109,9 @@
       <Filter>Blocks\MeshViewer</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\ciobj.cpp">
+      <Filter>Blocks\MeshViewer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\include\syoyo\tiny_gltf.cc">
       <Filter>Blocks\MeshViewer</Filter>
     </ClCompile>
   </ItemGroup>

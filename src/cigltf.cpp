@@ -317,7 +317,7 @@ ImageGLTF::Ref ImageGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Image& pr
     ImageGLTF::Ref ref = make_shared<ImageGLTF>();
     ref->property = property;
 
-#if 0
+#if 1
     ref->surface = am::surface((rootGLTF->meshPath.parent_path() / property.uri).string());
 #else
     ref->surface = Surface::create((uint8_t*)property.image.data(), property.width, property.height,

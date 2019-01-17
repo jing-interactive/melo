@@ -153,8 +153,8 @@ struct MeshViewerApp : public App
 
         auto skyBoxShader = am::glslProg("SkyBox.vert", "SkyBox.frag");
         skyBoxShader->uniform("uCubeMapTex", 0);
-        skyBoxShader->uniform("uExposure", 2);
-        skyBoxShader->uniform("uGamma", 2);
+        skyBoxShader->uniform("uExposure", 2.0f);
+        skyBoxShader->uniform("uGamma", 2.0f);
 
         mSkyBoxBatch = gl::Batch::create(geom::Cube().size(vec3(400)), skyBoxShader);
 
@@ -231,7 +231,10 @@ struct MeshViewerApp : public App
             if (mRootGLTF)
             {
                 gl::ScopedTextureBind scpTex(mRootGLTF->radianceTexture, 0);
-                mSkyBoxBatch->draw();
+                if (ENV_VISIBLE)
+                {
+                    mSkyBoxBatch->draw();
+                }
 
                 gl::setWireframeEnabled(WIRE_FRAME);
                 mRootGLTF->currentScene->setScale(MESH_SCALE);

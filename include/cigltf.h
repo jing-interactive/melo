@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Cinder-Nodes/include/Node3D.h"
-
+#define TINYGLTF_NO_STB_IMAGE
 #define TINYGLTF_NO_STB_IMAGE_WRITE
 #include "syoyo/tiny_gltf.h"
 #include <cinder/gl/gl.h>
