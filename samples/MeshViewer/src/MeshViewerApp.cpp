@@ -184,6 +184,8 @@ struct MeshViewerApp : public App
                 quit();
             if (code == KeyEvent::KEY_w)
                 WIRE_FRAME = !WIRE_FRAME;
+            if (code == KeyEvent::KEY_e)
+                ENV_VISIBLE = !ENV_VISIBLE;
         });
 
         getWindow()->getSignalFileDrop().connect([&](FileDropEvent& event) {
