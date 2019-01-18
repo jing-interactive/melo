@@ -218,11 +218,18 @@ void RootGLTF::update() { currentScene->treeUpdate(); }
 
 void RootGLTF::draw()
 {
-    gl::ScopedTextureBind scpIrr(irradianceTexture, 5);
-    gl::ScopedTextureBind scpRad(radianceTexture, 6);
-    gl::ScopedTextureBind scpBrdf(brdfLUTTexture, 7);
+    if (irradianceTexture && radianceTexture && brdfLUTTexture)
+    {
+        gl::ScopedTextureBind scpIrr(irradianceTexture, 5);
+        gl::ScopedTextureBind scpRad(radianceTexture, 6);
+        gl::ScopedTextureBind scpBrdf(brdfLUTTexture, 7);
 
-    currentScene->treeDraw();
+        currentScene->treeDraw();
+    }
+    else
+    {
+        currentScene->treeDraw();
+    }
 }
 
 void NodeGLTF::setup()
