@@ -107,6 +107,7 @@ struct MeshViewerApp : public App
     CameraPersp mCam;
     CameraUi mCamUi;
     Arcball mArcball;
+    quat mMeshRotation;
 
     gl::GlslProgRef mGlslProg;
     gl::BatchRef mSkyBoxBatch;
@@ -163,8 +164,9 @@ struct MeshViewerApp : public App
 
         mMeshFilenames = listGlTFFiles();
 #ifndef CINDER_COCOA_TOUCH
-        auto params = createConfigUI({400, 400});
+        auto params = createConfigUI({400, 500});
         ADD_ENUM_TO_INT(params.get(), MESH_FILE_ID, mMeshFilenames);
+        params->addParam("MESH_ROTATION", &mMeshRotation);
 #endif
         gl::enableDepth();
 
@@ -175,16 +177,44 @@ struct MeshViewerApp : public App
         });
 
         getWindow()->getSignalKeyUp().connect([&](KeyEvent& event) {
-            if (event.getCode() == KeyEvent::KEY_ESCAPE)
+            auto code = event.getCode();
+            if (code == KeyEvent::KEY_ESCAPE)
                 quit();
+            if (code == KeyEvent::KEY_w)
+                WIRE_FRAME = !WIRE_FRAME;
+        });
+
+        getWindow()->getSignalFileDrop().connect([&](FileDropEvent& event) {
+
+            static auto imageExts = ImageIo::getLoadExtensions();
+
+            for (auto& filePath : event.getFiles())
+            {
+                if (fs::is_directory(filePath)) continue;
+                if (!filePath.has_extension()) continue;
+
+                if (filePath.extension() == ".obj" || filePath.extension() == ".gltf")
+                {
+                    mMeshFilenames.emplace_back(filePath.string());
+                    MESH_FILE_ID = mMeshFilenames.size() - 1;
+                    break;
+                }
+            }
         });
 
         getSignalUpdate().connect([&] {
+            if (MESH_FILE_ID > mMeshFilenames.size() - 1)
+                MESH_FILE_ID = 0;
+
             if (mMeshFileId != MESH_FILE_ID)
             {
                 mMeshFileId = MESH_FILE_ID;
 
-                auto path = getAssetPath(mMeshFilenames[mMeshFileId]);
+                fs::path path = mMeshFilenames[mMeshFileId];
+                if (!fs::exists(path))
+                {
+                    path = getAssetPath(mMeshFilenames[mMeshFileId]);
+                }
                 mRootObjRef.reset();
                 mRootGLTF.reset();
                 if (path.extension() == ".obj")
@@ -238,6 +268,7 @@ struct MeshViewerApp : public App
 
                 gl::setWireframeEnabled(WIRE_FRAME);
                 mRootGLTF->currentScene->setScale(MESH_SCALE);
+                mRootGLTF->currentScene->setRotation(mMeshRotation);
                 mRootGLTF->draw();
                 gl::disableWireframe();
             }
@@ -246,6 +277,7 @@ struct MeshViewerApp : public App
             {
                 gl::setWireframeEnabled(WIRE_FRAME);
                 mRootObjRef->setScale(MESH_SCALE);
+                mRootObjRef->setRotation(mMeshRotation);
                 mRootObjRef->treeDraw();
                 gl::disableWireframe();
             }
