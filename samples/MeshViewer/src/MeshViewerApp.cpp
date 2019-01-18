@@ -114,8 +114,10 @@ struct MeshViewerApp : public App
     int mMeshFileId = -1;
     vector<string> mMeshFilenames;
 
+    // 1 of 3
     RootGLTFRef mRootGLTF;
-    RootObjRef mRootObjRef;
+    RootObjRef mRootObj;
+    gl::VboMeshRef mVboMesh;
 
     FlythroughCamera mFlyCam;
 
@@ -193,7 +195,7 @@ struct MeshViewerApp : public App
                 if (fs::is_directory(filePath)) continue;
                 if (!filePath.has_extension()) continue;
 
-                if (filePath.extension() == ".obj" || filePath.extension() == ".gltf")
+                if (filePath.extension() == ".obj" || filePath.extension() == ".gltf" || filePath.extension() == ".glb")
                 {
                     mMeshFilenames.emplace_back(filePath.string());
                     MESH_FILE_ID = mMeshFilenames.size() - 1;
@@ -215,19 +217,29 @@ struct MeshViewerApp : public App
                 {
                     path = getAssetPath(mMeshFilenames[mMeshFileId]);
                 }
-                mRootObjRef.reset();
+                mVboMesh.reset();
+                mRootObj.reset();
                 mRootGLTF.reset();
+
                 if (path.extension() == ".obj")
                 {
-                    mRootObjRef = RootObj::create(path);
-                    if (!mRootObjRef)
-                        quit();
+                    if (AM_VBO_MESH)
+                    {
+                        mVboMesh = am::vboMesh(path.string());
+                    }
+                    else
+                    {
+                        mRootObj = RootObj::create(path);
+                    }
                 }
                 else
                 {
                     mRootGLTF = RootGLTF::create(path);
-                    if (!mRootGLTF)
-                        quit();
+                }
+
+                if (!mRootObj && !mVboMesh && !mRootGLTF)
+                {
+                    mVboMesh = am::vboMesh("Teapot");
                 }
             }
 
@@ -273,12 +285,24 @@ struct MeshViewerApp : public App
                 gl::disableWireframe();
             }
 
-            if (mRootObjRef)
+            if (mRootObj)
             {
                 gl::setWireframeEnabled(WIRE_FRAME);
-                mRootObjRef->setScale(MESH_SCALE);
-                mRootObjRef->setRotation(mMeshRotation);
-                mRootObjRef->treeDraw();
+                mRootObj->setScale(MESH_SCALE);
+                mRootObj->setRotation(mMeshRotation);
+                mRootObj->treeDraw();
+                gl::disableWireframe();
+            }
+
+            if (mVboMesh)
+            {
+                gl::ScopedGlslProg glsl(am::glslProg("lambert texture"));
+                gl::ScopedTextureBind tex0(am::texture2d("checkerboard"));
+                gl::setWireframeEnabled(WIRE_FRAME);
+                gl::ScopedModelMatrix mtx;
+                gl::scale(MESH_SCALE, MESH_SCALE, MESH_SCALE);
+                gl::rotate(mMeshRotation);
+                gl::draw(mVboMesh);
                 gl::disableWireframe();
             }
         });

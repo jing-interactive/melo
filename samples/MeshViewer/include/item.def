@@ -5,6 +5,7 @@ ITEM_DEF(bool, ENV_VISIBLE, true)
 ITEM_DEF(bool, XYZ_VISIBLE, false)
 ITEM_DEF(bool, WIRE_FRAME, false)
 ITEM_DEF(bool, FLIP_V, true)
+ITEM_DEF(bool, AM_VBO_MESH, false)
 
 GROUP_DEF(Environment)
 ITEM_DEF(string, IRRADIANCE_TEX, "CathedralIrradiance.dds")
