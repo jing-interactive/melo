@@ -1,4 +1,4 @@
-#include "ciobj.h"
+#include "../include/ciobj.h"
 #include "AssetManager.h"
 #include "MiniConfig.h"
 #include "cinder/Log.h"

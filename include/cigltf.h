@@ -253,9 +253,9 @@ struct RootGLTF
 
     fs::path meshPath;
 
-    gl::TextureCubeMapRef radianceTexture;
-    gl::TextureCubeMapRef irradianceTexture;
-    gl::Texture2dRef brdfLUTTexture;
+    static gl::TextureCubeMapRef radianceTexture;
+    static gl::TextureCubeMapRef irradianceTexture;
+    static gl::Texture2dRef brdfLUTTexture;
     bool flipV = true;
     vec3 cameraPosition;
 

@@ -172,6 +172,10 @@ struct MeshViewerApp : public App
 #endif
         gl::enableDepth();
 
+        RootGLTF::radianceTexture = am::textureCubeMap(RADIANCE_TEX);
+        RootGLTF::irradianceTexture = am::textureCubeMap(IRRADIANCE_TEX);
+        RootGLTF::brdfLUTTexture = am::texture2d(BRDF_LUT_TEX);
+
         getWindow()->getSignalResize().connect([&] {
             APP_WIDTH = getWindowWidth();
             APP_HEIGHT = getWindowHeight();

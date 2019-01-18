@@ -1,6 +1,5 @@
-#include "cigltf.h"
+#include "../include/cigltf.h"
 #include "AssetManager.h"
-#include "MiniConfig.h"
 #include "cinder/Log.h"
 #include "cinder/app/App.h"
 
@@ -119,6 +118,10 @@ void NodeGLTF::draw()
     }
 }
 
+gl::TextureCubeMapRef RootGLTF::radianceTexture;
+gl::TextureCubeMapRef RootGLTF::irradianceTexture;
+gl::Texture2dRef RootGLTF::brdfLUTTexture;
+
 RootGLTFRef RootGLTF::create(const fs::path& meshPath)
 {
     if (!fs::exists(meshPath))
@@ -163,10 +166,6 @@ RootGLTFRef RootGLTF::create(const fs::path& meshPath)
     RootGLTFRef ref = make_shared<RootGLTF>();
     ref->property = root;
     ref->meshPath = meshPath;
-
-    ref->radianceTexture = am::textureCubeMap(RADIANCE_TEX);
-    ref->irradianceTexture = am::textureCubeMap(IRRADIANCE_TEX);
-    ref->brdfLUTTexture = am::texture2d(BRDF_LUT_TEX);
 
     {
         tinygltf::Material mtrl = {"default"};
