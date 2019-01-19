@@ -32,7 +32,7 @@ gl::VertBatchRef createGrid()
 {
     auto grid = gl::VertBatch::create(GL_LINES);
     grid->begin(GL_LINES);
-    float scale = 0.1f;
+    float scale = 1.0f;
     for (int i = -10; i <= 10; ++i)
     {
         grid->color(Color(0.25f, 0.25f, 0.25f));
@@ -304,14 +304,6 @@ struct MeshViewerApp : public App
 #endif
             gl::clear();
 
-            if (XYZ_VISIBLE)
-            {
-                gl::ScopedDepthTest depthTest(false);
-                gl::ScopedGlslProg glsl(am::glslProg("color"));
-                mGrid->draw();
-                gl::drawCoordinateFrame(10, 0.1, 0.01);
-            }
-
             if (mRootGLTF)
             {
                 gl::ScopedTextureBind scpTex(mRootGLTF->radianceTexture, 0);
@@ -347,6 +339,14 @@ struct MeshViewerApp : public App
                 gl::rotate(mMeshRotation);
                 gl::draw(mVboMesh);
                 gl::disableWireframe();
+            }
+
+            if (XYZ_VISIBLE)
+            {
+                gl::ScopedGlslProg glsl(am::glslProg("color"));
+                mGrid->draw();
+                gl::ScopedDepthTest depthTest(false);
+                gl::drawCoordinateFrame(10, 0.5, 0.1);
             }
         });
     }
