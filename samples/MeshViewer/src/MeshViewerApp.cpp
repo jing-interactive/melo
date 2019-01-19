@@ -151,10 +151,16 @@ struct MeshViewerApp : public App
     void setup() override
     {
         log::makeLogger<log::LoggerFile>();
+        addAssetDirectory(getAppPath() / "../../../assets");
 
         mFlyCam.setup();
 
         auto skyBoxShader = am::glslProg("SkyBox.vert", "SkyBox.frag");
+        if (!skyBoxShader)
+        {
+            quit();
+            return;
+        }
         skyBoxShader->uniform("uCubeMapTex", 0);
         skyBoxShader->uniform("uExposure", 2.0f);
         skyBoxShader->uniform("uGamma", 2.0f);
