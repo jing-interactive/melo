@@ -1,7 +1,7 @@
 #include "common.glsl"
 
 uniform sampler2D u_BaseColorSampler;
-uniform vec4 u_BaseColorFactor = vec4(1.0, 1.0, 1.0, 1.0);
+uniform vec4 u_BaseColorFactor;
 in vec2     v_UV;
 out vec4    oColor;
 

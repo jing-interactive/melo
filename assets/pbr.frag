@@ -16,8 +16,8 @@
 
 #include "common.glsl"
 
-uniform vec3 u_LightDirection = vec3(1.0, 1.0, 1.0);
-uniform vec3 u_LightColor = vec3(1.0, 1.0, 1.0);
+uniform vec3 u_LightDirection/* = vec3(1.0, 1.0, 1.0)*/;
+uniform vec3 u_LightColor/* = vec3(1.0, 1.0, 1.0)*/;
 
 #ifdef HAS_IBL
     uniform samplerCube u_DiffuseEnvSampler;
@@ -33,8 +33,8 @@ uniform vec3 u_LightColor = vec3(1.0, 1.0, 1.0);
     #ifdef HAS_SPECGLOSSINESSMAP
         uniform sampler2D u_SpecularGlossinessSampler;
     #endif
-    uniform vec4 u_SpecularGlossinessValues = vec4(1.0, 1.0, 1.0, 1.0);
-    uniform vec4 u_DiffuseFactor = vec4(1.0, 1.0, 1.0, 1.0);
+    uniform vec4 u_SpecularGlossinessValues/* = vec4(1.0, 1.0, 1.0, 1.0)*/;
+    uniform vec4 u_DiffuseFactor/* = vec4(1.0, 1.0, 1.0, 1.0)*/;
 #else
     #ifdef HAS_BASECOLORMAP
         uniform sampler2D u_BaseColorSampler;
@@ -42,26 +42,26 @@ uniform vec3 u_LightColor = vec3(1.0, 1.0, 1.0);
     #ifdef HAS_METALROUGHNESSMAP
         uniform sampler2D u_MetallicRoughnessSampler;
     #endif
-    uniform vec2 u_MetallicRoughnessValues = vec2(1.0, 1.0);
-    uniform vec4 u_BaseColorFactor = vec4(1.0, 1.0, 1.0, 1.0);
+    uniform vec2 u_MetallicRoughnessValues/* = vec2(1.0, 1.0)*/;
+    uniform vec4 u_BaseColorFactor/* = vec4(1.0, 1.0, 1.0, 1.0)*/;
 #endif
 
 #ifdef HAS_NORMALMAP
     uniform sampler2D u_NormalSampler;
-    uniform float u_NormalScale         = 1.0;
+    uniform float u_NormalScale        /* = 1.0*/;
 #endif
 
 #ifdef HAS_EMISSIVEMAP
     uniform sampler2D u_EmissiveSampler;
-    uniform vec3 u_EmissiveFactor       = vec3(1.0, 1.0, 1.0);
+    uniform vec3 u_EmissiveFactor      /* = vec3(1.0, 1.0, 1.0)*/;
 #endif
 
 #ifdef HAS_OCCLUSIONMAP
     uniform sampler2D u_OcclusionSampler;
-    uniform float u_OcclusionStrength   = 1.0;
+    uniform float u_OcclusionStrength  /* = 1.0*/;
 #endif
 
-uniform vec3 u_Camera = vec3(1.0, 1.0, 1.0);
+uniform vec3 u_Camera/* = vec3(1.0, 1.0, 1.0)*/;
 
 in vec3 v_Position;
 in vec2 v_UV;

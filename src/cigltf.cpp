@@ -5,14 +5,14 @@
 
 using namespace std;
 
-AnimationGLTF::Ref AnimationGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Animation& property)
+AnimationGLTF::Ref AnimationGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Animation &property)
 {
     Ref ref = make_shared<AnimationGLTF>();
     ref->property = property;
     return ref;
 }
 
-CameraGLTF::Ref CameraGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Camera& property)
+CameraGLTF::Ref CameraGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Camera &property)
 {
     Ref ref = make_shared<CameraGLTF>();
     ref->property = property;
@@ -23,17 +23,16 @@ CameraGLTF::Ref CameraGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Camera&
     return ref;
 }
 
-SamplerGLTF::Ref SamplerGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Sampler& property)
+SamplerGLTF::Ref SamplerGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Sampler &property)
 {
     Ref ref = make_shared<SamplerGLTF>();
     ref->property = property;
 
     auto fmt = gl::Sampler::Format()
-        .minFilter((GLenum)property.minFilter)
-        .magFilter((GLenum)property.magFilter)
-        .wrap(property.wrapS, property.wrapT, property.wrapR)
-        .label(property.name)
-        ;
+                   .minFilter((GLenum)property.minFilter)
+                   .magFilter((GLenum)property.magFilter)
+                   .wrap(property.wrapS, property.wrapT, property.wrapR)
+                   .label(property.name);
     ref->ciSampler = gl::Sampler::create(fmt);
     ref->ciSampler->setLabel(property.name);
 
@@ -55,12 +54,12 @@ void PrimitiveGLTF::draw()
     }
 }
 
-MeshGLTF::Ref MeshGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Mesh& property)
+MeshGLTF::Ref MeshGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Mesh &property)
 {
     Ref ref = make_shared<MeshGLTF>();
     ref->property = property;
     int primId = 0;
-    for (auto& item : property.primitives)
+    for (auto &item : property.primitives)
     {
         auto primitive = PrimitiveGLTF::create(rootGLTF, item);
         ref->primitives.emplace_back(primitive);
@@ -68,7 +67,7 @@ MeshGLTF::Ref MeshGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Mesh& prope
         // Setting labels for vbos and ibo
         int vboId = 0;
         char info[100];
-        for (auto& kv : primitive->ciVboMesh->getVertexArrayLayoutVbos())
+        for (auto &kv : primitive->ciVboMesh->getVertexArrayLayoutVbos())
         {
             auto attribInfo = kv.first.getAttribs()[0];
             auto attribName = attribToString(attribInfo.getAttrib());
@@ -85,17 +84,17 @@ MeshGLTF::Ref MeshGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Mesh& prope
 
 void MeshGLTF::update()
 {
-    for (auto& item : primitives)
+    for (auto &item : primitives)
         item->update();
 }
 
 void MeshGLTF::draw()
 {
-    for (auto& item : primitives)
+    for (auto &item : primitives)
         item->draw();
 }
 
-SkinGLTF::Ref SkinGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Skin& property)
+SkinGLTF::Ref SkinGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Skin &property)
 {
     Ref ref = make_shared<SkinGLTF>();
     ref->property = property;
@@ -122,7 +121,7 @@ gl::TextureCubeMapRef RootGLTF::radianceTexture;
 gl::TextureCubeMapRef RootGLTF::irradianceTexture;
 gl::Texture2dRef RootGLTF::brdfLUTTexture;
 
-RootGLTFRef RootGLTF::create(const fs::path& meshPath)
+RootGLTFRef RootGLTF::create(const fs::path &meshPath)
 {
     if (!fs::exists(meshPath))
     {
@@ -173,34 +172,34 @@ RootGLTFRef RootGLTF::create(const fs::path& meshPath)
         ref->fallbackMaterial = MaterialGLTF::create(ref, mtrl);
     }
 
-    for (auto& item : root.buffers)
+    for (auto &item : root.buffers)
         ref->buffers.emplace_back(BufferGLTF::create(ref, item));
-    for (auto& item : root.bufferViews)
+    for (auto &item : root.bufferViews)
         ref->bufferViews.emplace_back(BufferViewGLTF::create(ref, item));
-    for (auto& item : root.animations)
+    for (auto &item : root.animations)
         ref->animations.emplace_back(AnimationGLTF::create(ref, item));
-    for (auto& item : root.accessors)
+    for (auto &item : root.accessors)
         ref->accessors.emplace_back(AccessorGLTF::create(ref, item));
 
-    for (auto& item : root.images)
+    for (auto &item : root.images)
         ref->images.emplace_back(ImageGLTF::create(ref, item));
-    for (auto& item : root.samplers)
+    for (auto &item : root.samplers)
         ref->samplers.emplace_back(SamplerGLTF::create(ref, item));
-    for (auto& item : root.textures)
+    for (auto &item : root.textures)
         ref->textures.emplace_back(TextureGLTF::create(ref, item));
-    for (auto& item : root.materials)
+    for (auto &item : root.materials)
         ref->materials.emplace_back(MaterialGLTF::create(ref, item));
 
-    for (auto& item : root.meshes)
+    for (auto &item : root.meshes)
         ref->meshes.emplace_back(MeshGLTF::create(ref, item));
-    for (auto& item : root.skins)
+    for (auto &item : root.skins)
         ref->skins.emplace_back(SkinGLTF::create(ref, item));
-    for (auto& item : root.cameras)
+    for (auto &item : root.cameras)
         ref->cameras.emplace_back(CameraGLTF::create(ref, item));
 
-    for (auto& item : root.nodes)
+    for (auto &item : root.nodes)
         ref->nodes.emplace_back(NodeGLTF::create(ref, item));
-    for (auto& item : root.scenes)
+    for (auto &item : root.scenes)
     {
         auto scene = SceneGLTF::create(ref, item);
         scene->setName(meshPath.generic_string());
@@ -234,13 +233,13 @@ void RootGLTF::draw()
 
 void NodeGLTF::setup()
 {
-    for (auto& child : property.children)
+    for (auto &child : property.children)
     {
         addChild(rootGLTF->nodes[child]);
     }
 }
 
-NodeGLTF::Ref NodeGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Node& property)
+NodeGLTF::Ref NodeGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Node &property)
 {
     NodeGLTF::Ref ref = make_shared<NodeGLTF>();
     ref->property = property;
@@ -284,12 +283,12 @@ NodeGLTF::Ref NodeGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Node& prope
     return ref;
 }
 
-SceneGLTF::Ref SceneGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Scene& property)
+SceneGLTF::Ref SceneGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Scene &property)
 {
     SceneGLTF::Ref ref = make_shared<SceneGLTF>();
     ref->sceneProperty = property;
 
-    for (auto& item : property.nodes)
+    for (auto &item : property.nodes)
     {
         auto child = rootGLTF->nodes[item];
 #if 0
@@ -304,7 +303,7 @@ SceneGLTF::Ref SceneGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Scene& pr
     return ref;
 }
 
-AccessorGLTF::Ref AccessorGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Accessor& property)
+AccessorGLTF::Ref AccessorGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Accessor &property)
 {
     // CI_ASSERT_MSG(property.sparse.count == -1, "Unsupported");
 
@@ -318,7 +317,7 @@ AccessorGLTF::Ref AccessorGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Acc
     return ref;
 }
 
-ImageGLTF::Ref ImageGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Image& property)
+ImageGLTF::Ref ImageGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Image &property)
 {
     ImageGLTF::Ref ref = make_shared<ImageGLTF>();
     ref->property = property;
@@ -326,7 +325,7 @@ ImageGLTF::Ref ImageGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Image& pr
 #if 1
     ref->surface = am::surface((rootGLTF->meshPath.parent_path() / property.uri).string());
 #else
-    ref->surface = Surface::create((uint8_t*)property.image.data(), property.width, property.height,
+    ref->surface = Surface::create((uint8_t *)property.image.data(), property.width, property.height,
                                    property.width * property.component,
                                    (property.component == 4) ? SurfaceChannelOrder::RGBA
                                                              : SurfaceChannelOrder::RGB);
@@ -335,7 +334,7 @@ ImageGLTF::Ref ImageGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Image& pr
     return ref;
 }
 
-BufferGLTF::Ref BufferGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Buffer& property)
+BufferGLTF::Ref BufferGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Buffer &property)
 {
     BufferGLTF::Ref ref = make_shared<BufferGLTF>();
     ref->property = property;
@@ -343,13 +342,13 @@ BufferGLTF::Ref BufferGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Buffer&
 #if 0
     ref->cpuBuffer = am::buffer((rootGLTF->meshPath.parent_path() / property.uri).string());
 #else
-    ref->cpuBuffer = Buffer::create((void*)property.data.data(), property.data.size());
+    ref->cpuBuffer = Buffer::create((void *)property.data.data(), property.data.size());
 #endif
 
     return ref;
 }
 
-MaterialGLTF::Ref MaterialGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Material& property)
+MaterialGLTF::Ref MaterialGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Material &property)
 {
     MaterialGLTF::Ref ref = make_shared<MaterialGLTF>();
     ref->property = property;
@@ -357,7 +356,7 @@ MaterialGLTF::Ref MaterialGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Mat
 
     ref->doubleSided = false;
 
-    for (auto& kv : property.values)
+    for (auto &kv : property.values)
     {
         if (kv.first == "baseColorTexture")
             ref->baseColorTexture = rootGLTF->textures[kv.second.TextureIndex()];
@@ -374,7 +373,7 @@ MaterialGLTF::Ref MaterialGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Mat
             ref->roughnessFactor = kv.second.Factor();
     }
 
-    for (auto& kv : property.additionalValues)
+    for (auto &kv : property.additionalValues)
     {
         if (kv.first == "emissiveTexture")
             ref->emissiveTexture = rootGLTF->textures[kv.second.TextureIndex()];
@@ -386,7 +385,7 @@ MaterialGLTF::Ref MaterialGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Mat
         else if (kv.first == "normalTexture")
         {
             ref->normalTexture = rootGLTF->textures[kv.second.TextureIndex()];
-            auto& jsonValues = kv.second.json_double_value;
+            auto &jsonValues = kv.second.json_double_value;
             auto it = jsonValues.find("scale");
             if (it != jsonValues.end())
             {
@@ -400,7 +399,7 @@ MaterialGLTF::Ref MaterialGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Mat
     }
 
     ref->materialType = MATERIAL_PBR_METAL_ROUGHNESS;
-    for (auto& ext : property.extensions)
+    for (auto &ext : property.extensions)
     {
         if (ext.first == "KHR_materials_unlit")
         {
@@ -410,8 +409,8 @@ MaterialGLTF::Ref MaterialGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Mat
         {
             ref->materialType = MATERIAL_PBR_SPEC_GLOSSINESS;
             CI_ASSERT(ext.second.IsObject());
-            const auto& fields = ext.second.Get<tinygltf::Value::Object>();
-            for (auto& kv : fields)
+            const auto &fields = ext.second.Get<tinygltf::Value::Object>();
+            for (auto &kv : fields)
             {
                 if (kv.first == "diffuseTexture")
                 {
@@ -438,7 +437,7 @@ MaterialGLTF::Ref MaterialGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Mat
                 else if (kv.first == "diffuseFactor")
                 {
                     CI_ASSERT(kv.second.ArrayLen() == 4);
-                    auto& arr = kv.second.Get<tinygltf::Value::Array>();
+                    auto &arr = kv.second.Get<tinygltf::Value::Array>();
                     if (arr[0].IsInt())
                     {
                         ref->diffuseFactor.r = arr[0].Get<int>();
@@ -457,7 +456,7 @@ MaterialGLTF::Ref MaterialGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Mat
                 else if (kv.first == "specularFactor")
                 {
                     CI_ASSERT(kv.second.ArrayLen() >= 3);
-                    auto& arr = kv.second.Get<tinygltf::Value::Array>();
+                    auto &arr = kv.second.Get<tinygltf::Value::Array>();
                     if (arr[0].IsInt())
                     {
                         ref->specularFactor.r = arr[0].Get<int>();
@@ -551,19 +550,38 @@ MaterialGLTF::Ref MaterialGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Mat
     {
         ciShader->uniform("u_BaseColorSampler", 0);
         ciShader->uniform("u_MetallicRoughnessSampler", 3);
+        ciShader->uniform("u_MetallicRoughnessValues", vec2(1.0f, 1.0f));
+        ciShader->uniform("u_BaseColorFactor", vec4(1.0f, 1.0f, 1.0f, 1.0f));
     }
     else if (ref->materialType == MATERIAL_PBR_SPEC_GLOSSINESS)
     {
         ciShader->uniform("u_DiffuseSampler", 0);
         ciShader->uniform("u_SpecularGlossinessSampler", 3);
+        ciShader->uniform("u_SpecularGlossinessValues", vec4(1.0f, 1.0f, 1.0f, 1.0f));
+        ciShader->uniform("u_DiffuseFactor", vec4(1.0f, 1.0f, 1.0f, 1.0f));
     }
-    ciShader->uniform("u_NormalSampler", 1);
-    ciShader->uniform("u_EmissiveSampler", 2);
-    ciShader->uniform("u_OcclusionSampler", 4);
 
-    ciShader->uniform("u_DiffuseEnvSampler", 5);
-    ciShader->uniform("u_SpecularEnvSampler", 6);
-    ciShader->uniform("u_brdfLUT", 7);
+    ciShader->uniform("u_LightDirection", vec3(1.0f, 1.0f, 1.0f));
+    ciShader->uniform("u_LightColor", vec3(1.0f, 1.0f, 1.0f));
+    ciShader->uniform("u_Camera", vec3(1.0f, 1.0f, 1.0f));
+
+    ciShader->uniform("u_NormalScale", 1.0f);
+    ciShader->uniform("u_EmissiveFactor", vec3(1.0f, 1.0f, 1.0f));
+    ciShader->uniform("u_OcclusionStrength", 1.0f);
+
+    if (ref->normalTexture)
+        ciShader->uniform("u_NormalSampler", 1);
+    if (ref->emissiveTexture)
+        ciShader->uniform("u_EmissiveSampler", 2);
+    if (ref->occlusionTexture)
+        ciShader->uniform("u_OcclusionSampler", 4);
+
+    if (rootGLTF->radianceTexture && rootGLTF->irradianceTexture && rootGLTF->brdfLUTTexture)
+    {
+        ciShader->uniform("u_DiffuseEnvSampler", 5);
+        ciShader->uniform("u_SpecularEnvSampler", 6);
+        ciShader->uniform("u_brdfLUT", 7);
+    }
 
     return ref;
 }
@@ -635,7 +653,7 @@ void MaterialGLTF::postDraw()
         occlusionTexture->postDraw();
 }
 
-geom::Attrib getAttribFromString(const string& str)
+geom::Attrib getAttribFromString(const string &str)
 {
     if (str == "POSITION")
         return geom::POSITION;
@@ -766,7 +784,7 @@ static inline int32_t GetTypeSizeInBytes(uint32_t ty)
     }
 }
 
-PrimitiveGLTF::Ref PrimitiveGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Primitive& property)
+PrimitiveGLTF::Ref PrimitiveGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Primitive &property)
 {
     PrimitiveGLTF::Ref ref = make_shared<PrimitiveGLTF>();
     ref->property = property;
@@ -795,12 +813,12 @@ PrimitiveGLTF::Ref PrimitiveGLTF::create(RootGLTFRef rootGLTF, const tinygltf::P
         int bytesPerUnit = GetComponentSizeInBytes(indices->property.componentType);
         oglIndexVbo =
             gl::Vbo::create(GL_ELEMENT_ARRAY_BUFFER, bytesPerUnit * indices->property.count,
-                            (uint8_t*)indices->cpuBuffer->getData() + indices->property.byteOffset);
+                            (uint8_t *)indices->cpuBuffer->getData() + indices->property.byteOffset);
     }
 
     vector<pair<geom::BufferLayout, gl::VboRef>> oglVboLayouts;
     size_t numVertices = 0;
-    for (auto& kv : property.attributes)
+    for (auto &kv : property.attributes)
     {
         AccessorGLTF::Ref acc = rootGLTF->accessors[kv.second];
         geom::BufferLayout layout;
@@ -821,7 +839,7 @@ PrimitiveGLTF::Ref PrimitiveGLTF::create(RootGLTFRef rootGLTF, const tinygltf::P
 
 void PrimitiveGLTF::update() {}
 
-TextureGLTF::Ref TextureGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Texture& property)
+TextureGLTF::Ref TextureGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Texture &property)
 {
     TextureGLTF::Ref ref = make_shared<TextureGLTF>();
     ref->property = property;
@@ -866,7 +884,7 @@ void TextureGLTF::postDraw()
 }
 
 BufferViewGLTF::Ref BufferViewGLTF::create(RootGLTFRef rootGLTF,
-                                           const tinygltf::BufferView& property)
+                                           const tinygltf::BufferView &property)
 {
     CI_ASSERT(property.buffer != -1);
     CI_ASSERT(property.byteLength != -1);
@@ -878,7 +896,7 @@ BufferViewGLTF::Ref BufferViewGLTF::create(RootGLTFRef rootGLTF,
 
     auto buffer = rootGLTF->buffers[property.buffer];
     auto cpuBuffer = buffer->cpuBuffer;
-    auto offsetedData = (uint8_t*)cpuBuffer->getData() + property.byteOffset;
+    auto offsetedData = (uint8_t *)cpuBuffer->getData() + property.byteOffset;
     CI_ASSERT(property.byteOffset + property.byteLength <= cpuBuffer->getSize());
 
     GLenum boundTarget = property.target;
