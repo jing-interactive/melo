@@ -28,6 +28,28 @@ namespace cinder {
 }
 #endif
 
+gl::VertBatchRef createGrid()
+{
+    auto grid = gl::VertBatch::create(GL_LINES);
+    grid->begin(GL_LINES);
+    float scale = 0.1f;
+    for (int i = -10; i <= 10; ++i)
+    {
+        grid->color(Color(0.25f, 0.25f, 0.25f));
+        grid->color(Color(0.25f, 0.25f, 0.25f));
+        grid->color(Color(0.25f, 0.25f, 0.25f));
+        grid->color(Color(0.25f, 0.25f, 0.25f));
+
+        grid->vertex(float(i)*scale, 0.0f, -10.0f*scale);
+        grid->vertex(float(i)*scale, 0.0f, +10.0f*scale);
+        grid->vertex(-10.0f*scale, 0.0f, float(i)*scale);
+        grid->vertex(+10.0f*scale, 0.0f, float(i)*scale);
+    }
+    grid->end();
+
+    return grid;
+}
+
 struct FlythroughCamera : public CameraPersp
 {
     double mElapsedSeconds;
@@ -119,6 +141,8 @@ struct MeshViewerApp : public App
     RootObjRef mRootObj;
     gl::VboMeshRef mVboMesh;
 
+    gl::VertBatchRef mGrid;
+
     FlythroughCamera mFlyCam;
 
     vector<string> listGlTFFiles()
@@ -166,6 +190,7 @@ struct MeshViewerApp : public App
         skyBoxShader->uniform("uGamma", 2.0f);
 
         mSkyBoxBatch = gl::Batch::create(geom::Cube().size(vec3(400)), skyBoxShader);
+        mGrid = createGrid();
 
         mCam.lookAt({CAM_POS_X, CAM_POS_Y, CAM_POS_Z}, vec3(), vec3(0, 1, 0));
         mCamUi = CameraUi(&mCam, getWindow(), -1);
@@ -196,6 +221,8 @@ struct MeshViewerApp : public App
                 WIRE_FRAME = !WIRE_FRAME;
             if (code == KeyEvent::KEY_e)
                 ENV_VISIBLE = !ENV_VISIBLE;
+            if (code == KeyEvent::KEY_x)
+                XYZ_VISIBLE = !XYZ_VISIBLE;
         });
 
         getWindow()->getSignalFileDrop().connect([&](FileDropEvent& event) {
@@ -279,6 +306,9 @@ struct MeshViewerApp : public App
 
             if (XYZ_VISIBLE)
             {
+                gl::ScopedDepthTest depthTest(false);
+                gl::ScopedGlslProg glsl(am::glslProg("color"));
+                mGrid->draw();
                 gl::drawCoordinateFrame(10, 0.1, 0.01);
             }
 
@@ -287,6 +317,7 @@ struct MeshViewerApp : public App
                 gl::ScopedTextureBind scpTex(mRootGLTF->radianceTexture, 0);
                 if (ENV_VISIBLE)
                 {
+                    gl::ScopedDepthWrite depthWrite(false);
                     mSkyBoxBatch->draw();
                 }
 
