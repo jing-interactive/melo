@@ -75,8 +75,8 @@ MeshObj::Ref MeshObj::create(RootObjRef rootObj, const tinyobj::shape_t& propert
     if (attrib.normals.empty())
     {
         triMesh.recalculateNormals();
-        triMesh.recalculateTangents();
     }
+    triMesh.recalculateTangents();
 
     ref->vboMesh = gl::VboMesh::create(triMesh);
     int mtrl = property.mesh.material_ids[0];
@@ -100,6 +100,9 @@ void MaterialObj::preDraw()
     ciShader->bind();
     if (diffuseTexture)
         diffuseTexture->bind(0);
+
+    ciShader->uniform("u_flipV", rootObj->flipV);
+    ciShader->uniform("u_Camera", rootObj->cameraPosition);
 }
 
 void MaterialObj::postDraw()
@@ -112,6 +115,23 @@ MaterialObj::Ref MaterialObj::create(RootObjRef rootObj, const tinyobj::material
 {
     auto ref = make_shared<MaterialObj>();
     ref->property = property;
+    ref->rootObj = rootObj;
+
+    auto fmt = gl::GlslProg::Format();
+    fmt.define("HAS_TANGENTS");
+    fmt.define("HAS_NORMALS");
+    fmt.define("PBR_SPECCULAR_GLOSSINESS_WORKFLOW");
+
+    //if (ref->baseColorTexture)
+    //    fmt.define(ref->materialType == MATERIAL_PBR_METAL_ROUGHNESS ? "HAS_BASECOLORMAP" : "HAS_DIFFUSEMAP");
+    //if (ref->metallicRoughnessTexture)
+    //    fmt.define(ref->materialType == MATERIAL_PBR_METAL_ROUGHNESS ? "HAS_METALROUGHNESSMAP" : "HAS_SPECULARGLOSSINESSMAP");
+    //if (ref->emissiveTexture)
+    //    fmt.define("HAS_EMISSIVEMAP");
+    //if (ref->normalTexture)
+    //    fmt.define("HAS_NORMALMAP");
+    //if (ref->occlusionTexture)
+    //    fmt.define("HAS_OCCLUSIONMAP");
 
     if (!property.diffuse_texname.empty())
     {
@@ -122,12 +142,42 @@ MaterialObj::Ref MaterialObj::create(RootObjRef rootObj, const tinyobj::material
             ref->diffuseTexture = am::texture2d(path.string());
         }
 
-        ref->ciShader = am::glslProg("lambert texture");
+        fmt.define("HAS_UV");
     }
-    else
-    {
-        ref->ciShader = am::glslProg("lambert");
-    }
+
+    ref->diffuseFactor = { property.diffuse[0], property.diffuse[1], property.diffuse[2], 1 };
+
+    fmt.vertex(DataSourcePath::create(app::getAssetPath("pbr.vert")));
+    fmt.fragment(DataSourcePath::create(app::getAssetPath("pbr.frag")));
+    fmt.label("pbr.vert/pbr.frag");
+
+#if 1
+    auto ciShader = gl::GlslProg::create(fmt);
+#else
+    ref->ciShader = am::glslProg("lambert texture");
+#endif
+    CI_ASSERT_MSG(ciShader, "Shader compile fails");
+    ref->ciShader = ciShader;
+
+    ciShader->uniform("u_DiffuseFactor", ref->diffuseFactor);
+    ciShader->uniform("u_BaseColorSampler", 0);
+
+    ciShader->uniform("u_LightDirection", vec3(1.0f, 1.0f, 1.0f));
+    ciShader->uniform("u_LightColor", vec3(1.0f, 1.0f, 1.0f));
+    ciShader->uniform("u_Camera", vec3(1.0f, 1.0f, 1.0f));
+
+    ciShader->uniform("u_NormalScale", 1.0f);
+    ciShader->uniform("u_EmissiveFactor", vec3(1.0f, 1.0f, 1.0f));
+    ciShader->uniform("u_OcclusionStrength", 1.0f);
+
+    //if (ref->normalTexture)
+    //    ciShader->uniform("u_NormalSampler", 1);
+    //if (ref->emissiveTexture)
+    //    ciShader->uniform("u_EmissiveSampler", 2);
+    //if (ref->occlusionTexture)
+    //    ciShader->uniform("u_OcclusionSampler", 4);
+
+    ref->ciShader = ciShader;
 
     return ref;
 }
@@ -138,7 +188,7 @@ RootObjRef RootObj::create(const fs::path& meshPath)
     if (!fs::exists(meshPath))
     {
         CI_LOG_F("File doesn't exist: ") << meshPath;
-        return {};
+        return{};
     }
 
     auto ref = make_shared<RootObj>();
@@ -150,7 +200,7 @@ RootObjRef RootObj::create(const fs::path& meshPath)
 
     std::string err;
     bool ret = tinyobj::LoadObj(&ref->attrib, &shapes, &materials, &err,
-                                meshPath.string().c_str(), ref->baseDir.string().c_str());
+        meshPath.string().c_str(), ref->baseDir.string().c_str());
     if (!err.empty())
     {
         CI_LOG_E(err);
@@ -159,7 +209,7 @@ RootObjRef RootObj::create(const fs::path& meshPath)
     if (!ret)
     {
         CI_LOG_E("Failed to load ") << meshPath;
-        return {};
+        return{};
     }
 
     CI_LOG_I("# of vertices  ") << (ref->attrib.vertices.size() / 3);

@@ -16,8 +16,11 @@ struct MaterialObj
 {
     typedef std::shared_ptr<MaterialObj> Ref;
     tinyobj::material_t property;
+    RootObjRef rootObj;
 
     gl::Texture2dRef diffuseTexture;
+    vec4 diffuseFactor = { 1, 1, 1, 1 };
+
     gl::GlslProgRef ciShader;
 
     static Ref create(RootObjRef rootObj, const tinyobj::material_t& property);

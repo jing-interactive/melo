@@ -294,6 +294,12 @@ struct MeshViewerApp : public App
                 mRootGLTF->cameraPosition = mCam.getEyePoint();
                 mRootGLTF->update();
             }
+
+            if (mRootObj)
+            {
+                mRootObj->flipV = FLIP_V;
+                mRootObj->cameraPosition = mCam.getEyePoint();
+            }
         });
 
         getWindow()->getSignalDraw().connect([&] {
