@@ -214,7 +214,7 @@ struct NodeGLTF : public nodes::Node3D
 
     void setup();
 
-    void update();
+    void update(double elapsed = 0.0);
 
     void draw();
 };

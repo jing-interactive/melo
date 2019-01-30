@@ -101,7 +101,7 @@ SkinGLTF::Ref SkinGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Skin &prope
     return ref;
 }
 
-void NodeGLTF::update()
+void NodeGLTF::update(double elapsed)
 {
     if (mesh)
     {
