@@ -320,7 +320,7 @@ struct MeshViewerApp : public App
                 }
 
                 gl::setWireframeEnabled(WIRE_FRAME);
-                mRootGLTF->currentScene->setScale(MESH_SCALE);
+                mRootGLTF->currentScene->setScale({ MESH_SCALE,MESH_SCALE,MESH_SCALE });
                 mRootGLTF->currentScene->setRotation(mMeshRotation);
                 mRootGLTF->draw();
                 gl::disableWireframe();
@@ -329,7 +329,7 @@ struct MeshViewerApp : public App
             if (mRootObj)
             {
                 gl::setWireframeEnabled(WIRE_FRAME);
-                mRootObj->setScale(MESH_SCALE);
+                mRootObj->setScale({ MESH_SCALE,MESH_SCALE,MESH_SCALE });
                 mRootObj->setRotation(mMeshRotation);
                 mRootObj->treeDraw();
                 gl::disableWireframe();
