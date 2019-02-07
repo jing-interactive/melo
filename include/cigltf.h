@@ -4,7 +4,16 @@
 #define TINYGLTF_NO_STB_IMAGE
 #define TINYGLTF_NO_STB_IMAGE_WRITE
 #include "syoyo/tiny_gltf.h"
+
+#ifndef CINDER_LESS
 #include <cinder/gl/gl.h>
+#include <cinder/Filesystem.h>
+namespace fs2 = ci::fs;
+#else
+#include <filesystem>
+namespace fs2 = std::experimental::filesystem;
+
+#endif
 #include <memory>
 #include <vector>
 
@@ -22,9 +31,9 @@ struct BufferGLTF
 {
     typedef std::shared_ptr<BufferGLTF> Ref;
     tinygltf::Buffer property;
-
+#ifndef CINDER_LESS
     ci::BufferRef cpuBuffer;
-
+#endif
     static Ref create(RootGLTFRef rootGLTF, const tinygltf::Buffer& property);
 };
 
@@ -32,10 +41,10 @@ struct BufferViewGLTF
 {
     typedef std::shared_ptr<BufferViewGLTF> Ref;
     tinygltf::BufferView property;
-
+#ifndef CINDER_LESS
     ci::BufferRef cpuBuffer; // points to BufferGLTF::cpuBuffer
     ci::gl::VboRef gpuBuffer;
-
+#endif
     static Ref create(RootGLTFRef rootGLTF, const tinygltf::BufferView& property);
 };
 
@@ -45,10 +54,11 @@ struct AccessorGLTF
     tinygltf::Accessor property;
 
     int byteStride;       // from tinygltf::BufferView
+#ifndef CINDER_LESS
     ci::BufferRef cpuBuffer;  // points to BufferViewGLTF::cpuBuffer
     ci::gl::VboRef gpuBuffer; // points to BufferViewGLTF::gpuBuffer
     // or re-create in case of offseted IBO
-
+#endif
     static Ref create(RootGLTFRef rootGLTF, const tinygltf::Accessor& property);
 };
 
@@ -56,9 +66,9 @@ struct CameraGLTF
 {
     typedef std::shared_ptr<CameraGLTF> Ref;
     tinygltf::Camera property;
-
+#ifndef CINDER_LESS
     std::unique_ptr<ci::Camera> camera;
-
+#endif
     static Ref create(RootGLTFRef rootGLTF, const tinygltf::Camera& property);
 };
 
@@ -68,8 +78,9 @@ struct ImageGLTF
     tinygltf::Image property;
 
     // BufferViewGLTF::Ref bufferView;
+#ifndef CINDER_LESS
     ci::SurfaceRef surface;
-
+#endif
     static Ref create(RootGLTFRef rootGLTF, const tinygltf::Image& property);
 };
 
@@ -77,9 +88,9 @@ struct SamplerGLTF
 {
     typedef std::shared_ptr<SamplerGLTF> Ref;
     tinygltf::Sampler property;
-
+#ifndef CINDER_LESS
     ci::gl::SamplerRef ciSampler;
-
+#endif
     static Ref create(RootGLTFRef rootGLTF, const tinygltf::Sampler& property);
 };
 
@@ -87,9 +98,10 @@ struct TextureGLTF
 {
     typedef std::shared_ptr<TextureGLTF> Ref;
     tinygltf::Texture property;
-
+#ifndef CINDER_LESS
     ci::gl::Texture2dRef ciTexture;
     ci::gl::SamplerRef ciSampler; // points to SamplerGLTF::ciSampler
+#endif
     uint8_t textureUnit;
 
     void preDraw(uint8_t texUnit = 0);
@@ -104,7 +116,14 @@ struct MaterialGLTF
     tinygltf::Material property;
     RootGLTFRef rootGLTF;
 
+#ifndef CINDER_LESS
     ci::gl::GlslProgRef ciShader;
+#endif
+    TextureGLTF::Ref emissiveTexture;
+    TextureGLTF::Ref normalTexture;
+    TextureGLTF::Ref occlusionTexture;
+    TextureGLTF::Ref baseColorTexture;
+    TextureGLTF::Ref metallicRoughnessTexture;
 
     bool doubleSided = false;
 
@@ -117,20 +136,15 @@ struct MaterialGLTF
     AlphaMode alphaMode = OPAQUE;
     float alphaCutoff = 0.5f;
 
-    TextureGLTF::Ref emissiveTexture;
     glm::vec3 emissiveFactor = {0, 0, 0};
 
-    TextureGLTF::Ref normalTexture;
     int normalTextureCoord = 0;
     float normalTextureScale = 1;
 
-    TextureGLTF::Ref occlusionTexture;
     float occlusionStrength = 1;
 
     // MetallicRoughness
-    TextureGLTF::Ref baseColorTexture;
     glm::vec4 baseColorFacor = {1, 1, 1, 1};
-    TextureGLTF::Ref metallicRoughnessTexture;
     float metallicFactor = 1;
     float roughnessFactor = 1;
 
@@ -166,8 +180,9 @@ struct PrimitiveGLTF
 
     MaterialGLTF::Ref material;
 
+#ifndef CINDER_LESS
     ci::gl::VboMeshRef ciVboMesh;
-
+#endif
     static Ref create(RootGLTFRef rootGLTF, const tinygltf::Primitive& property);
 
     void update();
@@ -229,7 +244,7 @@ struct RootGLTF
 {
     tinygltf::Model property;
 
-    static RootGLTFRef create(const ci::fs::path& meshPath);
+    static RootGLTFRef create(const fs2::path& meshPath);
 
     void update();
 
@@ -249,11 +264,13 @@ struct RootGLTF
     std::vector<SkinGLTF::Ref> skins;
     std::vector<TextureGLTF::Ref> textures;
 
-    ci::fs::path meshPath;
+    fs2::path meshPath;
 
+#ifndef CINDER_LESS
     static ci::gl::TextureCubeMapRef radianceTexture;
     static ci::gl::TextureCubeMapRef irradianceTexture;
     static ci::gl::Texture2dRef brdfLUTTexture;
+#endif
     bool flipV = true;
     glm::vec3 cameraPosition;
 

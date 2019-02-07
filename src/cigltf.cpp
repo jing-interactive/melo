@@ -1,10 +1,21 @@
 #include "../include/cigltf.h"
+#ifndef CINDER_LESS
 #include "AssetManager.h"
 #include "cinder/Log.h"
 #include "cinder/app/App.h"
 
-using namespace std;
 using namespace ci;
+#else
+#include <iostream>
+#define CI_ASSERT assert
+#define CI_LOG_V(msg) std::cout << msg
+#define CI_LOG_F(msg) std::cout << msg
+#define CI_LOG_W(msg) std::cout<< msg
+#define CI_LOG_E(msg) std::cout<< msg
+#endif
+#include <glm/gtc/type_ptr.hpp>
+
+using namespace std;
 
 AnimationGLTF::Ref AnimationGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Animation &property)
 {
@@ -17,10 +28,12 @@ CameraGLTF::Ref CameraGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Camera 
 {
     Ref ref = make_shared<CameraGLTF>();
     ref->property = property;
+#ifndef CINDER_LESS
     if (property.type == "perspective")
         ref->camera = make_unique<CameraPersp>();
     else
         ref->camera = make_unique<CameraOrtho>();
+#endif
     return ref;
 }
 
@@ -28,7 +41,7 @@ SamplerGLTF::Ref SamplerGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Sampl
 {
     Ref ref = make_shared<SamplerGLTF>();
     ref->property = property;
-
+#ifndef CINDER_LESS
     auto fmt = gl::Sampler::Format()
                    .minFilter((GLenum)property.minFilter)
                    .magFilter((GLenum)property.magFilter)
@@ -36,6 +49,7 @@ SamplerGLTF::Ref SamplerGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Sampl
                    .label(property.name);
     ref->ciSampler = gl::Sampler::create(fmt);
     ref->ciSampler->setLabel(property.name);
+#endif
 
     return ref;
 }
@@ -46,9 +60,9 @@ void PrimitiveGLTF::draw()
     {
         material->preDraw();
     }
-
+#ifndef CINDER_LESS
     gl::draw(ciVboMesh);
-
+#endif
     if (material)
     {
         material->postDraw();
@@ -64,7 +78,7 @@ MeshGLTF::Ref MeshGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Mesh &prope
     {
         auto primitive = PrimitiveGLTF::create(rootGLTF, item);
         ref->primitives.emplace_back(primitive);
-
+#ifndef CINDER_LESS
         // Setting labels for vbos and ibo
         int vboId = 0;
         char info[100];
@@ -78,6 +92,7 @@ MeshGLTF::Ref MeshGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Mesh &prope
         }
         sprintf(info, "%s #%d indices", property.name.c_str(), primId);
         primitive->ciVboMesh->getIndexVbo()->setLabel(info);
+#endif
     }
 
     return ref;
@@ -118,13 +133,15 @@ void NodeGLTF::draw()
     }
 }
 
+#ifndef CINDER_LESS
 gl::TextureCubeMapRef RootGLTF::radianceTexture;
 gl::TextureCubeMapRef RootGLTF::irradianceTexture;
 gl::Texture2dRef RootGLTF::brdfLUTTexture;
+#endif
 
-RootGLTFRef RootGLTF::create(const fs::path &meshPath)
+RootGLTFRef RootGLTF::create(const fs2::path &meshPath)
 {
-    if (!fs::exists(meshPath))
+    if (!fs2::exists(meshPath))
     {
         CI_LOG_F("File doesn't exist: ") << meshPath;
         return {};
@@ -218,6 +235,7 @@ void RootGLTF::update() { currentScene->treeUpdate(); }
 
 void RootGLTF::draw()
 {
+#ifndef CINDER_LESS
     if (irradianceTexture && radianceTexture && brdfLUTTexture)
     {
         gl::ScopedTextureBind scpIrr(irradianceTexture, 5);
@@ -225,11 +243,11 @@ void RootGLTF::draw()
         gl::ScopedTextureBind scpBrdf(brdfLUTTexture, 7);
 
         currentScene->treeDraw();
+        return;
     }
-    else
-    {
-        currentScene->treeDraw();
-    }
+#endif
+ 
+    currentScene->treeDraw();
 }
 
 void NodeGLTF::setup()
@@ -312,9 +330,10 @@ AccessorGLTF::Ref AccessorGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Acc
     auto bufferView = rootGLTF->bufferViews[property.bufferView];
     ref->property = property;
     ref->byteStride = bufferView->property.byteStride;
+#ifndef CINDER_LESS
     ref->cpuBuffer = bufferView->cpuBuffer;
     ref->gpuBuffer = bufferView->gpuBuffer;
-
+#endif
     return ref;
 }
 
@@ -322,7 +341,7 @@ ImageGLTF::Ref ImageGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Image &pr
 {
     ImageGLTF::Ref ref = make_shared<ImageGLTF>();
     ref->property = property;
-
+#ifndef CINDER_LESS
 #if 1
     ref->surface = am::surface((rootGLTF->meshPath.parent_path() / property.uri).string());
 #else
@@ -331,7 +350,7 @@ ImageGLTF::Ref ImageGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Image &pr
                                    (property.component == 4) ? SurfaceChannelOrder::RGBA
                                                              : SurfaceChannelOrder::RGB);
 #endif
-
+#endif
     return ref;
 }
 
@@ -339,13 +358,13 @@ BufferGLTF::Ref BufferGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Buffer 
 {
     BufferGLTF::Ref ref = make_shared<BufferGLTF>();
     ref->property = property;
-
+#ifndef CINDER_LESS
 #if 0
     ref->cpuBuffer = am::buffer((rootGLTF->meshPath.parent_path() / property.uri).string());
 #else
     ref->cpuBuffer = Buffer::create((void *)property.data.data(), property.data.size());
 #endif
-
+#endif
     return ref;
 }
 
@@ -486,10 +505,10 @@ MaterialGLTF::Ref MaterialGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Mat
         }
         else
         {
-            CI_ASSERT_MSG(0, "TODO: support more Material::extensions");
+            CI_ASSERT(0 && "TODO: support more Material::extensions");
         }
     }
-
+#ifndef CINDER_LESS
     auto fmt = gl::GlslProg::Format();
     fmt.define("HAS_UV");
     fmt.define("HAS_TANGENTS");
@@ -538,7 +557,7 @@ MaterialGLTF::Ref MaterialGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Mat
 
         ciShader = gl::GlslProg::create(fmt);
     }
-    CI_ASSERT_MSG(ciShader, "Shader compile fails");
+    CI_ASSERT(ciShader && "Shader compile fails");
     ref->ciShader = ciShader;
 
 #ifndef NDEBUG
@@ -583,12 +602,13 @@ MaterialGLTF::Ref MaterialGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Mat
         ciShader->uniform("u_SpecularEnvSampler", 6);
         ciShader->uniform("u_brdfLUT", 7);
     }
-
+#endif
     return ref;
 }
 
 void MaterialGLTF::preDraw()
 {
+#ifndef CINDER_LESS
     ciShader->uniform("u_flipV", rootGLTF->flipV);
     ciShader->uniform("u_Camera", rootGLTF->cameraPosition);
 
@@ -628,10 +648,12 @@ void MaterialGLTF::preDraw()
         metallicRoughnessTexture->preDraw(3);
     if (occlusionTexture)
         occlusionTexture->preDraw(4);
+#endif
 }
 
 void MaterialGLTF::postDraw()
 {
+#ifndef CINDER_LESS
     if (doubleSided)
     {
         gl::context()->popBoolState(GL_CULL_FACE);
@@ -652,8 +674,10 @@ void MaterialGLTF::postDraw()
         metallicRoughnessTexture->postDraw();
     if (occlusionTexture)
         occlusionTexture->postDraw();
+#endif
 }
 
+#ifndef CINDER_LESS
 geom::Attrib getAttribFromString(const string &str)
 {
     if (str == "POSITION")
@@ -681,9 +705,10 @@ geom::Attrib getAttribFromString(const string &str)
     if (str == "COLOR_0")
         return geom::COLOR;
 
-    CI_ASSERT_MSG(0, str.c_str());
+    CI_ASSERT(0 && str.c_str());
     return geom::USER_DEFINED;
 }
+#endif
 
 int32_t GetComponentSizeInBytes(uint32_t componentType)
 {
@@ -725,7 +750,7 @@ int32_t GetComponentSizeInBytes(uint32_t componentType)
         return -1;
     }
 }
-
+#ifndef CINDER_LESS
 geom::DataType getDataType(uint32_t componentType)
 {
     if (componentType == TINYGLTF_COMPONENT_TYPE_BYTE)
@@ -744,9 +769,10 @@ geom::DataType getDataType(uint32_t componentType)
         return geom::FLOAT;
     if (componentType == TINYGLTF_COMPONENT_TYPE_DOUBLE)
         return geom::DOUBLE;
-    CI_ASSERT_MSG(0, "Unknown componentType");
+    CI_ASSERT(0 && "Unknown componentType");
     return geom::INTEGER;
 }
+#endif
 
 static inline int32_t GetTypeSizeInBytes(uint32_t ty)
 {
@@ -798,10 +824,10 @@ PrimitiveGLTF::Ref PrimitiveGLTF::create(RootGLTFRef rootGLTF, const tinygltf::P
     {
         ref->material = rootGLTF->materials[property.material];
     }
-
-    GLenum oglPrimitiveMode = (GLenum)property.mode;
-
     AccessorGLTF::Ref indices = rootGLTF->accessors[property.indices];
+
+#ifndef CINDER_LESS
+    GLenum oglPrimitiveMode = (GLenum)property.mode;
 
     gl::VboRef oglIndexVbo;
     if (indices->property.byteOffset == 0)
@@ -834,7 +860,7 @@ PrimitiveGLTF::Ref PrimitiveGLTF::create(RootGLTFRef rootGLTF, const tinygltf::P
     ref->ciVboMesh =
         gl::VboMesh::create(numVertices, oglPrimitiveMode, oglVboLayouts, indices->property.count,
                             (GLenum)indices->property.componentType, oglIndexVbo);
-
+#endif
     return ref;
 }
 
@@ -846,6 +872,7 @@ TextureGLTF::Ref TextureGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Textu
     ref->property = property;
 
     ImageGLTF::Ref source = rootGLTF->images[property.source];
+#ifndef CINDER_LESS
     auto texFormat =
         gl::Texture2d::Format().mipmap().minFilter(GL_LINEAR_MIPMAP_LINEAR).wrap(GL_REPEAT);
     ref->ciTexture = gl::Texture2d::create(*source->surface, texFormat);
@@ -856,7 +883,7 @@ TextureGLTF::Ref TextureGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Textu
         auto sampler = rootGLTF->samplers[property.sampler];
         ref->ciSampler = sampler->ciSampler;
     }
-
+#endif
     ref->textureUnit = -1;
 
     return ref;
@@ -868,19 +895,22 @@ void TextureGLTF::preDraw(uint8_t texUnit)
         return;
 
     textureUnit = texUnit;
+#ifndef CINDER_LESS
     ciTexture->bind(textureUnit);
     if (ciSampler)
         ciSampler->bind(textureUnit);
+#endif
 }
 
 void TextureGLTF::postDraw()
 {
     if (textureUnit == -1)
         return;
-
+#ifndef CINDER_LESS
     ciTexture->unbind(textureUnit);
     if (ciSampler)
         ciSampler->unbind(textureUnit);
+#endif
     textureUnit = -1;
 }
 
@@ -896,6 +926,7 @@ BufferViewGLTF::Ref BufferViewGLTF::create(RootGLTFRef rootGLTF,
     ref->property = property;
 
     auto buffer = rootGLTF->buffers[property.buffer];
+#ifndef CINDER_LESS
     auto cpuBuffer = buffer->cpuBuffer;
     auto offsetedData = (uint8_t *)cpuBuffer->getData() + property.byteOffset;
     CI_ASSERT(property.byteOffset + property.byteLength <= cpuBuffer->getSize());
@@ -910,6 +941,6 @@ BufferViewGLTF::Ref BufferViewGLTF::create(RootGLTFRef rootGLTF,
     ref->gpuBuffer =
         gl::Vbo::create(boundTarget, ref->cpuBuffer->getSize(), ref->cpuBuffer->getData());
     ref->gpuBuffer->setLabel(property.name);
-
+#endif
     return ref;
 }
