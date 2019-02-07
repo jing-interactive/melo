@@ -4,6 +4,7 @@
 #include "cinder/app/App.h"
 
 using namespace std;
+using namespace ci;
 
 AnimationGLTF::Ref AnimationGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Animation &property)
 {

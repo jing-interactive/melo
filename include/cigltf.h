@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Cinder-Nodes/include/Node3D.h"
+#include "../../Cinder-Nodes/include/Node3D.h"
 #define TINYGLTF_NO_STB_IMAGE
 #define TINYGLTF_NO_STB_IMAGE_WRITE
 #include "syoyo/tiny_gltf.h"
@@ -9,8 +9,6 @@
 #include <vector>
 
 typedef std::shared_ptr<struct RootGLTF> RootGLTFRef;
-
-using namespace ci;
 
 struct AnimationGLTF
 {
@@ -25,7 +23,7 @@ struct BufferGLTF
     typedef std::shared_ptr<BufferGLTF> Ref;
     tinygltf::Buffer property;
 
-    BufferRef cpuBuffer;
+    ci::BufferRef cpuBuffer;
 
     static Ref create(RootGLTFRef rootGLTF, const tinygltf::Buffer& property);
 };
@@ -35,8 +33,8 @@ struct BufferViewGLTF
     typedef std::shared_ptr<BufferViewGLTF> Ref;
     tinygltf::BufferView property;
 
-    BufferRef cpuBuffer; // points to BufferGLTF::cpuBuffer
-    gl::VboRef gpuBuffer;
+    ci::BufferRef cpuBuffer; // points to BufferGLTF::cpuBuffer
+    ci::gl::VboRef gpuBuffer;
 
     static Ref create(RootGLTFRef rootGLTF, const tinygltf::BufferView& property);
 };
@@ -47,8 +45,8 @@ struct AccessorGLTF
     tinygltf::Accessor property;
 
     int byteStride;       // from tinygltf::BufferView
-    BufferRef cpuBuffer;  // points to BufferViewGLTF::cpuBuffer
-    gl::VboRef gpuBuffer; // points to BufferViewGLTF::gpuBuffer
+    ci::BufferRef cpuBuffer;  // points to BufferViewGLTF::cpuBuffer
+    ci::gl::VboRef gpuBuffer; // points to BufferViewGLTF::gpuBuffer
     // or re-create in case of offseted IBO
 
     static Ref create(RootGLTFRef rootGLTF, const tinygltf::Accessor& property);
@@ -59,7 +57,7 @@ struct CameraGLTF
     typedef std::shared_ptr<CameraGLTF> Ref;
     tinygltf::Camera property;
 
-    std::unique_ptr<Camera> camera;
+    std::unique_ptr<ci::Camera> camera;
 
     static Ref create(RootGLTFRef rootGLTF, const tinygltf::Camera& property);
 };
@@ -70,7 +68,7 @@ struct ImageGLTF
     tinygltf::Image property;
 
     // BufferViewGLTF::Ref bufferView;
-    SurfaceRef surface;
+    ci::SurfaceRef surface;
 
     static Ref create(RootGLTFRef rootGLTF, const tinygltf::Image& property);
 };
@@ -80,7 +78,7 @@ struct SamplerGLTF
     typedef std::shared_ptr<SamplerGLTF> Ref;
     tinygltf::Sampler property;
 
-    gl::SamplerRef ciSampler;
+    ci::gl::SamplerRef ciSampler;
 
     static Ref create(RootGLTFRef rootGLTF, const tinygltf::Sampler& property);
 };
@@ -90,8 +88,8 @@ struct TextureGLTF
     typedef std::shared_ptr<TextureGLTF> Ref;
     tinygltf::Texture property;
 
-    gl::Texture2dRef ciTexture;
-    gl::SamplerRef ciSampler; // points to SamplerGLTF::ciSampler
+    ci::gl::Texture2dRef ciTexture;
+    ci::gl::SamplerRef ciSampler; // points to SamplerGLTF::ciSampler
     uint8_t textureUnit;
 
     void preDraw(uint8_t texUnit = 0);
@@ -106,7 +104,7 @@ struct MaterialGLTF
     tinygltf::Material property;
     RootGLTFRef rootGLTF;
 
-    gl::GlslProgRef ciShader;
+    ci::gl::GlslProgRef ciShader;
 
     bool doubleSided = false;
 
@@ -120,7 +118,7 @@ struct MaterialGLTF
     float alphaCutoff = 0.5f;
 
     TextureGLTF::Ref emissiveTexture;
-    vec3 emissiveFactor = {0, 0, 0};
+    glm::vec3 emissiveFactor = {0, 0, 0};
 
     TextureGLTF::Ref normalTexture;
     int normalTextureCoord = 0;
@@ -131,7 +129,7 @@ struct MaterialGLTF
 
     // MetallicRoughness
     TextureGLTF::Ref baseColorTexture;
-    vec4 baseColorFacor = {1, 1, 1, 1};
+    glm::vec4 baseColorFacor = {1, 1, 1, 1};
     TextureGLTF::Ref metallicRoughnessTexture;
     float metallicFactor = 1;
     float roughnessFactor = 1;
@@ -139,9 +137,9 @@ struct MaterialGLTF
     // SpecularGlossiness
     // TextureGLTF::Ref diffuseTexture;
     int diffuseTextureCoord = 0;
-    vec4 diffuseFactor = {1, 1, 1, 1};
+    glm::vec4 diffuseFactor = {1, 1, 1, 1};
     // TextureGLTF::Ref specularGlossinessTexture;
-    vec3 specularFactor = {1, 1, 1};
+    glm::vec3 specularFactor = {1, 1, 1};
     float glossinessFactor = 1;
 
     enum MaterialType
@@ -168,7 +166,7 @@ struct PrimitiveGLTF
 
     MaterialGLTF::Ref material;
 
-    gl::VboMeshRef ciVboMesh;
+    ci::gl::VboMeshRef ciVboMesh;
 
     static Ref create(RootGLTFRef rootGLTF, const tinygltf::Primitive& property);
 
@@ -231,7 +229,7 @@ struct RootGLTF
 {
     tinygltf::Model property;
 
-    static RootGLTFRef create(const fs::path& meshPath);
+    static RootGLTFRef create(const ci::fs::path& meshPath);
 
     void update();
 
@@ -251,13 +249,13 @@ struct RootGLTF
     std::vector<SkinGLTF::Ref> skins;
     std::vector<TextureGLTF::Ref> textures;
 
-    fs::path meshPath;
+    ci::fs::path meshPath;
 
-    static gl::TextureCubeMapRef radianceTexture;
-    static gl::TextureCubeMapRef irradianceTexture;
-    static gl::Texture2dRef brdfLUTTexture;
+    static ci::gl::TextureCubeMapRef radianceTexture;
+    static ci::gl::TextureCubeMapRef irradianceTexture;
+    static ci::gl::Texture2dRef brdfLUTTexture;
     bool flipV = true;
-    vec3 cameraPosition;
+    glm::vec3 cameraPosition;
 
     MaterialGLTF::Ref fallbackMaterial; // if (material == -1)
 
