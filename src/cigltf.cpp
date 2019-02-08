@@ -633,7 +633,7 @@ void MaterialGLTF::preDraw()
     {
         ctx->pushBoolState(GL_CULL_FACE, false);
     }
-    if (alphaMode == OPAQUE)
+    if (alphaMode == ALPHA_OPAQUE)
     {
         ctx->pushBoolState(GL_BLEND, false);
     }
@@ -668,7 +668,7 @@ void MaterialGLTF::postDraw()
         gl::context()->popBoolState(GL_CULL_FACE);
     }
     gl::context()->popBoolState(GL_BLEND);
-    if (alphaMode != OPAQUE)
+    if (alphaMode != ALPHA_OPAQUE)
     {
         gl::context()->popBlendFuncSeparate();
     }
@@ -693,6 +693,8 @@ AttribGLTF getAttribFromString(const string& str)
 {
     if (str == "POSITION")
         return POSITION;
+    if (str == "COLOR_0")
+        return COLOR;
     if (str == "NORMAL")
         return NORMAL;
     if (str == "TANGENT")
@@ -713,52 +715,30 @@ AttribGLTF getAttribFromString(const string& str)
     if (str == "TEXCOORD_3")
         return TEX_COORD_3;
 
-    if (str == "COLOR_0")
-        return COLOR;
-
     CI_ASSERT(0 && str.c_str());
-    return USER_DEFINED;
+    return NUM_ATTRIBS;
 }
 
-int32_t GetComponentSizeInBytes(uint32_t componentType)
+int32_t getComponentSizeInBytes(uint32_t componentType)
 {
     if (componentType == TINYGLTF_COMPONENT_TYPE_BYTE)
-    {
         return 1;
-    }
-    else if (componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE)
-    {
+    if (componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE)
         return 1;
-    }
-    else if (componentType == TINYGLTF_COMPONENT_TYPE_SHORT)
-    {
+    if (componentType == TINYGLTF_COMPONENT_TYPE_SHORT)
         return 2;
-    }
-    else if (componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT)
-    {
+    if (componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT)
         return 2;
-    }
-    else if (componentType == TINYGLTF_COMPONENT_TYPE_INT)
-    {
+    if (componentType == TINYGLTF_COMPONENT_TYPE_INT)
         return 4;
-    }
-    else if (componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT)
-    {
+    if (componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT)
         return 4;
-    }
-    else if (componentType == TINYGLTF_COMPONENT_TYPE_FLOAT)
-    {
+    if (componentType == TINYGLTF_COMPONENT_TYPE_FLOAT)
         return 4;
-    }
-    else if (componentType == TINYGLTF_COMPONENT_TYPE_DOUBLE)
-    {
+    if (componentType == TINYGLTF_COMPONENT_TYPE_DOUBLE)
         return 8;
-    }
-    else
-    {
-        // Unknown componenty type
-        return -1;
-    }
+    // Unknown componenty type
+    return -1;
 }
 #ifndef CINDER_LESS
 geom::DataType getDataType(uint32_t componentType)
@@ -787,38 +767,33 @@ geom::DataType getDataType(uint32_t componentType)
 static inline int32_t getTypeSizeInBytes(uint32_t ty)
 {
     if (ty == TINYGLTF_TYPE_SCALAR)
-    {
         return 1;
-    }
-    else if (ty == TINYGLTF_TYPE_VEC2)
-    {
+    if (ty == TINYGLTF_TYPE_VEC2)
         return 2;
-    }
-    else if (ty == TINYGLTF_TYPE_VEC3)
-    {
+    if (ty == TINYGLTF_TYPE_VEC3)
         return 3;
-    }
-    else if (ty == TINYGLTF_TYPE_VEC4)
-    {
+    if (ty == TINYGLTF_TYPE_VEC4)
         return 4;
-    }
-    else if (ty == TINYGLTF_TYPE_MAT2)
-    {
+    if (ty == TINYGLTF_TYPE_MAT2)
         return 4;
-    }
-    else if (ty == TINYGLTF_TYPE_MAT3)
-    {
+    if (ty == TINYGLTF_TYPE_MAT3)
         return 9;
-    }
-    else if (ty == TINYGLTF_TYPE_MAT4)
-    {
+    if (ty == TINYGLTF_TYPE_MAT4)
         return 16;
-    }
-    else
-    {
-        // Unknown componenty type
-        return -1;
-    }
+    // Unknown componenty type
+    return -1;
+}
+
+WeakBufferRef createFromAccessor(AccessorGLTF::Ref acc, int assumedType, int assumedComponentType)
+{
+    int typeSize = getTypeSizeInBytes(acc->property.type);
+    int compSize = getComponentSizeInBytes(acc->property.componentType);
+    CI_ASSERT(acc->property.type == assumedType);
+    CI_ASSERT(acc->property.componentType == assumedComponentType);
+    auto ref = WeakBuffer::create((uint8_t*)acc->cpuBuffer->getData() + acc->property.byteOffset,
+        typeSize * compSize * acc->property.count);
+
+    return ref;
 }
 
 PrimitiveGLTF::Ref PrimitiveGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Primitive& property)
@@ -834,9 +809,26 @@ PrimitiveGLTF::Ref PrimitiveGLTF::create(RootGLTFRef rootGLTF, const tinygltf::P
     {
         ref->material = rootGLTF->materials[property.material];
     }
-    AccessorGLTF::Ref indices = rootGLTF->accessors[property.indices];
+    CI_ASSERT(property.indices >= 0);
+    auto indices = rootGLTF->accessors[property.indices];
 
-#ifndef CINDER_LESS
+#ifdef CINDER_LESS
+    ref->indices = createFromAccessor(indices, TINYGLTF_TYPE_SCALAR, TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT);
+    ref->indexCount = indices->property.count;
+
+    ref->vertexCount = 0;
+    for (auto& kv : property.attributes)
+    {
+        auto acc = rootGLTF->accessors[kv.second];
+        if (kv.first == "POSITION")
+            ref->positions = createFromAccessor(acc, TINYGLTF_TYPE_VEC3, TINYGLTF_COMPONENT_TYPE_FLOAT);
+        if (kv.first == "NORMAL")
+            ref->normals = createFromAccessor(acc, TINYGLTF_TYPE_VEC3, TINYGLTF_COMPONENT_TYPE_FLOAT);
+        if (kv.first == "TEXCOORD_0")
+            ref->uvs = createFromAccessor(acc, TINYGLTF_TYPE_VEC2, TINYGLTF_COMPONENT_TYPE_FLOAT);
+        ref->vertexCount = acc->property.count;
+    }
+#else
     GLenum oglPrimitiveMode = (GLenum)property.mode;
 
     gl::VboRef oglIndexVbo;
@@ -847,7 +839,7 @@ PrimitiveGLTF::Ref PrimitiveGLTF::create(RootGLTFRef rootGLTF, const tinygltf::P
     }
     else
     {
-        int bytesPerUnit = GetComponentSizeInBytes(indices->property.componentType);
+        int bytesPerUnit = getComponentSizeInBytes(indices->property.componentType);
         oglIndexVbo =
             gl::Vbo::create(GL_ELEMENT_ARRAY_BUFFER, bytesPerUnit * indices->property.count,
                             (uint8_t*)indices->cpuBuffer->getData() + indices->property.byteOffset);
@@ -893,8 +885,8 @@ TextureGLTF::Ref TextureGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Textu
         auto sampler = rootGLTF->samplers[property.sampler];
         ref->ciSampler = sampler->ciSampler;
     }
-#endif
     ref->textureUnit = -1;
+#endif
 
     return ref;
 }

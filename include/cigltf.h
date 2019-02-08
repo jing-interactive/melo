@@ -12,7 +12,6 @@ namespace fs2 = ci::fs;
 #else
 #include <filesystem>
 namespace fs2 = std::experimental::filesystem;
-
 #endif
 #include <memory>
 #include <vector>
@@ -33,18 +32,8 @@ enum AttribGLTF
     BITANGENT,
     BONE_INDEX,
     BONE_WEIGHT,
-    CUSTOM_0,
-    CUSTOM_1,
-    CUSTOM_2,
-    CUSTOM_3,
-    CUSTOM_4,
-    CUSTOM_5,
-    CUSTOM_6,
-    CUSTOM_7,
-    CUSTOM_8,
-    CUSTOM_9,
+
     NUM_ATTRIBS,
-    USER_DEFINED = NUM_ATTRIBS
 };
 
 // WeakBuffer doesn't own memory storage
@@ -169,11 +158,11 @@ struct MaterialGLTF
 
     enum AlphaMode
     {
-        OPAQUE,
-        MASK,
-        BLEND,
+        ALPHA_OPAQUE,
+        ALPHA_MASK,
+        ALPHA_BLEND,
     };
-    AlphaMode alphaMode = OPAQUE;
+    AlphaMode alphaMode = ALPHA_OPAQUE;
     float alphaCutoff = 0.5f;
 
     TextureGLTF::Ref emissiveTexture;
@@ -224,6 +213,14 @@ struct PrimitiveGLTF
     tinygltf::Primitive property;
 
     MaterialGLTF::Ref material;
+
+    WeakBufferRef indices;   // uint32_t[]
+    uint32_t indexCount;
+    uint32_t vertexCount;
+    WeakBufferRef positions; // vec3[]
+    WeakBufferRef normals;   // vec3[]
+    //WeakBufferRef tangents;  // vec4[]
+    WeakBufferRef uvs;       // vec2[]
 
 #ifndef CINDER_LESS
     ci::gl::VboMeshRef ciVboMesh;

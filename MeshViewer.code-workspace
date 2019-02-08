@@ -3,13 +3,13 @@
       "path": "."
     },
     {
-      "path": "../Cinder/include/cinder"
+      "path": "../../include/cinder"
     },
     {
-      "path": "../Cinder/src/cinder"
+      "path": "../../src/cinder"
     },
     {
-      "path": "../Cinder/blocks"
+      "path": "../../blocks"
     },
   ],
   "settings": {
