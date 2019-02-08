@@ -4,6 +4,7 @@ OBJ / glTF2 mesh viewer library for `Cinder` and `standalone viewer` on Windows 
 # Features
 
 - Support Windows and macOS
+- Can be used outside of Cinder
 - Loading OBJ meshes through [syoyo/tinyobjloader](https://github.com/syoyo/tinyobjloader)
 - Loading glTF2 meshes through [syoyo/tinygltf](https://github.com/syoyo/tinygltf)
 - PBR rendering w/ modified shaders from [KhronosGroup/glTF-WebGL-PBR](https://github.com/KhronosGroup/glTF-WebGL-PBR/tree/master/shaders)
