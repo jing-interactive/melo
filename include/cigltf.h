@@ -16,7 +16,7 @@ namespace fs2 = std::experimental::filesystem;
 #include <memory>
 #include <vector>
 
-typedef std::shared_ptr<struct RootGLTF> RootGLTFRef;
+typedef std::shared_ptr<struct ModelGLTF> ModelGLTFRef;
 typedef std::shared_ptr<struct WeakBuffer> WeakBufferRef;
 
 enum AttribGLTF
@@ -58,7 +58,7 @@ struct AnimationGLTF
     typedef std::shared_ptr<AnimationGLTF> Ref;
     tinygltf::Animation property;
 
-    static Ref create(RootGLTFRef rootGLTF, const tinygltf::Animation& property);
+    static Ref create(ModelGLTFRef modelGLTF, const tinygltf::Animation& property);
 };
 
 struct BufferGLTF
@@ -66,7 +66,7 @@ struct BufferGLTF
     typedef std::shared_ptr<BufferGLTF> Ref;
     tinygltf::Buffer property;
     WeakBufferRef cpuBuffer;
-    static Ref create(RootGLTFRef rootGLTF, const tinygltf::Buffer& property);
+    static Ref create(ModelGLTFRef modelGLTF, const tinygltf::Buffer& property);
 };
 
 struct BufferViewGLTF
@@ -77,7 +77,7 @@ struct BufferViewGLTF
 #ifndef CINDER_LESS
     ci::gl::VboRef gpuBuffer;
 #endif
-    static Ref create(RootGLTFRef rootGLTF, const tinygltf::BufferView& property);
+    static Ref create(ModelGLTFRef modelGLTF, const tinygltf::BufferView& property);
 };
 
 struct AccessorGLTF
@@ -91,7 +91,7 @@ struct AccessorGLTF
     ci::gl::VboRef gpuBuffer; // points to BufferViewGLTF::gpuBuffer
     // or re-create in case of offseted IBO
 #endif
-    static Ref create(RootGLTFRef rootGLTF, const tinygltf::Accessor& property);
+    static Ref create(ModelGLTFRef modelGLTF, const tinygltf::Accessor& property);
 };
 
 struct CameraGLTF
@@ -103,7 +103,7 @@ struct CameraGLTF
 #ifndef CINDER_LESS
     std::unique_ptr<ci::Camera> camera;
 #endif
-    static Ref create(RootGLTFRef rootGLTF, const tinygltf::Camera& property);
+    static Ref create(ModelGLTFRef modelGLTF, const tinygltf::Camera& property);
 };
 
 struct ImageGLTF
@@ -115,7 +115,7 @@ struct ImageGLTF
 #ifndef CINDER_LESS
     ci::SurfaceRef surface;
 #endif
-    static Ref create(RootGLTFRef rootGLTF, const tinygltf::Image& property);
+    static Ref create(ModelGLTFRef modelGLTF, const tinygltf::Image& property);
 };
 
 struct SamplerGLTF
@@ -125,7 +125,7 @@ struct SamplerGLTF
 #ifndef CINDER_LESS
     ci::gl::SamplerRef ciSampler;
 #endif
-    static Ref create(RootGLTFRef rootGLTF, const tinygltf::Sampler& property);
+    static Ref create(ModelGLTFRef modelGLTF, const tinygltf::Sampler& property);
 };
 
 struct TextureGLTF
@@ -142,14 +142,14 @@ struct TextureGLTF
     void preDraw(uint8_t texUnit = 0);
     void postDraw();
 
-    static Ref create(RootGLTFRef rootGLTF, const tinygltf::Texture& property);
+    static Ref create(ModelGLTFRef modelGLTF, const tinygltf::Texture& property);
 };
 
 struct MaterialGLTF
 {
     typedef std::shared_ptr<MaterialGLTF> Ref;
     tinygltf::Material property;
-    RootGLTFRef rootGLTF;
+    ModelGLTFRef modelGLTF;
 
 #ifndef CINDER_LESS
     ci::gl::GlslProgRef ciShader;
@@ -201,7 +201,7 @@ struct MaterialGLTF
     };
     MaterialType materialType;
 
-    static Ref create(RootGLTFRef rootGLTF, const tinygltf::Material& property);
+    static Ref create(ModelGLTFRef modelGLTF, const tinygltf::Material& property);
 
     void preDraw();
 
@@ -226,7 +226,7 @@ struct PrimitiveGLTF
 #ifndef CINDER_LESS
     ci::gl::VboMeshRef ciVboMesh;
 #endif
-    static Ref create(RootGLTFRef rootGLTF, const tinygltf::Primitive& property);
+    static Ref create(ModelGLTFRef modelGLTF, const tinygltf::Primitive& property);
 
     void update();
 
@@ -240,7 +240,7 @@ struct MeshGLTF
 
     std::vector<PrimitiveGLTF::Ref> primitives;
 
-    static Ref create(RootGLTFRef rootGLTF, const tinygltf::Mesh& property);
+    static Ref create(ModelGLTFRef modelGLTF, const tinygltf::Mesh& property);
 
     void update();
 
@@ -252,7 +252,7 @@ struct SkinGLTF
     typedef std::shared_ptr<SkinGLTF> Ref;
     tinygltf::Skin property;
 
-    static Ref create(RootGLTFRef rootGLTF, const tinygltf::Skin& property);
+    static Ref create(ModelGLTFRef modelGLTF, const tinygltf::Skin& property);
 };
 
 struct NodeGLTF : public nodes::Node3D
@@ -264,9 +264,9 @@ struct NodeGLTF : public nodes::Node3D
     MeshGLTF::Ref mesh;
     SkinGLTF::Ref skin;
 
-    static Ref create(RootGLTFRef rootGLTF, const tinygltf::Node& property);
+    static Ref create(ModelGLTFRef modelGLTF, const tinygltf::Node& property);
 
-    RootGLTFRef rootGLTF;
+    ModelGLTFRef modelGLTF;
 
     void setup();
 
@@ -280,14 +280,14 @@ struct SceneGLTF : public NodeGLTF
     typedef std::shared_ptr<SceneGLTF> Ref;
     tinygltf::Scene sceneProperty;
 
-    static Ref create(RootGLTFRef rootGLTF, const tinygltf::Scene& property);
+    static Ref create(ModelGLTFRef modelGLTF, const tinygltf::Scene& property);
 };
 
-struct RootGLTF
+struct ModelGLTF
 {
     tinygltf::Model property;
 
-    static RootGLTFRef create(const fs2::path& meshPath);
+    static ModelGLTFRef create(const fs2::path& meshPath);
 
     void update();
 

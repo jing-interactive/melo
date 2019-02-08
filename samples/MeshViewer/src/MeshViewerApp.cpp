@@ -137,8 +137,8 @@ struct MeshViewerApp : public App
     vector<string> mMeshFilenames;
 
     // 1 of 3
-    RootGLTFRef mRootGLTF;
-    RootObjRef mRootObj;
+    ModelGLTFRef mModelGLTF;
+    ModelObjRef mModelObj;
     gl::VboMeshRef mVboMesh;
 
     gl::VertBatchRef mGrid;
@@ -148,9 +148,9 @@ struct MeshViewerApp : public App
     vector<string> listGlTFFiles()
     {
         vector<string> files;
-        auto assetRoot = getAssetPath("");
+        auto assetModel = getAssetPath("");
         for (auto& p :
-             fs::recursive_directory_iterator(assetRoot
+             fs::recursive_directory_iterator(assetModel
 #ifdef CINDER_MSW_DESKTOP
                                               ,
                                               fs::directory_options::follow_directory_symlink
@@ -161,8 +161,8 @@ struct MeshViewerApp : public App
             if (ext == ".gltf" || ext == ".glb" || ext == ".obj")
             {
                 auto filename = p.path().generic_string();
-                filename.replace(filename.find(assetRoot.generic_string()),
-                                 assetRoot.generic_string().size(),
+                filename.replace(filename.find(assetModel.generic_string()),
+                                 assetModel.generic_string().size(),
                                  ""); // Left trim the assets prefix
 
                 files.push_back(filename);
@@ -203,9 +203,9 @@ struct MeshViewerApp : public App
 #endif
         gl::enableDepth();
 
-        RootGLTF::radianceTexture = am::textureCubeMap(RADIANCE_TEX);
-        RootGLTF::irradianceTexture = am::textureCubeMap(IRRADIANCE_TEX);
-        RootGLTF::brdfLUTTexture = am::texture2d(BRDF_LUT_TEX);
+        ModelGLTF::radianceTexture = am::textureCubeMap(RADIANCE_TEX);
+        ModelGLTF::irradianceTexture = am::textureCubeMap(IRRADIANCE_TEX);
+        ModelGLTF::brdfLUTTexture = am::texture2d(BRDF_LUT_TEX);
 
         getWindow()->getSignalResize().connect([&] {
             APP_WIDTH = getWindowWidth();
@@ -257,8 +257,8 @@ struct MeshViewerApp : public App
                     path = getAssetPath(mMeshFilenames[mMeshFileId]);
                 }
                 mVboMesh.reset();
-                mRootObj.reset();
-                mRootGLTF.reset();
+                mModelObj.reset();
+                mModelGLTF.reset();
 
                 if (path.extension() == ".obj")
                 {
@@ -268,15 +268,15 @@ struct MeshViewerApp : public App
                     }
                     else
                     {
-                        mRootObj = RootObj::create(path);
+                        mModelObj = ModelObj::create(path);
                     }
                 }
                 else
                 {
-                    mRootGLTF = RootGLTF::create(path);
+                    mModelGLTF = ModelGLTF::create(path);
                 }
 
-                if (!mRootObj && !mVboMesh && !mRootGLTF)
+                if (!mModelObj && !mVboMesh && !mModelGLTF)
                 {
                     mVboMesh = am::vboMesh("Teapot");
                 }
@@ -288,17 +288,17 @@ struct MeshViewerApp : public App
             mCam.setNearClip(CAM_Z_NEAR);
             mCam.setFarClip(CAM_Z_FAR);
 
-            if (mRootGLTF)
+            if (mModelGLTF)
             {
-                mRootGLTF->flipV = FLIP_V;
-                mRootGLTF->cameraPosition = mCam.getEyePoint();
-                mRootGLTF->update();
+                mModelGLTF->flipV = FLIP_V;
+                mModelGLTF->cameraPosition = mCam.getEyePoint();
+                mModelGLTF->update();
             }
 
-            if (mRootObj)
+            if (mModelObj)
             {
-                mRootObj->flipV = FLIP_V;
-                mRootObj->cameraPosition = mCam.getEyePoint();
+                mModelObj->flipV = FLIP_V;
+                mModelObj->cameraPosition = mCam.getEyePoint();
             }
         });
 
@@ -310,9 +310,9 @@ struct MeshViewerApp : public App
 #endif
             gl::clear();
 
-            if (mRootGLTF)
+            if (mModelGLTF)
             {
-                gl::ScopedTextureBind scpTex(mRootGLTF->radianceTexture, 0);
+                gl::ScopedTextureBind scpTex(mModelGLTF->radianceTexture, 0);
                 if (ENV_VISIBLE)
                 {
                     gl::ScopedDepthWrite depthWrite(false);
@@ -320,18 +320,18 @@ struct MeshViewerApp : public App
                 }
 
                 gl::setWireframeEnabled(WIRE_FRAME);
-                mRootGLTF->currentScene->setScale({ MESH_SCALE,MESH_SCALE,MESH_SCALE });
-                mRootGLTF->currentScene->setRotation(mMeshRotation);
-                mRootGLTF->draw();
+                mModelGLTF->currentScene->setScale({ MESH_SCALE,MESH_SCALE,MESH_SCALE });
+                mModelGLTF->currentScene->setRotation(mMeshRotation);
+                mModelGLTF->draw();
                 gl::disableWireframe();
             }
 
-            if (mRootObj)
+            if (mModelObj)
             {
                 gl::setWireframeEnabled(WIRE_FRAME);
-                mRootObj->setScale({ MESH_SCALE,MESH_SCALE,MESH_SCALE });
-                mRootObj->setRotation(mMeshRotation);
-                mRootObj->treeDraw();
+                mModelObj->setScale({ MESH_SCALE,MESH_SCALE,MESH_SCALE });
+                mModelObj->setRotation(mMeshRotation);
+                mModelObj->treeDraw();
                 gl::disableWireframe();
             }
 

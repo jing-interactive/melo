@@ -6,13 +6,13 @@
 
 using namespace std;
 
-MeshObj::Ref MeshObj::create(RootObjRef rootObj, const tinyobj::shape_t& property)
+MeshObj::Ref MeshObj::create(ModelObjRef modelObj, const tinyobj::shape_t& property)
 {
     auto ref = make_shared<MeshObj>();
     ref->property = property;
     ref->setName(property.name);
 
-    const auto& attrib = rootObj->attrib;
+    const auto& attrib = modelObj->attrib;
 
     CI_ASSERT_MSG(property.path.indices.empty(), "TODO: support line");
     const auto& indices = property.mesh.indices;
@@ -81,7 +81,7 @@ MeshObj::Ref MeshObj::create(RootObjRef rootObj, const tinyobj::shape_t& propert
     ref->vboMesh = gl::VboMesh::create(triMesh);
     int mtrl = property.mesh.material_ids[0];
     if (mtrl == -1) mtrl = 0;
-    ref->material = rootObj->materials[mtrl];
+    ref->material = modelObj->materials[mtrl];
 
     return ref;
 }
@@ -101,8 +101,8 @@ void MaterialObj::preDraw()
     if (diffuseTexture)
         diffuseTexture->bind(0);
 
-    ciShader->uniform("u_flipV", rootObj->flipV);
-    ciShader->uniform("u_Camera", rootObj->cameraPosition);
+    ciShader->uniform("u_flipV", modelObj->flipV);
+    ciShader->uniform("u_Camera", modelObj->cameraPosition);
 }
 
 void MaterialObj::postDraw()
@@ -111,11 +111,11 @@ void MaterialObj::postDraw()
         diffuseTexture->unbind(0);
 }
 
-MaterialObj::Ref MaterialObj::create(RootObjRef rootObj, const tinyobj::material_t& property)
+MaterialObj::Ref MaterialObj::create(ModelObjRef modelObj, const tinyobj::material_t& property)
 {
     auto ref = make_shared<MaterialObj>();
     ref->property = property;
-    ref->rootObj = rootObj;
+    ref->modelObj = modelObj;
 
     auto fmt = gl::GlslProg::Format();
     fmt.define("HAS_TANGENTS");
@@ -138,7 +138,7 @@ MaterialObj::Ref MaterialObj::create(RootObjRef rootObj, const tinyobj::material
         ref->diffuseTexture = am::texture2d(property.diffuse_texname);
         if (!ref->diffuseTexture)
         {
-            auto path = rootObj->baseDir / property.diffuse_texname;
+            auto path = modelObj->baseDir / property.diffuse_texname;
             ref->diffuseTexture = am::texture2d(path.string());
         }
 
@@ -183,7 +183,7 @@ MaterialObj::Ref MaterialObj::create(RootObjRef rootObj, const tinyobj::material
 }
 
 
-RootObjRef RootObj::create(const fs::path& meshPath)
+ModelObjRef ModelObj::create(const fs::path& meshPath)
 {
     if (!fs::exists(meshPath))
     {
@@ -191,7 +191,7 @@ RootObjRef RootObj::create(const fs::path& meshPath)
         return{};
     }
 
-    auto ref = make_shared<RootObj>();
+    auto ref = make_shared<ModelObj>();
     ref->meshPath = meshPath;
     ref->baseDir = meshPath.parent_path().string();
 
