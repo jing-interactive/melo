@@ -315,7 +315,7 @@ struct ModelGLTF
     static ci::gl::Texture2dRef brdfLUTTexture;
 #endif
     bool flipV = true;
-    glm::vec3 cameraPosition;
+    glm::vec3 cameraPosition = { 1,1,1 };
 
     MaterialGLTF::Ref fallbackMaterial; // if (material == -1)
 

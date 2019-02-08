@@ -572,24 +572,15 @@ MaterialGLTF::Ref MaterialGLTF::create(ModelGLTFRef modelGLTF, const tinygltf::M
     {
         ciShader->uniform("u_BaseColorSampler", 0);
         ciShader->uniform("u_MetallicRoughnessSampler", 3);
-        ciShader->uniform("u_MetallicRoughnessValues", vec2(1.0f, 1.0f));
-        ciShader->uniform("u_BaseColorFactor", vec4(1.0f, 1.0f, 1.0f, 1.0f));
     }
     else if (ref->materialType == MATERIAL_PBR_SPEC_GLOSSINESS)
     {
         ciShader->uniform("u_DiffuseSampler", 0);
         ciShader->uniform("u_SpecularGlossinessSampler", 3);
-        ciShader->uniform("u_SpecularGlossinessValues", vec4(1.0f, 1.0f, 1.0f, 1.0f));
-        ciShader->uniform("u_DiffuseFactor", vec4(1.0f, 1.0f, 1.0f, 1.0f));
     }
 
     ciShader->uniform("u_LightDirection", vec3(1.0f, 1.0f, 1.0f));
     ciShader->uniform("u_LightColor", vec3(1.0f, 1.0f, 1.0f));
-    ciShader->uniform("u_Camera", vec3(1.0f, 1.0f, 1.0f));
-
-    ciShader->uniform("u_NormalScale", 1.0f);
-    ciShader->uniform("u_EmissiveFactor", vec3(1.0f, 1.0f, 1.0f));
-    ciShader->uniform("u_OcclusionStrength", 1.0f);
 
     if (ref->normalTexture)
         ciShader->uniform("u_NormalSampler", 1);
