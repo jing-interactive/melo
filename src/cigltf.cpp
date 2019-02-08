@@ -231,6 +231,7 @@ ModelGLTFRef ModelGLTF::create(const fs2::path& meshPath)
     if (model.defaultScene == -1)
         model.defaultScene = 0;
     ref->currentScene = ref->scenes[model.defaultScene];
+    ref->update();
 
     return ref;
 }
@@ -291,11 +292,12 @@ NodeGLTF::Ref NodeGLTF::create(ModelGLTFRef modelGLTF, const tinygltf::Node& pro
     }
     if (!property.rotation.empty())
     {
+        // w,x,y,z
         ref->setRotation({
-            (float)property.rotation[0],
             (float)property.rotation[1],
             (float)property.rotation[2],
             (float)property.rotation[3],
+            (float)property.rotation[0],
         });
     }
     ref->modelGLTF = modelGLTF;
