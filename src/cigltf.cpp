@@ -872,8 +872,7 @@ TextureGLTF::Ref TextureGLTF::create(RootGLTFRef rootGLTF, const tinygltf::Textu
 {
     TextureGLTF::Ref ref = make_shared<TextureGLTF>();
     ref->property = property;
-
-    ImageGLTF::Ref source = rootGLTF->images[property.source];
+    ref->imageSource = rootGLTF->images[property.source];
 #ifndef CINDER_LESS
     auto texFormat =
         gl::Texture2d::Format().mipmap().minFilter(GL_LINEAR_MIPMAP_LINEAR).wrap(GL_REPEAT);

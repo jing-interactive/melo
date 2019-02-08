@@ -132,6 +132,7 @@ struct TextureGLTF
 {
     typedef std::shared_ptr<TextureGLTF> Ref;
     tinygltf::Texture property;
+    ImageGLTF::Ref imageSource;
 #ifndef CINDER_LESS
     ci::gl::Texture2dRef ciTexture;
     ci::gl::SamplerRef ciSampler; // points to SamplerGLTF::ciSampler
