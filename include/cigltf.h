@@ -3,8 +3,8 @@
 #ifdef CINDER_LESS
 #include <filesystem>
 namespace fs2 = std::experimental::filesystem;
-#define TINYGLTF_NO_STB_IMAGE
 #else
+#define TINYGLTF_NO_STB_IMAGE
 #include <cinder/Filesystem.h>
 #include <cinder/gl/gl.h>
 namespace fs2 = ci::fs;
