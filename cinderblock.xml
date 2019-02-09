@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<cinder>
+<block
+	name="Nodes"
+	id="jing.nodes"
+	author="Jing Interactive"
+	summary="Nodes library for Cinder"
+	license="MIT License"
+	git="https://github.com/jing-interactive/Cinder-Nodes.git"
+	>	
+	<includePath>include</includePath>
+	
+	<sourcePattern>src/*.*</sourcePattern>
+	<headerPattern>include/*.*</headerPattern>
+	
+</block>
+</cinder>
