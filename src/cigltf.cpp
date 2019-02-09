@@ -182,7 +182,7 @@ ModelGLTFRef ModelGLTF::create(const fs2::path& meshPath)
     }
     if (!ret)
     {
-        CI_LOG_F("Failed to load .glTF") << meshPath;
+        CI_LOG_F("Failed to load .glTF ") << meshPath;
         return {};
     }
 

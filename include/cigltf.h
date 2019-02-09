@@ -1,20 +1,22 @@
 #pragma once
 
-#include "../../Cinder-Nodes/include/Node3D.h"
+#ifdef CINDER_LESS
+#include <filesystem>
+namespace fs2 = std::experimental::filesystem;
 #define TINYGLTF_NO_STB_IMAGE
-#define TINYGLTF_NO_STB_IMAGE_WRITE
-#include "syoyo/tiny_gltf.h"
-
-#ifndef CINDER_LESS
+#else
 #include <cinder/Filesystem.h>
 #include <cinder/gl/gl.h>
 namespace fs2 = ci::fs;
-#else
-#include <filesystem>
-namespace fs2 = std::experimental::filesystem;
 #endif
+
 #include <memory>
 #include <vector>
+
+#define TINYGLTF_NO_STB_IMAGE_WRITE
+#include "syoyo/tiny_gltf.h"
+
+#include "../../Cinder-Nodes/include/Node3D.h"
 
 typedef std::shared_ptr<struct ModelGLTF> ModelGLTFRef;
 typedef std::shared_ptr<struct WeakBuffer> WeakBufferRef;
