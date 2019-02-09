@@ -93,10 +93,10 @@
     <ClCompile Include="..\..\..\..\Cinder-VNM\src\MiniConfig.cpp">
       <Filter>Blocks\vnm\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Cinder-Nodes\src\Node3D.cpp">
+    <ClCompile Include="..\..\..\src\Node3D.cpp">
       <Filter>Blocks\Nodes</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Cinder-Nodes\src\Node.cpp">
+    <ClCompile Include="..\..\..\src\Node.cpp">
       <Filter>Blocks\Nodes</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\include\read_vox.cpp">
@@ -119,10 +119,10 @@
     <ClInclude Include="..\include\Resources.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\Cinder-Nodes\include\Node.h">
+    <ClInclude Include="..\..\..\include\Node.h">
       <Filter>Blocks\Nodes</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\Cinder-Nodes\include\Node3D.h">
+    <ClInclude Include="..\..\..\include\Node3D.h">
       <Filter>Blocks\Nodes</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\include\cigltf.h">

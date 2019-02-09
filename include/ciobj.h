@@ -2,7 +2,7 @@
 
 #include "syoyo/tiny_obj_loader.h"
 
-#include "Cinder-Nodes/include/Node3D.h"
+#include "Node3D.h"
 
 #include <cinder/gl/gl.h>
 #include <memory>
@@ -19,7 +19,7 @@ struct MaterialObj
     ModelObjRef modelObj;
 
     gl::Texture2dRef diffuseTexture;
-    vec4 diffuseFactor = { 1, 1, 1, 1 };
+    vec4 diffuseFactor = {1, 1, 1, 1};
 
     gl::GlslProgRef ciShader;
 

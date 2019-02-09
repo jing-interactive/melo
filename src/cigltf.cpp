@@ -840,7 +840,7 @@ PrimitiveGLTF::Ref PrimitiveGLTF::create(ModelGLTFRef modelGLTF,
     }
     else
     {
-        int bytesPerUnit = getComponentSizeInBytes(indices->property.componentType);
+        int bytesPerUnit = getComponentSizeInBytes((GltfComponentType)indices->property.componentType);
         oglIndexVbo =
             gl::Vbo::create(GL_ELEMENT_ARRAY_BUFFER, bytesPerUnit * indices->property.count,
                             (uint8_t*)indices->cpuBuffer->getData() + indices->property.byteOffset);
@@ -853,8 +853,8 @@ PrimitiveGLTF::Ref PrimitiveGLTF::create(ModelGLTFRef modelGLTF,
         AccessorGLTF::Ref acc = modelGLTF->accessors[kv.second];
         geom::BufferLayout layout;
         layout.append(
-            (geom::Attrib)getAttribFromString(kv.first), getDataType(acc->property.componentType),
-            getTypeSizeInBytes(acc->property.type), acc->byteStride, acc->property.byteOffset);
+            (geom::Attrib)getAttribFromString(kv.first), getDataType((GltfComponentType)acc->property.componentType),
+            getTypeSizeInBytes((GltfType)acc->property.type), acc->byteStride, acc->property.byteOffset);
         oglVboLayouts.emplace_back(layout, acc->gpuBuffer);
 
         numVertices = acc->property.count;

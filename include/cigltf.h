@@ -16,7 +16,7 @@ namespace fs2 = ci::fs;
 #define TINYGLTF_NO_STB_IMAGE_WRITE
 #include "syoyo/tiny_gltf.h"
 
-#include "../../Cinder-Nodes/include/Node3D.h"
+#include "Node3D.h"
 
 typedef std::shared_ptr<struct ModelGLTF> ModelGLTFRef;
 typedef std::shared_ptr<struct WeakBuffer> WeakBufferRef;
