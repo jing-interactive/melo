@@ -16,11 +16,10 @@ OBJ / glTF2 mesh viewer library for `Cinder` and `standalone viewer` on Windows 
 - Support mobile platforms
 - Support Sketchfab download API
 
-# To build this project, you need:
+# To build `samples/MeshViewer`, you need:
 
 * [Cinder](https://github.com/cinder/Cinder)
 * [Cinder-VNM](https://github.com/jing-interactive/Cinder-VNM)
-* [Cinder-Nodes](https://github.com/jing-interactive/Cinder-Nodes)
 
 The folder structure should appear like this:
 
@@ -28,7 +27,6 @@ The folder structure should appear like this:
 Cinder/
     blocks/
         Cinder-VNM/
-        Cinder-Nodes/
         MeshViewer/
             samples/BasicSample/vc2015/MeshViewer.sln
             assets/
