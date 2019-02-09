@@ -17,7 +17,9 @@ using namespace ci;
 
 using namespace std;
 
-AnimationGLTF::Ref AnimationGLTF::create(ModelGLTFRef modelGLTF, const tinygltf::Animation& property)
+
+AnimationGLTF::Ref AnimationGLTF::create(ModelGLTFRef modelGLTF,
+                                         const tinygltf::Animation& property)
 {
     Ref ref = make_shared<AnimationGLTF>();
     ref->property = property;
@@ -364,7 +366,7 @@ BufferGLTF::Ref BufferGLTF::create(ModelGLTFRef modelGLTF, const tinygltf::Buffe
 {
     BufferGLTF::Ref ref = make_shared<BufferGLTF>();
     ref->property = property;
-    ref->cpuBuffer = WeakBuffer::create((void*)property.data.data(), property.data.size());
+    ref->cpuBuffer = WeakBuffer::create((void*)ref->property.data.data(), ref->property.data.size());
     return ref;
 }
 
@@ -712,84 +714,90 @@ AttribGLTF getAttribFromString(const string& str)
     return NUM_ATTRIBS;
 }
 
-int32_t getComponentSizeInBytes(uint32_t componentType)
+int32_t getComponentSizeInBytes(GltfComponentType componentType)
 {
-    if (componentType == TINYGLTF_COMPONENT_TYPE_BYTE)
+    if (componentType == COMPONENT_TYPE_BYTE)
         return 1;
-    if (componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE)
+    if (componentType == COMPONENT_TYPE_UNSIGNED_BYTE)
         return 1;
-    if (componentType == TINYGLTF_COMPONENT_TYPE_SHORT)
+    if (componentType == COMPONENT_TYPE_SHORT)
         return 2;
-    if (componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT)
+    if (componentType == COMPONENT_TYPE_UNSIGNED_SHORT)
         return 2;
-    if (componentType == TINYGLTF_COMPONENT_TYPE_INT)
+    if (componentType == COMPONENT_TYPE_INT)
         return 4;
-    if (componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT)
+    if (componentType == COMPONENT_TYPE_UNSIGNED_INT)
         return 4;
-    if (componentType == TINYGLTF_COMPONENT_TYPE_FLOAT)
+    if (componentType == COMPONENT_TYPE_FLOAT)
         return 4;
-    if (componentType == TINYGLTF_COMPONENT_TYPE_DOUBLE)
+    if (componentType == COMPONENT_TYPE_DOUBLE)
         return 8;
     // Unknown componenty type
     return -1;
 }
 #ifndef CINDER_LESS
-geom::DataType getDataType(uint32_t componentType)
+geom::DataType getDataType(GltfComponentType componentType)
 {
-    if (componentType == TINYGLTF_COMPONENT_TYPE_BYTE)
+    if (componentType == COMPONENT_TYPE_BYTE)
         return geom::INTEGER;
-    if (componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE)
+    if (componentType == COMPONENT_TYPE_UNSIGNED_BYTE)
         return geom::INTEGER;
-    if (componentType == TINYGLTF_COMPONENT_TYPE_SHORT)
+    if (componentType == COMPONENT_TYPE_SHORT)
         return geom::INTEGER;
-    if (componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT)
+    if (componentType == COMPONENT_TYPE_UNSIGNED_SHORT)
         return geom::INTEGER;
-    if (componentType == TINYGLTF_COMPONENT_TYPE_INT)
+    if (componentType == COMPONENT_TYPE_INT)
         return geom::INTEGER;
-    if (componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT)
+    if (componentType == COMPONENT_TYPE_UNSIGNED_INT)
         return geom::INTEGER;
-    if (componentType == TINYGLTF_COMPONENT_TYPE_FLOAT)
+    if (componentType == COMPONENT_TYPE_FLOAT)
         return geom::FLOAT;
-    if (componentType == TINYGLTF_COMPONENT_TYPE_DOUBLE)
+    if (componentType == COMPONENT_TYPE_DOUBLE)
         return geom::DOUBLE;
     CI_ASSERT(0 && "Unknown componentType");
     return geom::INTEGER;
 }
 #endif
 
-static inline int32_t getTypeSizeInBytes(uint32_t ty)
+static inline int32_t getTypeSizeInBytes(GltfType ty)
 {
-    if (ty == TINYGLTF_TYPE_SCALAR)
+    if (ty == TYPE_SCALAR)
         return 1;
-    if (ty == TINYGLTF_TYPE_VEC2)
+    if (ty == TYPE_VEC2)
         return 2;
-    if (ty == TINYGLTF_TYPE_VEC3)
+    if (ty == TYPE_VEC3)
         return 3;
-    if (ty == TINYGLTF_TYPE_VEC4)
+    if (ty == TYPE_VEC4)
         return 4;
-    if (ty == TINYGLTF_TYPE_MAT2)
+    if (ty == TYPE_MAT2)
         return 4;
-    if (ty == TINYGLTF_TYPE_MAT3)
+    if (ty == TYPE_MAT3)
         return 9;
-    if (ty == TINYGLTF_TYPE_MAT4)
+    if (ty == TYPE_MAT4)
         return 16;
     // Unknown componenty type
     return -1;
 }
 
-WeakBufferRef createFromAccessor(AccessorGLTF::Ref acc, int assumedType, int assumedComponentType)
+WeakBufferRef createFromAccessor(AccessorGLTF::Ref acc, GltfType assumedType,
+                                 GltfComponentType assumedComponentType)
 {
-    int typeSize = getTypeSizeInBytes(acc->property.type);
-    int compSize = getComponentSizeInBytes(acc->property.componentType);
-    CI_ASSERT(acc->property.type == assumedType);
-    CI_ASSERT(acc->property.componentType == assumedComponentType);
+    CI_ASSERT(acc->property.type == (int)assumedType);
+    CI_ASSERT(acc->property.componentType == (int)assumedComponentType);
+
+    int typeSize = getTypeSizeInBytes(assumedType);
+    int compSize = getComponentSizeInBytes(assumedComponentType);
     auto ref = WeakBuffer::create((uint8_t*)acc->cpuBuffer->getData() + acc->property.byteOffset,
-        typeSize * compSize * acc->property.count);
+                                  typeSize * compSize * acc->property.count);
+    auto ptr = (float*)acc->cpuBuffer->getData();
+    ref->type = assumedType;
+    ref->componentType = assumedComponentType;
 
     return ref;
 }
 
-PrimitiveGLTF::Ref PrimitiveGLTF::create(ModelGLTFRef modelGLTF, const tinygltf::Primitive& property)
+PrimitiveGLTF::Ref PrimitiveGLTF::create(ModelGLTFRef modelGLTF,
+                                         const tinygltf::Primitive& property)
 {
     PrimitiveGLTF::Ref ref = make_shared<PrimitiveGLTF>();
     ref->property = property;
@@ -806,7 +814,7 @@ PrimitiveGLTF::Ref PrimitiveGLTF::create(ModelGLTFRef modelGLTF, const tinygltf:
     auto indices = modelGLTF->accessors[property.indices];
 
 #ifdef CINDER_LESS
-    ref->indices = createFromAccessor(indices, TINYGLTF_TYPE_SCALAR, TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT);
+    ref->indices = createFromAccessor(indices, TYPE_SCALAR, COMPONENT_TYPE_UNSIGNED_INT);
     ref->indexCount = indices->property.count;
 
     ref->vertexCount = 0;
@@ -814,11 +822,11 @@ PrimitiveGLTF::Ref PrimitiveGLTF::create(ModelGLTFRef modelGLTF, const tinygltf:
     {
         auto acc = modelGLTF->accessors[kv.second];
         if (kv.first == "POSITION")
-            ref->positions = createFromAccessor(acc, TINYGLTF_TYPE_VEC3, TINYGLTF_COMPONENT_TYPE_FLOAT);
+            ref->positions = createFromAccessor(acc, TYPE_VEC3, COMPONENT_TYPE_FLOAT);
         if (kv.first == "NORMAL")
-            ref->normals = createFromAccessor(acc, TINYGLTF_TYPE_VEC3, TINYGLTF_COMPONENT_TYPE_FLOAT);
+            ref->normals = createFromAccessor(acc, TYPE_VEC3, COMPONENT_TYPE_FLOAT);
         if (kv.first == "TEXCOORD_0")
-            ref->uvs = createFromAccessor(acc, TINYGLTF_TYPE_VEC2, TINYGLTF_COMPONENT_TYPE_FLOAT);
+            ref->uvs = createFromAccessor(acc, TYPE_VEC2, COMPONENT_TYPE_FLOAT);
         ref->vertexCount = acc->property.count;
     }
 #else
@@ -918,6 +926,7 @@ BufferViewGLTF::Ref BufferViewGLTF::create(ModelGLTFRef modelGLTF,
 
     BufferViewGLTF::Ref ref = make_shared<BufferViewGLTF>();
     ref->property = property;
+    ref->target = (GltfTarget)property.target;
 
     auto buffer = modelGLTF->buffers[property.buffer];
     auto cpuBuffer = buffer->cpuBuffer;

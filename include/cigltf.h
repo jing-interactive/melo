@@ -19,6 +19,48 @@ namespace fs2 = std::experimental::filesystem;
 typedef std::shared_ptr<struct ModelGLTF> ModelGLTFRef;
 typedef std::shared_ptr<struct WeakBuffer> WeakBufferRef;
 
+enum GltfMode
+{
+    MODE_LINE = 1,
+    MODE_LINE_LOOP = 2,
+    MODE_TRIANGLES = 4,
+    MODE_TRIANGLE_STRIP = 5,
+    MODE_TRIANGLE_FAN = 6,
+};
+
+enum GltfType
+{
+    TYPE_UNDEFINED = 0,
+    TYPE_VEC2 = 2,
+    TYPE_VEC3 = 3,
+    TYPE_VEC4 = 4,
+    TYPE_MAT2 = 32 + 2,
+    TYPE_MAT3 = 32 + 3,
+    TYPE_MAT4 = 32 + 4,
+    TYPE_SCALAR = 64 + 1,
+    TYPE_VECTOR = 64 + 4,
+    TYPE_MATRIX = 64 + 16,
+};
+
+enum GltfComponentType
+{
+    COMPONENT_TYPE_UNDEFINED = 0,
+    COMPONENT_TYPE_BYTE = 5120,
+    COMPONENT_TYPE_UNSIGNED_BYTE = 5121,
+    COMPONENT_TYPE_SHORT = 5122,
+    COMPONENT_TYPE_UNSIGNED_SHORT = 5123,
+    COMPONENT_TYPE_INT = 5124,
+    COMPONENT_TYPE_UNSIGNED_INT = 5125,
+    COMPONENT_TYPE_FLOAT = 5126,
+    COMPONENT_TYPE_DOUBLE = 5130,
+};
+
+enum GltfTarget
+{
+    TARGET_ARRAY_BUFFER = 34962,
+    TARGET_ELEMENT_ARRAY_BUFFER = 34963,
+};
+
 enum AttribGLTF
 {
     POSITION,
@@ -48,6 +90,9 @@ struct WeakBuffer
     void* getData() { return mData; }
     const void* getData() const { return mData; }
 
+    GltfType type = TYPE_UNDEFINED;
+    GltfComponentType componentType = COMPONENT_TYPE_UNDEFINED;
+
   private:
     void* mData;
     size_t mDataSize;
@@ -73,7 +118,8 @@ struct BufferViewGLTF
 {
     typedef std::shared_ptr<BufferViewGLTF> Ref;
     tinygltf::BufferView property;
-    WeakBufferRef cpuBuffer; // points to BufferGLTF::cpuBuffer
+    GltfTarget target;
+    WeakBufferRef cpuBuffer; // points to BufferGLTF::cpuBuffer + offset
 #ifndef CINDER_LESS
     ci::gl::VboRef gpuBuffer;
 #endif
@@ -86,7 +132,7 @@ struct AccessorGLTF
     tinygltf::Accessor property;
 
     int byteStride;          // from tinygltf::BufferView
-    WeakBufferRef cpuBuffer; // points to BufferViewGLTF::cpuBuffer
+    WeakBufferRef cpuBuffer; // points to BufferViewGLTF::cpuBuffer + offset
 #ifndef CINDER_LESS
     ci::gl::VboRef gpuBuffer; // points to BufferViewGLTF::gpuBuffer
     // or re-create in case of offseted IBO
