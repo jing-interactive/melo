@@ -266,7 +266,7 @@ namespace nodes
             transform();
 
             // let derived class know we are about to draw stuff
-#if defined(CINDER_MSW)
+#if defined(CINDER_MSW_DESKTOP)
         if (!mName.empty())
             gl::pushDebugGroup(mName);
 #endif
@@ -292,7 +292,7 @@ namespace nodes
 
         // let derived class know we are done drawing
         postdraw();
-#if defined(CINDER_MSW)
+#if defined(CINDER_MSW_DESKTOP)
         if (!mName.empty())
             gl::popDebugGroup();
 #endif

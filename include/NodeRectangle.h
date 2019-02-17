@@ -30,7 +30,7 @@
 
 //! For convenience, create a new type for the shared pointer and node list
 typedef std::shared_ptr<class NodeRectangle>	NodeRectangleRef;
-typedef std::deque<NodeRectangleRef>			NodeRectangleList;
+typedef std::vector<NodeRectangleRef>			NodeRectangleList;
 
 //! Our class extends a simple 2D node
 class NodeRectangle : public nodes::Node2D
