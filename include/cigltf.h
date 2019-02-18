@@ -335,7 +335,7 @@ struct ModelGLTF
 {
     tinygltf::Model property;
 
-    static ModelGLTFRef create(const fs2::path& meshPath);
+    static ModelGLTFRef create(const fs2::path& meshPath, std::string* loadingError = nullptr);
 
     void update();
 

@@ -6,6 +6,8 @@
 
 #include "AssetManager.h"
 #include "MiniConfig.h"
+#include "FontHelper.h"
+
 #include "cinder/Arcball.h"
 #include "cinder/params/Params.h"
 
@@ -145,6 +147,9 @@ struct MeshViewerApp : public App
 
     FlythroughCamera mFlyCam;
 
+    string mLoadingError;
+    gl::TextureFontRef texFont;
+
     vector<string> listGlTFFiles()
     {
         vector<string> files;
@@ -176,6 +181,8 @@ struct MeshViewerApp : public App
     {
         log::makeLogger<log::LoggerFile>();
         addAssetDirectory(getAppPath() / "../../../assets");
+
+        texFont = FontHelper::createTextureFont("Helvetica", 24);
 
         mFlyCam.setup();
 
@@ -268,12 +275,12 @@ struct MeshViewerApp : public App
                     }
                     else
                     {
-                        mModelObj = ModelObj::create(path);
+                        mModelObj = ModelObj::create(path, &mLoadingError);
                     }
                 }
                 else
                 {
-                    mModelGLTF = ModelGLTF::create(path);
+                    mModelGLTF = ModelGLTF::create(path, &mLoadingError);
                 }
 
                 if (!mModelObj && !mVboMesh && !mModelGLTF)
@@ -309,6 +316,11 @@ struct MeshViewerApp : public App
             gl::setMatrices(mFlyCam);
 #endif
             gl::clear();
+
+            if (!mLoadingError.empty())
+            {
+                texFont->drawString(mLoadingError, { 10, APP_HEIGHT - 150 });
+            }
 
             if (mModelGLTF)
             {

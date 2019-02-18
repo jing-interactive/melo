@@ -3,6 +3,7 @@
 #include "AssetManager.h"
 #include "cinder/Log.h"
 #include "cinder/app/App.h"
+//#include "cinder/ip/Checkerboard.h"
 
 using namespace ci;
 #else
@@ -145,7 +146,7 @@ gl::TextureCubeMapRef ModelGLTF::irradianceTexture;
 gl::Texture2dRef ModelGLTF::brdfLUTTexture;
 #endif
 
-ModelGLTFRef ModelGLTF::create(const fs2::path& meshPath)
+ModelGLTFRef ModelGLTF::create(const fs2::path& meshPath, std::string* loadingError)
 {
     if (!fs2::exists(meshPath))
     {
@@ -180,6 +181,8 @@ ModelGLTFRef ModelGLTF::create(const fs2::path& meshPath)
     {
         CI_LOG_E(err);
     }
+    if (loadingError) *loadingError = err;
+
     if (!ret)
     {
         CI_LOG_F("Failed to load .glTF ") << meshPath;
@@ -513,8 +516,8 @@ MaterialGLTF::Ref MaterialGLTF::create(ModelGLTFRef modelGLTF, const tinygltf::M
 #ifndef CINDER_LESS
     auto fmt = gl::GlslProg::Format();
     fmt.define("HAS_UV");
-    fmt.define("HAS_TANGENTS");
-    fmt.define("HAS_NORMALS");
+    //fmt.define("HAS_TANGENTS");
+    //fmt.define("HAS_NORMALS");
     if (ref->baseColorTexture)
         fmt.define("HAS_BASECOLORMAP");
     if (ref->diffuseTexture)
@@ -875,9 +878,11 @@ TextureGLTF::Ref TextureGLTF::create(ModelGLTFRef modelGLTF, const tinygltf::Tex
     ref->property = property;
     ref->imageSource = modelGLTF->images[property.source];
 #ifndef CINDER_LESS
+    if (!ref->imageSource->surface) return ref;
     auto texFormat =
         gl::Texture2d::Format().mipmap().minFilter(GL_LINEAR_MIPMAP_LINEAR).wrap(GL_REPEAT);
     ref->ciTexture = gl::Texture2d::create(*ref->imageSource->surface, texFormat);
+    if (!ref->ciTexture) return ref;
     ref->ciTexture->setLabel(ref->imageSource->property.uri);
 
     if (property.sampler != -1)
@@ -896,6 +901,9 @@ void TextureGLTF::postDraw() {}
 #else
 void TextureGLTF::preDraw(uint8_t texUnit)
 {
+    if (!ciTexture)
+        return;
+
     if (texUnit == -1)
         return;
 
@@ -907,6 +915,9 @@ void TextureGLTF::preDraw(uint8_t texUnit)
 
 void TextureGLTF::postDraw()
 {
+    if (!ciTexture)
+        return;
+
     if (textureUnit == -1)
         return;
     ciTexture->unbind(textureUnit);

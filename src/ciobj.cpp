@@ -183,7 +183,7 @@ MaterialObj::Ref MaterialObj::create(ModelObjRef modelObj, const tinyobj::materi
 }
 
 
-ModelObjRef ModelObj::create(const fs::path& meshPath)
+ModelObjRef ModelObj::create(const fs::path& meshPath, std::string* loadingError)
 {
     if (!fs::exists(meshPath))
     {
@@ -205,6 +205,7 @@ ModelObjRef ModelObj::create(const fs::path& meshPath)
     {
         CI_LOG_E(err);
     }
+    if (loadingError) *loadingError = err;
 
     if (!ret)
     {

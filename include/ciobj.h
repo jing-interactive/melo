@@ -42,7 +42,7 @@ struct MeshObj : public nodes::Node3D
 
 struct ModelObj : public MeshObj
 {
-    static ModelObjRef create(const fs::path& meshPath);
+    static ModelObjRef create(const fs::path& meshPath, std::string* loadingError = nullptr);
 
     fs::path meshPath;
     fs::path baseDir;
