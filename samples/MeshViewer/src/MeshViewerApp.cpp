@@ -126,6 +126,7 @@ struct FlythroughCamera : public CameraPersp
         });
     }
 };
+
 struct MeshViewerApp : public App
 {
     CameraPersp mCam;
@@ -203,6 +204,12 @@ struct MeshViewerApp : public App
         mCamUi = CameraUi(&mCam, getWindow(), -1);
 
         mMeshFilenames = listGlTFFiles();
+        auto& args = getCommandLineArgs();
+        if (args.size() == 2)
+        {
+            MESH_FILE_ID = mMeshFilenames.size();
+            mMeshFilenames.push_back(args[1]);
+        }
 #ifndef CINDER_COCOA_TOUCH
         auto params = createConfigUI({400, 500});
         ADD_ENUM_TO_INT(params.get(), MESH_FILE_ID, mMeshFilenames);
