@@ -1,6 +1,7 @@
 GROUP_DEF(App)
 ITEM_DEF(int, APP_WIDTH, 1024)
 ITEM_DEF(int, APP_HEIGHT, 768)
+ITEM_DEF(int, GUI_VISIBLE, true)
 ITEM_DEF(bool, ENV_VISIBLE, true)
 ITEM_DEF(bool, XYZ_VISIBLE, false)
 ITEM_DEF(bool, WIRE_FRAME, false)

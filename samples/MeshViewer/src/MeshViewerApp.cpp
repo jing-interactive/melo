@@ -150,6 +150,7 @@ struct MeshViewerApp : public App
 
     string mLoadingError;
     gl::TextureFontRef texFont;
+    params::InterfaceGlRef mParams;
 
     vector<string> listGlTFFiles()
     {
@@ -211,15 +212,17 @@ struct MeshViewerApp : public App
             mMeshFilenames.push_back(args[1]);
         }
 #ifndef CINDER_COCOA_TOUCH
-        auto params = createConfigUI({400, 500});
-        ADD_ENUM_TO_INT(params.get(), MESH_FILE_ID, mMeshFilenames);
-        params->addParam("MESH_ROTATION", &mMeshRotation);
+        mParams = createConfigUI({400, 500});
+        ADD_ENUM_TO_INT(mParams.get(), MESH_FILE_ID, mMeshFilenames);
+        mParams->addParam("MESH_ROTATION", &mMeshRotation);
 #endif
         gl::enableDepth();
 
         ModelGLTF::radianceTexture = am::textureCubeMap(RADIANCE_TEX);
         ModelGLTF::irradianceTexture = am::textureCubeMap(IRRADIANCE_TEX);
         ModelGLTF::brdfLUTTexture = am::texture2d(BRDF_LUT_TEX);
+
+        getSignalCleanup().connect([&] { writeConfig(); });
 
         getWindow()->getSignalResize().connect([&] {
             APP_WIDTH = getWindowWidth();
@@ -237,6 +240,8 @@ struct MeshViewerApp : public App
                 ENV_VISIBLE = !ENV_VISIBLE;
             if (code == KeyEvent::KEY_x)
                 XYZ_VISIBLE = !XYZ_VISIBLE;
+            if (code == KeyEvent::KEY_g)
+                GUI_VISIBLE = !GUI_VISIBLE;
         });
 
         getWindow()->getSignalFileDrop().connect([&](FileDropEvent& event) {
@@ -323,6 +328,8 @@ struct MeshViewerApp : public App
             gl::setMatrices(mFlyCam);
 #endif
             gl::clear();
+
+            mParams->show(GUI_VISIBLE);
 
             if (!mLoadingError.empty())
             {
