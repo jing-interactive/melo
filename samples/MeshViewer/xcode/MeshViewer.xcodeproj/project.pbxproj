@@ -18,8 +18,13 @@
 		00B9955B1B128DF400A5C623 /* IOSurface.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00B995591B128DF400A5C623 /* IOSurface.framework */; };
 		248C10CEEF4E402D9D256B49 /* MiniConfig.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3FFFE341EF014552AFC9D642 /* MiniConfig.cpp */; };
 		5323E6B20EAFCA74003A9687 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5323E6B10EAFCA74003A9687 /* CoreVideo.framework */; };
-		744CF92C221CF55800B05081 /* include in Resources */ = {isa = PBXBuildFile; fileRef = 744CF92B221CF55800B05081 /* include */; };
-		744CF92E221CF55D00B05081 /* src in Resources */ = {isa = PBXBuildFile; fileRef = 744CF92D221CF55D00B05081 /* src */; };
+		744CF943221D0E4700B05081 /* tiny_obj_loader.cc in Sources */ = {isa = PBXBuildFile; fileRef = 744CF937221D0E4700B05081 /* tiny_obj_loader.cc */; };
+		744CF944221D0E4700B05081 /* tiny_gltf.cc in Sources */ = {isa = PBXBuildFile; fileRef = 744CF938221D0E4700B05081 /* tiny_gltf.cc */; };
+		744CF945221D0E4700B05081 /* read_vox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 744CF941221D0E4700B05081 /* read_vox.cpp */; };
+		744CF95B221D0E5B00B05081 /* Node.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 744CF955221D0E5B00B05081 /* Node.cpp */; };
+		744CF95C221D0E5B00B05081 /* ciobj.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 744CF956221D0E5B00B05081 /* ciobj.cpp */; };
+		744CF95D221D0E5B00B05081 /* cigltf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 744CF957221D0E5B00B05081 /* cigltf.cpp */; };
+		744CF95F221D0E5B00B05081 /* Node3D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 744CF959221D0E5B00B05081 /* Node3D.cpp */; };
 		749CEAE321F2D45D008C8AA2 /* assets in Resources */ = {isa = PBXBuildFile; fileRef = 749CEAE221F2D45D008C8AA2 /* assets */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		9CD73AC15AB140A882E1628C /* CinderApp.icns in Resources */ = {isa = PBXBuildFile; fileRef = 17DC403A7D974506B9398D7B /* CinderApp.icns */; };
@@ -52,8 +57,28 @@
 		5E089795C140415A88B80BBC /* TuioHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TuioHelper.h; path = "../../../../../blocks/Cinder-VNM/include/TuioHelper.h"; sourceTree = "<group>"; };
 		63E04ED620934A179031D036 /* MeshViewer_Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; path = MeshViewer_Prefix.pch; sourceTree = "<group>"; };
 		7056A9E4AC1D4045B0D05A93 /* MiniConfigImgui.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MiniConfigImgui.h; path = "../../../../../blocks/Cinder-VNM/include/MiniConfigImgui.h"; sourceTree = "<group>"; };
-		744CF92B221CF55800B05081 /* include */ = {isa = PBXFileReference; lastKnownFileType = folder; name = include; path = "../Cinder-MeshViewer/include"; sourceTree = "<group>"; };
-		744CF92D221CF55D00B05081 /* src */ = {isa = PBXFileReference; lastKnownFileType = folder; name = src; path = "../Cinder-MeshViewer/src"; sourceTree = "<group>"; };
+		744CF930221D0E4700B05081 /* Node3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Node3D.h; sourceTree = "<group>"; };
+		744CF931221D0E4700B05081 /* CinderMeshViewer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CinderMeshViewer.h; sourceTree = "<group>"; };
+		744CF932221D0E4700B05081 /* Node2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Node2D.h; sourceTree = "<group>"; };
+		744CF934221D0E4700B05081 /* json.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = json.hpp; sourceTree = "<group>"; };
+		744CF935221D0E4700B05081 /* stb_image_write.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_image_write.h; sourceTree = "<group>"; };
+		744CF936221D0E4700B05081 /* stb_image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_image.h; sourceTree = "<group>"; };
+		744CF937221D0E4700B05081 /* tiny_obj_loader.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tiny_obj_loader.cc; sourceTree = "<group>"; };
+		744CF938221D0E4700B05081 /* tiny_gltf.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tiny_gltf.cc; sourceTree = "<group>"; };
+		744CF939221D0E4700B05081 /* tiny_gltf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tiny_gltf.h; sourceTree = "<group>"; };
+		744CF93A221D0E4700B05081 /* tiny_obj_loader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tiny_obj_loader.h; sourceTree = "<group>"; };
+		744CF93B221D0E4700B05081 /* Node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Node.h; sourceTree = "<group>"; };
+		744CF93C221D0E4700B05081 /* read_vox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = read_vox.h; sourceTree = "<group>"; };
+		744CF93D221D0E4700B05081 /* cigltf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cigltf.h; sourceTree = "<group>"; };
+		744CF93E221D0E4700B05081 /* ciobj.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ciobj.h; sourceTree = "<group>"; };
+		744CF93F221D0E4700B05081 /* civox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = civox.h; sourceTree = "<group>"; };
+		744CF940221D0E4700B05081 /* NodeExt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NodeExt.h; sourceTree = "<group>"; };
+		744CF941221D0E4700B05081 /* read_vox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = read_vox.cpp; sourceTree = "<group>"; };
+		744CF942221D0E4700B05081 /* NodeRectangle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NodeRectangle.h; sourceTree = "<group>"; };
+		744CF955221D0E5B00B05081 /* Node.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Node.cpp; sourceTree = "<group>"; };
+		744CF956221D0E5B00B05081 /* ciobj.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ciobj.cpp; sourceTree = "<group>"; };
+		744CF957221D0E5B00B05081 /* cigltf.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cigltf.cpp; sourceTree = "<group>"; };
+		744CF959221D0E5B00B05081 /* Node3D.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Node3D.cpp; sourceTree = "<group>"; };
 		749CEAE221F2D45D008C8AA2 /* assets */ = {isa = PBXFileReference; lastKnownFileType = folder; name = assets; path = ../../../assets; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* MeshViewer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MeshViewer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9584F0AFEEAD48FFA432C73E /* AssetManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AssetManager.h; path = "../../../../../blocks/Cinder-VNM/include/AssetManager.h"; sourceTree = "<group>"; };
@@ -227,11 +252,57 @@
 		7413D5652140225F00498D75 /* Cinder-Nodes */ = {
 			isa = PBXGroup;
 			children = (
-				744CF92D221CF55D00B05081 /* src */,
-				744CF92B221CF55800B05081 /* include */,
+				744CF953221D0E5B00B05081 /* src */,
+				744CF92F221D0E4700B05081 /* include */,
 			);
 			name = "Cinder-Nodes";
 			path = "../../../../../blocks/Cinder-Nodes";
+			sourceTree = "<group>";
+		};
+		744CF92F221D0E4700B05081 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				744CF930221D0E4700B05081 /* Node3D.h */,
+				744CF931221D0E4700B05081 /* CinderMeshViewer.h */,
+				744CF932221D0E4700B05081 /* Node2D.h */,
+				744CF933221D0E4700B05081 /* syoyo */,
+				744CF93B221D0E4700B05081 /* Node.h */,
+				744CF93C221D0E4700B05081 /* read_vox.h */,
+				744CF93D221D0E4700B05081 /* cigltf.h */,
+				744CF93E221D0E4700B05081 /* ciobj.h */,
+				744CF93F221D0E4700B05081 /* civox.h */,
+				744CF940221D0E4700B05081 /* NodeExt.h */,
+				744CF941221D0E4700B05081 /* read_vox.cpp */,
+				744CF942221D0E4700B05081 /* NodeRectangle.h */,
+			);
+			name = include;
+			path = "../Cinder-MeshViewer/include";
+			sourceTree = "<group>";
+		};
+		744CF933221D0E4700B05081 /* syoyo */ = {
+			isa = PBXGroup;
+			children = (
+				744CF934221D0E4700B05081 /* json.hpp */,
+				744CF935221D0E4700B05081 /* stb_image_write.h */,
+				744CF936221D0E4700B05081 /* stb_image.h */,
+				744CF937221D0E4700B05081 /* tiny_obj_loader.cc */,
+				744CF938221D0E4700B05081 /* tiny_gltf.cc */,
+				744CF939221D0E4700B05081 /* tiny_gltf.h */,
+				744CF93A221D0E4700B05081 /* tiny_obj_loader.h */,
+			);
+			path = syoyo;
+			sourceTree = "<group>";
+		};
+		744CF953221D0E5B00B05081 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				744CF955221D0E5B00B05081 /* Node.cpp */,
+				744CF956221D0E5B00B05081 /* ciobj.cpp */,
+				744CF957221D0E5B00B05081 /* cigltf.cpp */,
+				744CF959221D0E5B00B05081 /* Node3D.cpp */,
+			);
+			name = src;
+			path = "../Cinder-MeshViewer/src";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -287,10 +358,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				744CF92C221CF55800B05081 /* include in Resources */,
 				749CEAE321F2D45D008C8AA2 /* assets in Resources */,
 				9CD73AC15AB140A882E1628C /* CinderApp.icns in Resources */,
-				744CF92E221CF55D00B05081 /* src in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -301,9 +370,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				744CF95C221D0E5B00B05081 /* ciobj.cpp in Sources */,
 				E5922A0830AF4D81A9622112 /* MeshViewerApp.cpp in Sources */,
 				F6D85CC6EECE4A0E87E277DC /* AssetManager.cpp in Sources */,
+				744CF943221D0E4700B05081 /* tiny_obj_loader.cc in Sources */,
+				744CF945221D0E4700B05081 /* read_vox.cpp in Sources */,
 				248C10CEEF4E402D9D256B49 /* MiniConfig.cpp in Sources */,
+				744CF95F221D0E5B00B05081 /* Node3D.cpp in Sources */,
+				744CF944221D0E4700B05081 /* tiny_gltf.cc in Sources */,
+				744CF95D221D0E5B00B05081 /* cigltf.cpp in Sources */,
+				744CF95B221D0E5B00B05081 /* Node.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
