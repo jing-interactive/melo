@@ -26,6 +26,7 @@
 // THE SOFTWARE.
 
 // Version:
+//  - v2.1.0 Add draco compression.
 //  - v2.0.1 Add comparsion feature(Thanks to @Selmar).
 //  - v2.0.0 glTF 2.0!.
 //
@@ -58,6 +59,7 @@ namespace tinygltf {
 #define TINYGLTF_MODE_POINTS (0)
 #define TINYGLTF_MODE_LINE (1)
 #define TINYGLTF_MODE_LINE_LOOP (2)
+#define TINYGLTF_MODE_LINE_STRIP (3)
 #define TINYGLTF_MODE_TRIANGLES (4)
 #define TINYGLTF_MODE_TRIANGLE_STRIP (5)
 #define TINYGLTF_MODE_TRIANGLE_FAN (6)
@@ -466,7 +468,9 @@ struct Sampler {
   Value extras;
 
   Sampler()
-      : wrapS(TINYGLTF_TEXTURE_WRAP_REPEAT),
+      : minFilter(TINYGLTF_TEXTURE_FILTER_LINEAR_MIPMAP_LINEAR),
+        magFilter(TINYGLTF_TEXTURE_FILTER_LINEAR),
+        wrapS(TINYGLTF_TEXTURE_WRAP_REPEAT),
         wrapT(TINYGLTF_TEXTURE_WRAP_REPEAT),
         wrapR(TINYGLTF_TEXTURE_WRAP_REPEAT){}
   bool operator==(const Sampler &) const;
@@ -538,8 +542,9 @@ struct BufferView {
                       // understood to be tightly packed
   int target;         // ["ARRAY_BUFFER", "ELEMENT_ARRAY_BUFFER"]
   Value extras;
+  bool dracoDecoded;  // Flag indicating this has been draco decoded
 
-  BufferView() : byteOffset(0), byteStride(0) {}
+  BufferView() : byteOffset(0), byteStride(0), dracoDecoded(false) {}
   bool operator==(const BufferView &) const;
 };
 
@@ -658,6 +663,7 @@ struct Primitive {
   // where each target is a dict with attribues in ["POSITION, "NORMAL",
   // "TANGENT"] pointing
   // to their corresponding accessors
+  ExtensionMap extensions;
   Value extras;
 
   Primitive() {
@@ -1060,14 +1066,19 @@ class TinyGLTF {
 #endif
 #endif
 
-#include "./json.hpp"
+#include "json.hpp"
+
+#ifdef TINYGLTF_ENABLE_DRACO
+#include "draco/core/decoder_buffer.h"
+#include "draco/compression/decode.h"
+#endif
 
 #ifndef TINYGLTF_NO_STB_IMAGE
-#include "./stb_image.h"
+#include "stb_image.h"
 #endif
 
 #ifndef TINYGLTF_NO_STB_IMAGE_WRITE
-#include "./stb_image_write.h"
+#include "stb_image_write.h"
 #endif
 
 #ifdef __clang__
@@ -1075,7 +1086,29 @@ class TinyGLTF {
 #endif
 
 #ifdef _WIN32
-#include <windows.h>
+
+// issue 143.
+// Define NOMINMAX to avoid min/max defines,
+// but undef it after included windows.h
+#ifndef NOMINMAX
+#define TINYGLTF_INTERNAL_NOMINMAX
+#define NOMINMAX
+#endif
+
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#define TINYGLTF_INTERNAL_WIN32_LEAN_AND_MEAN
+#endif
+#include <windows.h> // include API for expanding a file path
+
+#ifdef TINYGLTF_INTERNAL_WIN32_LEAN_AND_MEAN
+#undef WIN32_LEAN_AND_MEAN
+#endif
+
+#if defined(TINYGLTF_INTERNAL_NOMINMAX)
+#undef NOMINMAX
+#endif
+
 #elif !defined(__ANDROID__)
 #include <wordexp.h>
 #endif
@@ -1192,7 +1225,8 @@ bool BufferView::operator==(const BufferView &other) const {
   return this->buffer == other.buffer && this->byteLength == other.byteLength &&
          this->byteOffset == other.byteOffset &&
          this->byteStride == other.byteStride && this->name == other.name &&
-         this->target == other.target && this->extras == other.extras;
+         this->target == other.target && this->extras == other.extras &&
+         this->dracoDecoded == other.dracoDecoded;
 }
 bool Camera::operator==(const Camera &other) const {
   return this->name == other.name && this->extensions == other.extensions &&
@@ -2728,10 +2762,7 @@ static bool ParseBufferView(BufferView *bufferView, std::string *err,
 
 static bool ParseAccessor(Accessor *accessor, std::string *err, const json &o) {
   double bufferView = -1.0;
-  if (!ParseNumberProperty(&bufferView, err, o, "bufferView", true,
-                           "Accessor")) {
-    return false;
-  }
+  ParseNumberProperty(&bufferView, err, o, "bufferView", false, "Accessor");
 
   double byteOffset = 0.0;
   ParseNumberProperty(&byteOffset, err, o, "byteOffset", false, "Accessor");
@@ -2813,7 +2844,184 @@ static bool ParseAccessor(Accessor *accessor, std::string *err, const json &o) {
   return true;
 }
 
-static bool ParsePrimitive(Primitive *primitive, std::string *err,
+#ifdef TINYGLTF_ENABLE_DRACO
+
+static void DecodeIndexBuffer(draco::Mesh* mesh, size_t componentSize, std::vector<uint8_t>& outBuffer)
+{
+  if (componentSize == 4)
+  {
+    assert(sizeof(mesh->face(draco::FaceIndex(0))[0]) == componentSize);
+    memcpy(outBuffer.data(), &mesh->face(draco::FaceIndex(0))[0], outBuffer.size());
+  }
+  else
+  {
+    size_t faceStride = componentSize * 3;
+    for (draco::FaceIndex f(0); f < mesh->num_faces(); ++f)
+    {
+      const draco::Mesh::Face& face = mesh->face(f);
+      if (componentSize == 2)
+      {
+        uint16_t indices[3] = { (uint16_t)face[0].value(), (uint16_t)face[1].value(), (uint16_t)face[2].value() };
+        memcpy(outBuffer.data() + f.value() * faceStride, &indices[0], faceStride);
+      }
+      else
+      {
+        uint8_t indices[3] = { (uint8_t)face[0].value(), (uint8_t)face[1].value(), (uint8_t)face[2].value() };
+        memcpy(outBuffer.data() + f.value() * faceStride, &indices[0], faceStride);
+      }
+    }
+  }
+}
+
+template<typename T>
+static bool GetAttributeForAllPoints(draco::Mesh* mesh, const draco::PointAttribute* pAttribute, std::vector<uint8_t>& outBuffer)
+{
+  size_t byteOffset = 0;
+  T values[4] = { 0, 0, 0, 0 };
+  for (draco::PointIndex i(0); i < mesh->num_points(); ++i)
+  {
+    const draco::AttributeValueIndex val_index = pAttribute->mapped_index(i);
+    if (!pAttribute->ConvertValue<T>(val_index, pAttribute->num_components(), values))
+      return false;
+
+    memcpy(outBuffer.data() + byteOffset, &values[0], sizeof(T) * pAttribute->num_components());
+    byteOffset += sizeof(T) * pAttribute->num_components();
+  }
+
+  return true;
+}
+
+static bool GetAttributeForAllPoints(uint32_t componentType, draco::Mesh* mesh, const draco::PointAttribute* pAttribute, std::vector<uint8_t>& outBuffer)
+{
+  bool decodeResult = false;
+  switch (componentType)
+  {
+  case TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE:
+    decodeResult = GetAttributeForAllPoints<uint8_t>(mesh, pAttribute, outBuffer);
+    break;
+  case TINYGLTF_COMPONENT_TYPE_BYTE:
+    decodeResult = GetAttributeForAllPoints<int8_t>(mesh, pAttribute, outBuffer);
+    break;
+  case TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT:
+    decodeResult = GetAttributeForAllPoints<uint16_t>(mesh, pAttribute, outBuffer);
+    break;
+  case TINYGLTF_COMPONENT_TYPE_SHORT:
+    decodeResult = GetAttributeForAllPoints<int16_t>(mesh, pAttribute, outBuffer);
+    break;
+  case TINYGLTF_COMPONENT_TYPE_INT:
+    decodeResult = GetAttributeForAllPoints<int32_t>(mesh, pAttribute, outBuffer);
+    break;
+  case TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT:
+    decodeResult = GetAttributeForAllPoints<uint32_t>(mesh, pAttribute, outBuffer);
+    break;
+  case TINYGLTF_COMPONENT_TYPE_FLOAT:
+    decodeResult = GetAttributeForAllPoints<float>(mesh, pAttribute, outBuffer);
+    break;
+  case TINYGLTF_COMPONENT_TYPE_DOUBLE:
+    decodeResult = GetAttributeForAllPoints<double>(mesh, pAttribute, outBuffer);
+    break;
+  default:
+    return false;
+  }
+
+  return decodeResult;
+}
+
+static bool ParseDracoExtension(Primitive *primitive, Model *model, std::string *err, const Value &dracoExtensionValue)
+{
+  auto bufferViewValue = dracoExtensionValue.Get("bufferView");
+  if (!bufferViewValue.IsInt())
+    return false;
+  auto attributesValue = dracoExtensionValue.Get("attributes");
+  if (!attributesValue.IsObject())
+    return false;
+
+  auto attributesObject = attributesValue.Get<Value::Object>();
+  int bufferView = bufferViewValue.Get<int>();
+
+  BufferView& view = model->bufferViews[bufferView];
+  Buffer& buffer = model->buffers[view.buffer];
+  // BufferView has already been decoded
+  if (view.dracoDecoded)
+    return true;
+  view.dracoDecoded = true;
+
+  const char* bufferViewData = reinterpret_cast<const char*>(buffer.data.data() + view.byteOffset);
+  size_t bufferViewSize = view.byteLength;
+
+  // decode draco
+  draco::DecoderBuffer decoderBuffer;
+  decoderBuffer.Init(bufferViewData, bufferViewSize);
+  draco::Decoder decoder;
+  auto decodeResult = decoder.DecodeMeshFromBuffer(&decoderBuffer);
+  if (!decodeResult.ok()) {
+    return false;
+  }
+  const std::unique_ptr<draco::Mesh>& mesh = decodeResult.value();
+
+  // create new bufferView for indices
+  if (primitive->indices >= 0)
+  {
+    int32_t componentSize = GetComponentSizeInBytes(model->accessors[primitive->indices].componentType);
+    Buffer decodedIndexBuffer;
+    decodedIndexBuffer.data.resize(mesh->num_faces() * 3 * componentSize);
+
+    DecodeIndexBuffer(mesh.get(), componentSize, decodedIndexBuffer.data);
+
+    model->buffers.emplace_back(std::move(decodedIndexBuffer));
+
+    BufferView decodedIndexBufferView;
+    decodedIndexBufferView.buffer = int(model->buffers.size() - 1);
+    decodedIndexBufferView.byteLength = int(mesh->num_faces() * 3 * componentSize);
+    decodedIndexBufferView.byteOffset = 0;
+    decodedIndexBufferView.byteStride = 0;
+    decodedIndexBufferView.target = TINYGLTF_TARGET_ARRAY_BUFFER;
+    model->bufferViews.emplace_back(std::move(decodedIndexBufferView));
+
+    model->accessors[primitive->indices].bufferView = int(model->bufferViews.size() - 1);
+    model->accessors[primitive->indices].count = int(mesh->num_faces() * 3);
+  }
+
+  for (const auto& attribute : attributesObject)
+  {
+    if (!attribute.second.IsInt())
+      return false;
+    auto primitiveAttribute = primitive->attributes.find(attribute.first);
+    if (primitiveAttribute == primitive->attributes.end())
+      return false;
+
+    int dracoAttributeIndex = attribute.second.Get<int>();
+    const auto pAttribute = mesh->GetAttributeByUniqueId(dracoAttributeIndex);
+    const auto pBuffer = pAttribute->buffer();
+    const auto componentType = model->accessors[primitiveAttribute->second].componentType;
+
+    // Create a new buffer for this decoded buffer
+    Buffer decodedBuffer;
+    size_t bufferSize = mesh->num_points() * pAttribute->num_components() * GetComponentSizeInBytes(componentType);
+    decodedBuffer.data.resize(bufferSize);
+
+    if (!GetAttributeForAllPoints(componentType, mesh.get(), pAttribute, decodedBuffer.data))
+      return false;
+
+    model->buffers.emplace_back(std::move(decodedBuffer));
+
+    BufferView decodedBufferView;
+    decodedBufferView.buffer = int(model->buffers.size() - 1);
+    decodedBufferView.byteLength = bufferSize;
+    decodedBufferView.byteOffset = pAttribute->byte_offset();
+    decodedBufferView.byteStride = pAttribute->byte_stride();
+    decodedBufferView.target = primitive->indices >= 0 ? TINYGLTF_TARGET_ELEMENT_ARRAY_BUFFER : TINYGLTF_TARGET_ARRAY_BUFFER;
+    model->bufferViews.emplace_back(std::move(decodedBufferView));
+
+    model->accessors[primitiveAttribute->second].bufferView = int(model->bufferViews.size() - 1);
+    model->accessors[primitiveAttribute->second].count = int(mesh->num_points());
+  }
+
+  return true;
+}
+#endif
+
+static bool ParsePrimitive(Primitive *primitive, Model *model, std::string *err,
                            const json &o) {
   double material = -1.0;
   ParseNumberProperty(&material, err, o, "material", false);
@@ -2853,10 +3061,20 @@ static bool ParsePrimitive(Primitive *primitive, std::string *err,
 
   ParseExtrasProperty(&(primitive->extras), o);
 
+  ParseExtensionsProperty(&primitive->extensions, err, o);
+
+#ifdef TINYGLTF_ENABLE_DRACO
+  auto dracoExtension = primitive->extensions.find("KHR_draco_mesh_compression");
+  if (dracoExtension != primitive->extensions.end())
+  {
+      ParseDracoExtension(primitive, model, err, dracoExtension->second);
+  }
+#endif
+
   return true;
 }
 
-static bool ParseMesh(Mesh *mesh, std::string *err, const json &o) {
+static bool ParseMesh(Mesh *mesh, Model *model, std::string *err, const json &o) {
   ParseStringProperty(&mesh->name, err, o, "name", false);
 
   mesh->primitives.clear();
@@ -2865,7 +3083,7 @@ static bool ParseMesh(Mesh *mesh, std::string *err, const json &o) {
     for (json::const_iterator i = primObject.value().begin();
          i != primObject.value().end(); i++) {
       Primitive primitive;
-      if (ParsePrimitive(&primitive, err, i.value())) {
+      if (ParsePrimitive(&primitive, model, err, i.value())) {
         // Only add the primitive if the parsing succeeds.
         mesh->primitives.push_back(primitive);
       }
@@ -3067,13 +3285,8 @@ static bool ParseAnimation(Animation *animation, std::string *err,
           }
           return false;
         }
-        if (!ParseStringProperty(&sampler.interpolation, err, s,
-                                 "interpolation", true)) {
-          if (err) {
-            (*err) += "`interpolation` field is missing in animation.sampler\n";
-          }
-          return false;
-        }
+        ParseStringProperty(&sampler.interpolation, err, s, "interpolation",
+                            false);
         if (!ParseNumberProperty(&outputIndex, err, s, "output", true)) {
           if (err) {
             (*err) += "`output` field is missing in animation.sampler\n";
@@ -3524,7 +3737,7 @@ bool TinyGLTF::LoadFromString(Model *model, std::string *err, std::string *warn,
           return false;
         }
         Mesh mesh;
-        if (!ParseMesh(&mesh, err, it->get<json>())) {
+        if (!ParseMesh(&mesh, model, err, it->get<json>())) {
           return false;
         }
 
@@ -4630,14 +4843,14 @@ static void WriteBinaryGltfFile(const std::string &output,
   const int padding_size = content.size() % 4;
 
   // 12 bytes for header, JSON content length, 8 bytes for JSON chunk info, padding
-  const int length = 12 + 8 + content.size() + padding_size;
+  const int length = 12 + 8 + int(content.size()) + padding_size;
   
   gltfFile.write(header.c_str(), header.size());
   gltfFile.write(reinterpret_cast<const char *>(&version), sizeof(version));
   gltfFile.write(reinterpret_cast<const char *>(&length), sizeof(length));
 
   // JSON chunk info, then JSON data
-  const int model_length = content.size() + padding_size;
+  const int model_length = int(content.size()) + padding_size;
   const int model_format = 0x4E4F534A;
   gltfFile.write(reinterpret_cast<const char *>(&model_length), sizeof(model_length));
   gltfFile.write(reinterpret_cast<const char *>(&model_format), sizeof(model_format));
