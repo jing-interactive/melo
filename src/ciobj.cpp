@@ -198,9 +198,14 @@ ModelObjRef ModelObj::create(const fs::path& meshPath, std::string* loadingError
     std::vector<tinyobj::shape_t> shapes;
     std::vector<tinyobj::material_t> materials;
 
+    std::string warn;
     std::string err;
-    bool ret = tinyobj::LoadObj(&ref->attrib, &shapes, &materials, &err,
+    bool ret = tinyobj::LoadObj(&ref->attrib, &shapes, &materials, &warn, &err,
         meshPath.string().c_str(), ref->baseDir.string().c_str());
+    if (!warn.empty())
+    {
+        CI_LOG_W(warn);
+    }
     if (!err.empty())
     {
         CI_LOG_E(err);
