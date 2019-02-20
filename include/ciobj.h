@@ -15,11 +15,20 @@ using namespace ci;
 struct MaterialObj
 {
     typedef std::shared_ptr<MaterialObj> Ref;
+    std::string name;
     tinyobj::material_t property;
     ModelObjRef modelObj;
 
     gl::Texture2dRef diffuseTexture;
-    vec4 diffuseFactor = {1, 1, 1, 1};
+    glm::vec4 diffuseFactor = glm::vec4(0);
+    glm::vec3 ambientFactor = glm::vec3(0);
+    glm::vec3 specularFactor = glm::vec3(0);
+    glm::vec3 emissiveFactor = glm::vec3(0);
+    glm::vec3 transmittanceFactor = glm::vec3(0);
+    float glossinessFactor = 1.0f;
+    float ior = 1.0f;
+    int dissolve = 1;
+    int illum = 0;
 
     gl::GlslProgRef ciShader;
 

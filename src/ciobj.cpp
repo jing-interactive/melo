@@ -32,14 +32,14 @@ MeshObj::Ref MeshObj::create(ModelObjRef modelObj, const tinyobj::shape_t& prope
                 attrib.vertices[3 * index.vertex_index + 2]
             });
         }
-        if (!attrib.normals.empty())
+        if (index.normal_index >= 0 && !attrib.normals.empty())
         {
             normals.push_back({ attrib.normals[3 * index.normal_index + 0],
                 attrib.normals[3 * index.normal_index + 1],
                 attrib.normals[3 * index.normal_index + 2]
             });
         }
-        if (!attrib.texcoords.empty())
+        if (index.texcoord_index >=0 && !attrib.texcoords.empty())
         {
             texcoords.push_back({ attrib.texcoords[2 * index.texcoord_index + 0],
                 attrib.texcoords[2 * index.texcoord_index + 1]
@@ -65,14 +65,14 @@ MeshObj::Ref MeshObj::create(ModelObjRef modelObj, const tinyobj::shape_t& prope
 
     CI_ASSERT(!attrib.vertices.empty());
     triMesh.appendPositions(positions.data(), positions.size());
-    if (!attrib.normals.empty())
+    if (!normals.empty())
         triMesh.appendNormals(normals.data(), normals.size());
-    if (!attrib.texcoords.empty())
+    if (!texcoords.empty())
         triMesh.appendTexCoords0(texcoords.data(), texcoords.size());
-    if (!attrib.colors.empty())
+    if (!colors.empty())
         triMesh.appendColors(colors.data(), colors.size());
     triMesh.appendIndices(indexArray.data(), indexArray.size());
-    if (attrib.normals.empty())
+    if (normals.empty())
     {
         triMesh.recalculateNormals();
     }
@@ -116,6 +116,7 @@ MaterialObj::Ref MaterialObj::create(ModelObjRef modelObj, const tinyobj::materi
     auto ref = make_shared<MaterialObj>();
     ref->property = property;
     ref->modelObj = modelObj;
+    ref->name = property.name;
 
     auto fmt = gl::GlslProg::Format();
     fmt.define("HAS_TANGENTS");
@@ -143,9 +144,14 @@ MaterialObj::Ref MaterialObj::create(ModelObjRef modelObj, const tinyobj::materi
         }
 
         fmt.define("HAS_UV");
+        fmt.define("HAS_DIFFUSEMAP");
     }
 
     ref->diffuseFactor = { property.diffuse[0], property.diffuse[1], property.diffuse[2], 1 };
+    //ref->ambientFactor = { property.ambient[0], property.ambient[1], property.ambient[2] };
+    ref->specularFactor = { property.specular[0], property.specular[1], property.diffuse[2] };
+    ref->emissiveFactor = { property.emission[0], property.emission[1], property.emission[2] };
+    ref->glossinessFactor = property.shininess;
 
     fmt.vertex(DataSourcePath::create(app::getAssetPath("pbr.vert")));
     fmt.fragment(DataSourcePath::create(app::getAssetPath("pbr.frag")));
@@ -154,12 +160,14 @@ MaterialObj::Ref MaterialObj::create(ModelObjRef modelObj, const tinyobj::materi
 #if 1
     auto ciShader = gl::GlslProg::create(fmt);
 #else
-    ref->ciShader = am::glslProg("lambert texture");
+    auto ciShader = am::glslProg("lambert");
 #endif
     CI_ASSERT_MSG(ciShader, "Shader compile fails");
     ref->ciShader = ciShader;
 
     ciShader->uniform("u_DiffuseFactor", ref->diffuseFactor);
+    ciShader->uniform("u_SpecularGlossinessValues", vec4(ref->specularFactor, ref->glossinessFactor));
+    ciShader->uniform("u_EmissiveFactor", ref->emissiveFactor);
     ciShader->uniform("u_BaseColorSampler", 0);
 
     ciShader->uniform("u_LightDirection", vec3(1.0f, 1.0f, 1.0f));
@@ -167,7 +175,6 @@ MaterialObj::Ref MaterialObj::create(ModelObjRef modelObj, const tinyobj::materi
     ciShader->uniform("u_Camera", vec3(1.0f, 1.0f, 1.0f));
 
     ciShader->uniform("u_NormalScale", 1.0f);
-    ciShader->uniform("u_EmissiveFactor", vec3(1.0f, 1.0f, 1.0f));
     ciShader->uniform("u_OcclusionStrength", 1.0f);
 
     //if (ref->normalTexture)

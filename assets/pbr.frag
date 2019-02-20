@@ -53,8 +53,8 @@ uniform vec3 u_LightColor/* = vec3(1.0, 1.0, 1.0)*/;
 
 #ifdef HAS_EMISSIVEMAP
     uniform sampler2D u_EmissiveSampler;
-    uniform vec3 u_EmissiveFactor      /* = vec3(1.0, 1.0, 1.0)*/;
 #endif
+uniform vec3 u_EmissiveFactor      /* = vec3(1.0, 1.0, 1.0)*/;
 
 #ifdef HAS_OCCLUSIONMAP
     uniform sampler2D u_OcclusionSampler;
@@ -318,10 +318,11 @@ void main()
     color = mix(color, color * ao, u_OcclusionStrength);
 #endif
 
+    vec3 emissive = u_EmissiveFactor;
 #ifdef HAS_EMISSIVEMAP
-    vec3 emissive = SRGBtoLINEAR(texture(u_EmissiveSampler, v_UV)).rgb * u_EmissiveFactor;
-    color += emissive;
+    emissive *= SRGBtoLINEAR(texture(u_EmissiveSampler, v_UV)).rgb;
 #endif
+    color += emissive;
 
     // oColor = vec4(ao, v_UV,1);
     oColor = vec4(pow(color,vec3(1.0/2.2)), baseColor.a);
