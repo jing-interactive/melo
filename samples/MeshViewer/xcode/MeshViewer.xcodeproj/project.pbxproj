@@ -18,16 +18,9 @@
 		00B9955B1B128DF400A5C623 /* IOSurface.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00B995591B128DF400A5C623 /* IOSurface.framework */; };
 		248C10CEEF4E402D9D256B49 /* MiniConfig.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3FFFE341EF014552AFC9D642 /* MiniConfig.cpp */; };
 		5323E6B20EAFCA74003A9687 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5323E6B10EAFCA74003A9687 /* CoreVideo.framework */; };
-		7413D5772140225F00498D75 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 7413D56D2140225F00498D75 /* README.md */; };
-		7413D5782140225F00498D75 /* cinderblock.xml in Resources */ = {isa = PBXBuildFile; fileRef = 7413D56E2140225F00498D75 /* cinderblock.xml */; };
-		7413D5792140225F00498D75 /* cinderblock.png in Resources */ = {isa = PBXBuildFile; fileRef = 7413D56F2140225F00498D75 /* cinderblock.png */; };
-		7413D57C2140225F00498D75 /* Node.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7413D5732140225F00498D75 /* Node.cpp */; };
-		7413D57E2140225F00498D75 /* Node3D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7413D5752140225F00498D75 /* Node3D.cpp */; };
-		749CE63821EF68C3008C8AA2 /* tiny_obj_loader.cc in Sources */ = {isa = PBXBuildFile; fileRef = 749CE08921EF68BE008C8AA2 /* tiny_obj_loader.cc */; };
-		749CE63921EF68C3008C8AA2 /* tiny_gltf.cc in Sources */ = {isa = PBXBuildFile; fileRef = 749CE08A21EF68BE008C8AA2 /* tiny_gltf.cc */; };
-		749CE63A21EF68C3008C8AA2 /* read_vox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 749CE09121EF68BE008C8AA2 /* read_vox.cpp */; };
-		749CE99721EF68C5008C8AA2 /* ciobj.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 749CE63521EF68C3008C8AA2 /* ciobj.cpp */; };
-		749CE99821EF68C5008C8AA2 /* cigltf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 749CE63621EF68C3008C8AA2 /* cigltf.cpp */; };
+		744CF92C221CF55800B05081 /* include in Resources */ = {isa = PBXBuildFile; fileRef = 744CF92B221CF55800B05081 /* include */; };
+		744CF92E221CF55D00B05081 /* src in Resources */ = {isa = PBXBuildFile; fileRef = 744CF92D221CF55D00B05081 /* src */; };
+		749CEAE321F2D45D008C8AA2 /* assets in Resources */ = {isa = PBXBuildFile; fileRef = 749CEAE221F2D45D008C8AA2 /* assets */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		9CD73AC15AB140A882E1628C /* CinderApp.icns in Resources */ = {isa = PBXBuildFile; fileRef = 17DC403A7D974506B9398D7B /* CinderApp.icns */; };
 		E5922A0830AF4D81A9622112 /* MeshViewerApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BEAC7383671F4D3186648613 /* MeshViewerApp.cpp */; };
@@ -59,31 +52,9 @@
 		5E089795C140415A88B80BBC /* TuioHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TuioHelper.h; path = "../../../../../blocks/Cinder-VNM/include/TuioHelper.h"; sourceTree = "<group>"; };
 		63E04ED620934A179031D036 /* MeshViewer_Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; path = MeshViewer_Prefix.pch; sourceTree = "<group>"; };
 		7056A9E4AC1D4045B0D05A93 /* MiniConfigImgui.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MiniConfigImgui.h; path = "../../../../../blocks/Cinder-VNM/include/MiniConfigImgui.h"; sourceTree = "<group>"; };
-		7413D5682140225F00498D75 /* Node3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Node3D.h; sourceTree = "<group>"; };
-		7413D5692140225F00498D75 /* Node2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Node2D.h; sourceTree = "<group>"; };
-		7413D56A2140225F00498D75 /* Node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Node.h; sourceTree = "<group>"; };
-		7413D56B2140225F00498D75 /* NodeExt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NodeExt.h; sourceTree = "<group>"; };
-		7413D56C2140225F00498D75 /* NodeRectangle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NodeRectangle.h; sourceTree = "<group>"; };
-		7413D56D2140225F00498D75 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		7413D56E2140225F00498D75 /* cinderblock.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = cinderblock.xml; sourceTree = "<group>"; };
-		7413D56F2140225F00498D75 /* cinderblock.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cinderblock.png; sourceTree = "<group>"; };
-		7413D5732140225F00498D75 /* Node.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Node.cpp; sourceTree = "<group>"; };
-		7413D5752140225F00498D75 /* Node3D.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Node3D.cpp; sourceTree = "<group>"; };
-		749CE08421EF68BE008C8AA2 /* CinderMeshViewer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CinderMeshViewer.h; sourceTree = "<group>"; };
-		749CE08621EF68BE008C8AA2 /* json.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = json.hpp; sourceTree = "<group>"; };
-		749CE08721EF68BE008C8AA2 /* stb_image_write.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_image_write.h; sourceTree = "<group>"; };
-		749CE08821EF68BE008C8AA2 /* stb_image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_image.h; sourceTree = "<group>"; };
-		749CE08921EF68BE008C8AA2 /* tiny_obj_loader.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tiny_obj_loader.cc; sourceTree = "<group>"; };
-		749CE08A21EF68BE008C8AA2 /* tiny_gltf.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tiny_gltf.cc; sourceTree = "<group>"; };
-		749CE08B21EF68BE008C8AA2 /* tiny_gltf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tiny_gltf.h; sourceTree = "<group>"; };
-		749CE08C21EF68BE008C8AA2 /* tiny_obj_loader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tiny_obj_loader.h; sourceTree = "<group>"; };
-		749CE08D21EF68BE008C8AA2 /* read_vox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = read_vox.h; sourceTree = "<group>"; };
-		749CE08E21EF68BE008C8AA2 /* cigltf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cigltf.h; sourceTree = "<group>"; };
-		749CE08F21EF68BE008C8AA2 /* ciobj.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ciobj.h; sourceTree = "<group>"; };
-		749CE09021EF68BE008C8AA2 /* civox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = civox.h; sourceTree = "<group>"; };
-		749CE09121EF68BE008C8AA2 /* read_vox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = read_vox.cpp; sourceTree = "<group>"; };
-		749CE63521EF68C3008C8AA2 /* ciobj.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ciobj.cpp; sourceTree = "<group>"; };
-		749CE63621EF68C3008C8AA2 /* cigltf.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cigltf.cpp; sourceTree = "<group>"; };
+		744CF92B221CF55800B05081 /* include */ = {isa = PBXFileReference; lastKnownFileType = folder; name = include; path = "../Cinder-MeshViewer/include"; sourceTree = "<group>"; };
+		744CF92D221CF55D00B05081 /* src */ = {isa = PBXFileReference; lastKnownFileType = folder; name = src; path = "../Cinder-MeshViewer/src"; sourceTree = "<group>"; };
+		749CEAE221F2D45D008C8AA2 /* assets */ = {isa = PBXFileReference; lastKnownFileType = folder; name = assets; path = ../../../assets; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* MeshViewer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MeshViewer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9584F0AFEEAD48FFA432C73E /* AssetManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AssetManager.h; path = "../../../../../blocks/Cinder-VNM/include/AssetManager.h"; sourceTree = "<group>"; };
 		A521CAB1E47048AB92BAFAE9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -123,7 +94,6 @@
 		01B97315FEAEA392516A2CEA /* Blocks */ = {
 			isa = PBXGroup;
 			children = (
-				749CE08121EF68BE008C8AA2 /* MeshViewer */,
 				7413D5652140225F00498D75 /* Cinder-Nodes */,
 				49E91D466005464AA238D5B8 /* vnm */,
 			);
@@ -208,6 +178,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				749CEAE221F2D45D008C8AA2 /* assets */,
 				17DC403A7D974506B9398D7B /* CinderApp.icns */,
 				A521CAB1E47048AB92BAFAE9 /* Info.plist */,
 			);
@@ -256,82 +227,11 @@
 		7413D5652140225F00498D75 /* Cinder-Nodes */ = {
 			isa = PBXGroup;
 			children = (
-				7413D5672140225F00498D75 /* include */,
-				7413D56D2140225F00498D75 /* README.md */,
-				7413D56E2140225F00498D75 /* cinderblock.xml */,
-				7413D56F2140225F00498D75 /* cinderblock.png */,
-				7413D5712140225F00498D75 /* src */,
+				744CF92D221CF55D00B05081 /* src */,
+				744CF92B221CF55800B05081 /* include */,
 			);
 			name = "Cinder-Nodes";
 			path = "../../../../../blocks/Cinder-Nodes";
-			sourceTree = "<group>";
-		};
-		7413D5672140225F00498D75 /* include */ = {
-			isa = PBXGroup;
-			children = (
-				7413D5682140225F00498D75 /* Node3D.h */,
-				7413D5692140225F00498D75 /* Node2D.h */,
-				7413D56A2140225F00498D75 /* Node.h */,
-				7413D56B2140225F00498D75 /* NodeExt.h */,
-				7413D56C2140225F00498D75 /* NodeRectangle.h */,
-			);
-			path = include;
-			sourceTree = "<group>";
-		};
-		7413D5712140225F00498D75 /* src */ = {
-			isa = PBXGroup;
-			children = (
-				7413D5732140225F00498D75 /* Node.cpp */,
-				7413D5752140225F00498D75 /* Node3D.cpp */,
-			);
-			path = src;
-			sourceTree = "<group>";
-		};
-		749CE08121EF68BE008C8AA2 /* MeshViewer */ = {
-			isa = PBXGroup;
-			children = (
-				749CE08321EF68BE008C8AA2 /* include */,
-				749CE63421EF68C3008C8AA2 /* src */,
-			);
-			name = MeshViewer;
-			path = ../../..;
-			sourceTree = "<group>";
-		};
-		749CE08321EF68BE008C8AA2 /* include */ = {
-			isa = PBXGroup;
-			children = (
-				749CE08421EF68BE008C8AA2 /* CinderMeshViewer.h */,
-				749CE08521EF68BE008C8AA2 /* syoyo */,
-				749CE08D21EF68BE008C8AA2 /* read_vox.h */,
-				749CE08E21EF68BE008C8AA2 /* cigltf.h */,
-				749CE08F21EF68BE008C8AA2 /* ciobj.h */,
-				749CE09021EF68BE008C8AA2 /* civox.h */,
-				749CE09121EF68BE008C8AA2 /* read_vox.cpp */,
-			);
-			path = include;
-			sourceTree = "<group>";
-		};
-		749CE08521EF68BE008C8AA2 /* syoyo */ = {
-			isa = PBXGroup;
-			children = (
-				749CE08621EF68BE008C8AA2 /* json.hpp */,
-				749CE08721EF68BE008C8AA2 /* stb_image_write.h */,
-				749CE08821EF68BE008C8AA2 /* stb_image.h */,
-				749CE08921EF68BE008C8AA2 /* tiny_obj_loader.cc */,
-				749CE08A21EF68BE008C8AA2 /* tiny_gltf.cc */,
-				749CE08B21EF68BE008C8AA2 /* tiny_gltf.h */,
-				749CE08C21EF68BE008C8AA2 /* tiny_obj_loader.h */,
-			);
-			path = syoyo;
-			sourceTree = "<group>";
-		};
-		749CE63421EF68C3008C8AA2 /* src */ = {
-			isa = PBXGroup;
-			children = (
-				749CE63521EF68C3008C8AA2 /* ciobj.cpp */,
-				749CE63621EF68C3008C8AA2 /* cigltf.cpp */,
-			);
-			path = src;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -387,10 +287,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7413D5772140225F00498D75 /* README.md in Resources */,
-				7413D5792140225F00498D75 /* cinderblock.png in Resources */,
-				7413D5782140225F00498D75 /* cinderblock.xml in Resources */,
+				744CF92C221CF55800B05081 /* include in Resources */,
+				749CEAE321F2D45D008C8AA2 /* assets in Resources */,
 				9CD73AC15AB140A882E1628C /* CinderApp.icns in Resources */,
+				744CF92E221CF55D00B05081 /* src in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -402,15 +302,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				E5922A0830AF4D81A9622112 /* MeshViewerApp.cpp in Sources */,
-				749CE99721EF68C5008C8AA2 /* ciobj.cpp in Sources */,
-				7413D57C2140225F00498D75 /* Node.cpp in Sources */,
-				749CE63821EF68C3008C8AA2 /* tiny_obj_loader.cc in Sources */,
-				749CE63921EF68C3008C8AA2 /* tiny_gltf.cc in Sources */,
 				F6D85CC6EECE4A0E87E277DC /* AssetManager.cpp in Sources */,
-				749CE63A21EF68C3008C8AA2 /* read_vox.cpp in Sources */,
-				7413D57E2140225F00498D75 /* Node3D.cpp in Sources */,
 				248C10CEEF4E402D9D256B49 /* MiniConfig.cpp in Sources */,
-				749CE99821EF68C5008C8AA2 /* cigltf.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

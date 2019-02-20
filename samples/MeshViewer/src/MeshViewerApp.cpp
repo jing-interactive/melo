@@ -11,7 +11,7 @@
 #include "cinder/Arcball.h"
 #include "cinder/params/Params.h"
 
-#include "CinderMeshViewer.h"
+#include "../../../include/CinderMeshViewer.h"
 
 #define FLYTHROUGH_CAMERA_IMPLEMENTATION
 #include "flythrough_camera/flythrough_camera.h"
