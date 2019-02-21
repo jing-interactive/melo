@@ -228,9 +228,18 @@ struct MeshViewerApp : public App
                 }
             }
 
-            CAM_POS_X = mMayaCam.getEyePoint().x;
-            CAM_POS_Y = mMayaCam.getEyePoint().y;
-            CAM_POS_Z = mMayaCam.getEyePoint().z;
+            if (FPS_CAMERA)
+            {
+                CAM_POS_X = mFpsCam.pos.x;
+                CAM_POS_Y = mFpsCam.pos.y;
+                CAM_POS_Z = mFpsCam.pos.z;
+            }
+            else
+            {
+                CAM_POS_X = mMayaCam.getEyePoint().x;
+                CAM_POS_Y = mMayaCam.getEyePoint().y;
+                CAM_POS_Z = mMayaCam.getEyePoint().z;
+            }
             mMayaCam.setNearClip(CAM_Z_NEAR);
             mMayaCam.setFarClip(CAM_Z_FAR);
 
@@ -251,12 +260,14 @@ struct MeshViewerApp : public App
             {
                 if (FPS_CAMERA)
                 {
-                    auto eye = mMayaCam.getEyePoint();
-                    mFpsCam.pos = eye;
+                    mFpsCam.setActive(true);
+                    mFpsCam.pos = mMayaCam.getEyePoint();
+                    //mFpsCam.look = mMayaCam.getPivotPoint();
                 }
                 else
                 {
-                    mMayaCam.setEyePoint(mFpsCam.pos);
+                    mFpsCam.setActive(false);
+                    mMayaCam.lookAt(mFpsCam.pos, mFpsCam.look, mFpsCam.up);
                 }
                 mIsFpsCamera = FPS_CAMERA;
             }
