@@ -122,6 +122,7 @@
     <ClInclude Include="..\..\..\include\syoyo\stb_image_write.h" />
     <ClInclude Include="..\..\..\include\syoyo\tiny_gltf.h" />
     <ClInclude Include="..\..\..\include\syoyo\tiny_obj_loader.h" />
+    <ClInclude Include="..\include\FirstPersonCamera.h" />
     <ClInclude Include="..\include\Resources.h" />
     <ClInclude Include="..\include\item.def" />
     <ClInclude Include="..\..\..\..\Cinder-VNM\include\AnsiToUtf.h" />

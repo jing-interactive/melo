@@ -12,9 +12,7 @@
 #include "cinder/params/Params.h"
 
 #include "CinderMeshViewer.h"
-
-#define FLYTHROUGH_CAMERA_IMPLEMENTATION
-#include "flythrough_camera/flythrough_camera.h"
+#include "FirstPersonCamera.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -52,85 +50,12 @@ gl::VertBatchRef createGrid()
     return grid;
 }
 
-struct FlythroughCamera : public CameraPersp
-{
-    double mElapsedSeconds;
-    ivec2 mMousePos, mPrevMousePos;
-
-    bool mIsKeyPressed[KeyEvent::KEY_LAST] = {false};
-    bool mIsRMousePressed = false;
-
-    vec3 pos = {3.0f, 3.0f, 3.0f};
-    vec3 look = {0.0f, 0.0f, 1.0f};
-    const vec3 up = {0.0f, 1.0f, 0.0f};
-    float degrees_per_cursor_move = 0.5f;
-    float max_pitch_rotation_degrees = 80.0f;
-    
-    bool activated = true;
-
-    void setup()
-    {
-        mElapsedSeconds = getElapsedSeconds();
-        //        mCam.lookAt(aabb.getMax() * 2.0f, aabb.getCenter());
-
-//        flythrough_camera_look_to(pos, look, up, glm::value_ptr(mViewMatrix), 0);
-
-        getWindow()->getSignalResize().connect([&] { setAspectRatio(getWindowAspectRatio()); });
-
-        getWindow()->getSignalKeyDown().connect(
-            [&](KeyEvent& event) { mIsKeyPressed[event.getCode()] = true; });
-
-        getWindow()->getSignalKeyUp().connect(
-            [&](KeyEvent& event) { mIsKeyPressed[event.getCode()] = false; });
-
-        getWindow()->getSignalMouseDown().connect(
-            [&](MouseEvent& ev) { mIsRMousePressed = ev.isRight(); });
-
-        getWindow()->getSignalMouseUp().connect([&](MouseEvent& ev) { mIsRMousePressed = false; });
-
-        getWindow()->getSignalMouseMove().connect([&](MouseEvent& ev) {
-            mIsRMousePressed = ev.isRight();
-            mMousePos = ev.getPos();
-        });
-
-        AppBase::get()->getSignalUpdate().connect([&] {
-            float delta_time_sec = getElapsedSeconds() - mElapsedSeconds;
-            mElapsedSeconds = getElapsedSeconds();
-
-            flythrough_camera_update(
-                glm::value_ptr(pos), glm::value_ptr(look), glm::value_ptr(up),
-                glm::value_ptr(mViewMatrix), delta_time_sec,
-                1.0f * (mIsKeyPressed[KeyEvent::KEY_LSHIFT] ? 2.0f : 1.0f) * activated,
-                degrees_per_cursor_move, max_pitch_rotation_degrees, mMousePos.x - mPrevMousePos.x,
-                mMousePos.y - mPrevMousePos.y, mIsKeyPressed[KeyEvent::KEY_w],
-                mIsKeyPressed[KeyEvent::KEY_a], mIsKeyPressed[KeyEvent::KEY_s],
-                mIsKeyPressed[KeyEvent::KEY_d], mIsKeyPressed[KeyEvent::KEY_SPACE],
-                mIsKeyPressed[KeyEvent::KEY_LCTRL], 0);
-
-            if (activated)
-            {
-                float* view = glm::value_ptr(mViewMatrix);
-                printf("\n");
-                printf("pos: %f, %f, %f\n", pos[0], pos[1], pos[2]);
-                printf("look: %f, %f, %f\n", look[0], look[1], look[2]);
-                printf("view: %f %f %f %f\n"
-                       "      %f %f %f %f\n"
-                       "      %f %f %f %f\n"
-                       "      %f %f %f %f\n",
-                       view[0], view[1], view[2], view[3], view[4], view[5], view[6], view[7],
-                       view[8], view[9], view[10], view[11], view[12], view[13], view[14],
-                       view[15]);
-                mModelViewCached = true;
-            }
-            mPrevMousePos = mMousePos;
-        });
-    }
-};
 
 struct MeshViewerApp : public App
 {
-    CameraPersp mCam;
-    CameraUi mCamUi;
+    CameraPersp mMayaCam;
+    CameraUi mMayaCamUi;
+    bool mIsFpsCamera = false;
     Arcball mArcball;
     quat mMeshRotation;
 
@@ -146,7 +71,7 @@ struct MeshViewerApp : public App
 
     gl::VertBatchRef mGrid;
 
-    FlythroughCamera mFlyCam;
+    FirstPersonCamera mFpsCam;
 
     string mLoadingError;
     gl::TextureFontRef texFont;
@@ -186,7 +111,7 @@ struct MeshViewerApp : public App
 
         texFont = FontHelper::createTextureFont("Helvetica", 24);
 
-        mFlyCam.setup();
+        mFpsCam.setup();
 
         auto skyBoxShader = am::glslProg("SkyBox.vert", "SkyBox.frag");
         if (!skyBoxShader)
@@ -201,8 +126,8 @@ struct MeshViewerApp : public App
         mSkyBoxBatch = gl::Batch::create(geom::Cube().size(vec3(400)), skyBoxShader);
         mGrid = createGrid();
 
-        mCam.lookAt({CAM_POS_X, CAM_POS_Y, CAM_POS_Z}, vec3(), vec3(0, 1, 0));
-        mCamUi = CameraUi(&mCam, getWindow(), -1);
+        mMayaCam.lookAt({CAM_POS_X, CAM_POS_Y, CAM_POS_Z}, vec3(), vec3(0, 1, 0));
+        mMayaCamUi = CameraUi(&mMayaCam, getWindow(), -1);
 
         mMeshFilenames = listGlTFFiles();
         auto& args = getCommandLineArgs();
@@ -227,14 +152,14 @@ struct MeshViewerApp : public App
         getWindow()->getSignalResize().connect([&] {
             APP_WIDTH = getWindowWidth();
             APP_HEIGHT = getWindowHeight();
-            mCam.setAspectRatio(getWindowAspectRatio());
+            mMayaCam.setAspectRatio(getWindowAspectRatio());
         });
 
         getWindow()->getSignalKeyUp().connect([&](KeyEvent& event) {
             auto code = event.getCode();
             if (code == KeyEvent::KEY_ESCAPE)
                 quit();
-            if (code == KeyEvent::KEY_w)
+            if (code == KeyEvent::KEY_SPACE)
                 WIRE_FRAME = !WIRE_FRAME;
             if (code == KeyEvent::KEY_e)
                 ENV_VISIBLE = !ENV_VISIBLE;
@@ -242,6 +167,8 @@ struct MeshViewerApp : public App
                 XYZ_VISIBLE = !XYZ_VISIBLE;
             if (code == KeyEvent::KEY_g)
                 GUI_VISIBLE = !GUI_VISIBLE;
+            if (code == KeyEvent::KEY_f)
+                FPS_CAMERA = !FPS_CAMERA;
         });
 
         getWindow()->getSignalFileDrop().connect([&](FileDropEvent& event) {
@@ -281,7 +208,7 @@ struct MeshViewerApp : public App
 
                 if (path.extension() == ".obj")
                 {
-                    if (AM_VBO_MESH)
+                    if (CI_OBJ_LOADER)
                     {
                         mVboMesh = am::vboMesh(path.string());
                     }
@@ -301,32 +228,45 @@ struct MeshViewerApp : public App
                 }
             }
 
-            CAM_POS_X = mCam.getEyePoint().x;
-            CAM_POS_Y = mCam.getEyePoint().y;
-            CAM_POS_Z = mCam.getEyePoint().z;
-            mCam.setNearClip(CAM_Z_NEAR);
-            mCam.setFarClip(CAM_Z_FAR);
+            CAM_POS_X = mMayaCam.getEyePoint().x;
+            CAM_POS_Y = mMayaCam.getEyePoint().y;
+            CAM_POS_Z = mMayaCam.getEyePoint().z;
+            mMayaCam.setNearClip(CAM_Z_NEAR);
+            mMayaCam.setFarClip(CAM_Z_FAR);
 
             if (mModelGLTF)
             {
                 mModelGLTF->flipV = FLIP_V;
-                mModelGLTF->cameraPosition = mCam.getEyePoint();
+                mModelGLTF->cameraPosition = mMayaCam.getEyePoint();
                 mModelGLTF->update();
             }
 
             if (mModelObj)
             {
                 mModelObj->flipV = FLIP_V;
-                mModelObj->cameraPosition = mCam.getEyePoint();
+                mModelObj->cameraPosition = mMayaCam.getEyePoint();
+            }
+
+            if (mIsFpsCamera != FPS_CAMERA)
+            {
+                if (FPS_CAMERA)
+                {
+                    auto eye = mMayaCam.getEyePoint();
+                    mFpsCam.pos = eye;
+                }
+                else
+                {
+                    mMayaCam.setEyePoint(mFpsCam.pos);
+                }
+                mIsFpsCamera = FPS_CAMERA;
             }
         });
 
         getWindow()->getSignalDraw().connect([&] {
-#if 1
-            gl::setMatrices(mCam);
-#else
-            gl::setMatrices(mFlyCam);
-#endif
+            if (mIsFpsCamera)
+                gl::setMatrices(mFpsCam);
+            else
+                gl::setMatrices(mMayaCam);
             gl::clear();
 
             mParams->show(GUI_VISIBLE);
