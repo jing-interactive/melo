@@ -230,9 +230,9 @@ struct MeshViewerApp : public App
 
             if (FPS_CAMERA)
             {
-                CAM_POS_X = mFpsCam.pos.x;
-                CAM_POS_Y = mFpsCam.pos.y;
-                CAM_POS_Z = mFpsCam.pos.z;
+                CAM_POS_X = mFpsCam.eye.x;
+                CAM_POS_Y = mFpsCam.eye.y;
+                CAM_POS_Z = mFpsCam.eye.z;
             }
             else
             {
@@ -261,13 +261,13 @@ struct MeshViewerApp : public App
                 if (FPS_CAMERA)
                 {
                     mFpsCam.setActive(true);
-                    mFpsCam.pos = mMayaCam.getEyePoint();
+                    mFpsCam.eye = mMayaCam.getEyePoint();
                     //mFpsCam.look = mMayaCam.getPivotPoint();
                 }
                 else
                 {
                     mFpsCam.setActive(false);
-                    mMayaCam.lookAt(mFpsCam.pos, mFpsCam.look, mFpsCam.up);
+                    mMayaCam.lookAt(mFpsCam.eye, mFpsCam.look, mFpsCam.up);
                 }
                 mIsFpsCamera = FPS_CAMERA;
             }
