@@ -25,6 +25,7 @@ typedef std::shared_ptr<struct WeakBuffer> WeakBufferRef;
 
 enum GltfMode
 {
+    MODE_POINTS = 0,
     MODE_LINE = 1,
     MODE_LINE_LOOP = 2,
     MODE_TRIANGLES = 4,
@@ -262,6 +263,7 @@ struct PrimitiveGLTF
 {
     typedef std::shared_ptr<PrimitiveGLTF> Ref;
     tinygltf::Primitive property;
+    GltfMode primitiveMode;
 
     MaterialGLTF::Ref material;
 

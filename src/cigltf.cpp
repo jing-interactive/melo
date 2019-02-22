@@ -804,6 +804,7 @@ PrimitiveGLTF::Ref PrimitiveGLTF::create(ModelGLTFRef modelGLTF,
 {
     PrimitiveGLTF::Ref ref = make_shared<PrimitiveGLTF>();
     ref->property = property;
+    ref->primitiveMode = (GltfMode)property.mode;
 
     if (property.material == -1)
     {
@@ -813,12 +814,18 @@ PrimitiveGLTF::Ref PrimitiveGLTF::create(ModelGLTFRef modelGLTF,
     {
         ref->material = modelGLTF->materials[property.material];
     }
-    CI_ASSERT(property.indices >= 0);
-    auto indices = modelGLTF->accessors[property.indices];
 
+    AccessorGLTF::Ref indices;
+    if (property.indices >= 0)
+    {
+        indices = modelGLTF->accessors[property.indices];
+    }
 #ifdef CINDER_LESS
-    ref->indices = createFromAccessor(indices, TYPE_SCALAR, COMPONENT_TYPE_UNSIGNED_INT);
-    ref->indexCount = indices->property.count;
+    if (indices)
+    {
+        ref->indices = createFromAccessor(indices, TYPE_SCALAR, COMPONENT_TYPE_UNSIGNED_INT);
+        ref->indexCount = indices->property.count;
+    }
 
     ref->vertexCount = 0;
     for (auto& kv : property.attributes)
@@ -833,20 +840,21 @@ PrimitiveGLTF::Ref PrimitiveGLTF::create(ModelGLTFRef modelGLTF,
         ref->vertexCount = acc->property.count;
     }
 #else
-    GLenum oglPrimitiveMode = (GLenum)property.mode;
-
     gl::VboRef oglIndexVbo;
-    if (indices->property.byteOffset == 0)
+    if (indices)
     {
-        oglIndexVbo = indices->gpuBuffer;
-        oglIndexVbo->setTarget(GL_ELEMENT_ARRAY_BUFFER);
-    }
-    else
-    {
-        int bytesPerUnit = getComponentSizeInBytes((GltfComponentType)indices->property.componentType);
-        oglIndexVbo =
-            gl::Vbo::create(GL_ELEMENT_ARRAY_BUFFER, bytesPerUnit * indices->property.count,
-                            (uint8_t*)indices->cpuBuffer->getData() + indices->property.byteOffset);
+        if (indices->property.byteOffset == 0)
+        {
+            oglIndexVbo = indices->gpuBuffer;
+            oglIndexVbo->setTarget(GL_ELEMENT_ARRAY_BUFFER);
+        }
+        else
+        {
+            int bytesPerUnit = getComponentSizeInBytes((GltfComponentType)indices->property.componentType);
+            oglIndexVbo =
+                gl::Vbo::create(GL_ELEMENT_ARRAY_BUFFER, bytesPerUnit * indices->property.count,
+                (uint8_t*)indices->cpuBuffer->getData() + indices->property.byteOffset);
+        }
     }
 
     vector<pair<geom::BufferLayout, gl::VboRef>> oglVboLayouts;
@@ -863,9 +871,18 @@ PrimitiveGLTF::Ref PrimitiveGLTF::create(ModelGLTFRef modelGLTF,
         numVertices = acc->property.count;
     }
 
-    ref->ciVboMesh =
-        gl::VboMesh::create(numVertices, oglPrimitiveMode, oglVboLayouts, indices->property.count,
-                            (GLenum)indices->property.componentType, oglIndexVbo);
+    if (indices)
+    {
+        ref->ciVboMesh =
+            gl::VboMesh::create(numVertices, (GLenum)ref->primitiveMode, oglVboLayouts, indices->property.count,
+            (GLenum)indices->property.componentType, oglIndexVbo);
+    }
+    else
+    {
+
+        ref->ciVboMesh =
+            gl::VboMesh::create(numVertices, (GLenum)ref->primitiveMode, oglVboLayouts);
+    }
 #endif
     return ref;
 }
