@@ -110,19 +110,20 @@
   <ItemGroup />
   <ItemGroup />
   <ItemGroup>
+    <ClInclude Include="..\..\..\3rdparty\flythrough_camera\flythrough_camera.h" />
+    <ClInclude Include="..\..\..\3rdparty\tinygltf\json.hpp" />
+    <ClInclude Include="..\..\..\3rdparty\tinygltf\stb_image.h" />
+    <ClInclude Include="..\..\..\3rdparty\tinygltf\stb_image_write.h" />
+    <ClInclude Include="..\..\..\3rdparty\tinygltf\tiny_gltf.h" />
+    <ClInclude Include="..\..\..\3rdparty\tinyobjloader\tiny_obj_loader.h" />
+    <ClInclude Include="..\..\..\3rdparty\tinyply\tinyply.h" />
     <ClInclude Include="..\..\..\include\FirstPersonCamera.h" />
     <ClInclude Include="..\..\..\include\Node.h" />
     <ClInclude Include="..\..\..\include\Node3D.h" />
     <ClInclude Include="..\..\..\include\cigltf.h" />
     <ClInclude Include="..\..\..\include\CinderMeshViewer.h" />
     <ClInclude Include="..\..\..\include\ciobj.h" />
-    <ClInclude Include="..\..\..\include\civobx.h" />
     <ClInclude Include="..\..\..\include\read_vox.h" />
-    <ClInclude Include="..\..\..\include\syoyo\json.hpp" />
-    <ClInclude Include="..\..\..\include\syoyo\stb_image.h" />
-    <ClInclude Include="..\..\..\include\syoyo\stb_image_write.h" />
-    <ClInclude Include="..\..\..\include\syoyo\tiny_gltf.h" />
-    <ClInclude Include="..\..\..\include\syoyo\tiny_obj_loader.h" />
     <ClInclude Include="..\include\Resources.h" />
     <ClInclude Include="..\include\item.def" />
     <ClInclude Include="..\..\..\..\Cinder-VNM\include\AnsiToUtf.h" />
@@ -141,11 +142,12 @@
     <ClInclude Include="..\..\..\..\Cinder-VNM\include\TuioHelper.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\3rdparty\tinygltf\tiny_gltf.cc" />
+    <ClCompile Include="..\..\..\3rdparty\tinyobjloader\tiny_obj_loader.cc" />
+    <ClCompile Include="..\..\..\3rdparty\tinyply\tinyply.cpp" />
     <ClCompile Include="..\..\..\src\Node.cpp" />
     <ClCompile Include="..\..\..\src\Node3D.cpp" />
     <ClCompile Include="..\..\..\include\read_vox.cpp" />
-    <ClCompile Include="..\..\..\include\syoyo\tiny_gltf.cc" />
-    <ClCompile Include="..\..\..\include\syoyo\tiny_obj_loader.cc" />
     <ClCompile Include="..\..\..\src\cigltf.cpp" />
     <ClCompile Include="..\..\..\src\ciobj.cpp" />
     <ClCompile Include="..\src\MeshViewerApp.cpp" />

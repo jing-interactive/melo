@@ -1,6 +1,6 @@
 #pragma once
 
-#include "syoyo/tiny_obj_loader.h"
+#include "../3rdparty/tinyobjloader/tiny_obj_loader.h"
 
 #include "Node3D.h"
 

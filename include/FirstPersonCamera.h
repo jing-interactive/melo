@@ -3,7 +3,7 @@
 #include "cinder/app/App.h"
 
 #define FLYTHROUGH_CAMERA_IMPLEMENTATION
-#include "flythrough_camera/flythrough_camera.h"
+#include "../3rdparty/flythrough_camera/flythrough_camera.h"
 
 using namespace ci;
 using namespace ci::app;

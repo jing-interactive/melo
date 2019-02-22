@@ -16,7 +16,7 @@ namespace fs2 = ci::fs;
 #ifndef TINYGLTF_NO_STB_IMAGE_WRITE
 #define TINYGLTF_NO_STB_IMAGE_WRITE
 #endif
-#include "syoyo/tiny_gltf.h"
+#include "../3rdparty/tinygltf/tiny_gltf.h"
 
 #include "Node3D.h"
 

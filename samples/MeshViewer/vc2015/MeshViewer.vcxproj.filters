@@ -26,10 +26,10 @@
       <UniqueIdentifier>{4AC6FC6B-6529-4495-BFF9-6D6A97BEB257}</UniqueIdentifier>
     </Filter>
     <Filter Include="Blocks\Nodes">
-      <UniqueIdentifier>{acb72117-e32f-478d-be93-25c7b6715f35}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Blocks\MeshViewer">
       <UniqueIdentifier>{6aa2cfb5-7479-4425-87bb-56104f08facb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blocks\3rdparty">
+      <UniqueIdentifier>{1d1b5c93-1cda-429f-b42e-14a5a3539052}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -93,31 +93,49 @@
     <ClCompile Include="..\..\..\..\Cinder-VNM\src\MiniConfig.cpp">
       <Filter>Blocks\vnm\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\Node3D.cpp">
+    <ClCompile Include="..\..\..\include\read_vox.cpp">
+      <Filter>Blocks\Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\cigltf.cpp">
+      <Filter>Blocks\Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\ciobj.cpp">
       <Filter>Blocks\Nodes</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\Node.cpp">
       <Filter>Blocks\Nodes</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\include\read_vox.cpp">
-      <Filter>Blocks\MeshViewer</Filter>
+    <ClCompile Include="..\..\..\src\Node3D.cpp">
+      <Filter>Blocks\Nodes</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\include\syoyo\tiny_obj_loader.cc">
-      <Filter>Blocks\MeshViewer</Filter>
+    <ClCompile Include="..\..\..\3rdparty\tinygltf\tiny_gltf.cc">
+      <Filter>Blocks\3rdparty</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\cigltf.cpp">
-      <Filter>Blocks\MeshViewer</Filter>
+    <ClCompile Include="..\..\..\3rdparty\tinyobjloader\tiny_obj_loader.cc">
+      <Filter>Blocks\3rdparty</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\ciobj.cpp">
-      <Filter>Blocks\MeshViewer</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\include\syoyo\tiny_gltf.cc">
-      <Filter>Blocks\MeshViewer</Filter>
+    <ClCompile Include="..\..\..\3rdparty\tinyply\tinyply.cpp">
+      <Filter>Blocks\3rdparty</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Resources.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\cigltf.h">
+      <Filter>Blocks\Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\CinderMeshViewer.h">
+      <Filter>Blocks\Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\ciobj.h">
+      <Filter>Blocks\Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\read_vox.h">
+      <Filter>Blocks\Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\FirstPersonCamera.h">
+      <Filter>Blocks\Nodes</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\include\Node.h">
       <Filter>Blocks\Nodes</Filter>
@@ -125,38 +143,26 @@
     <ClInclude Include="..\..\..\include\Node3D.h">
       <Filter>Blocks\Nodes</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\cigltf.h">
-      <Filter>Blocks\MeshViewer</Filter>
+    <ClInclude Include="..\..\..\3rdparty\flythrough_camera\flythrough_camera.h">
+      <Filter>Blocks\3rdparty</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\CinderMeshViewer.h">
-      <Filter>Blocks\MeshViewer</Filter>
+    <ClInclude Include="..\..\..\3rdparty\tinygltf\json.hpp">
+      <Filter>Blocks\3rdparty</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\ciobj.h">
-      <Filter>Blocks\MeshViewer</Filter>
+    <ClInclude Include="..\..\..\3rdparty\tinygltf\stb_image.h">
+      <Filter>Blocks\3rdparty</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\civobx.h">
-      <Filter>Blocks\MeshViewer</Filter>
+    <ClInclude Include="..\..\..\3rdparty\tinygltf\stb_image_write.h">
+      <Filter>Blocks\3rdparty</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\read_vox.h">
-      <Filter>Blocks\MeshViewer</Filter>
+    <ClInclude Include="..\..\..\3rdparty\tinygltf\tiny_gltf.h">
+      <Filter>Blocks\3rdparty</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\syoyo\json.hpp">
-      <Filter>Blocks\MeshViewer</Filter>
+    <ClInclude Include="..\..\..\3rdparty\tinyobjloader\tiny_obj_loader.h">
+      <Filter>Blocks\3rdparty</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\syoyo\stb_image.h">
-      <Filter>Blocks\MeshViewer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\include\syoyo\stb_image_write.h">
-      <Filter>Blocks\MeshViewer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\include\syoyo\tiny_gltf.h">
-      <Filter>Blocks\MeshViewer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\include\syoyo\tiny_obj_loader.h">
-      <Filter>Blocks\MeshViewer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\include\FirstPersonCamera.h">
-      <Filter>Blocks\Nodes</Filter>
+    <ClInclude Include="..\..\..\3rdparty\tinyply\tinyply.h">
+      <Filter>Blocks\3rdparty</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
