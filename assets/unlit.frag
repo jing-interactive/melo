@@ -15,8 +15,10 @@ void main()
 {
 #ifdef HAS_BASECOLORMAP
     vec4 baseColor = SRGBtoLINEAR(texture(u_BaseColorSampler, v_UV)) * u_BaseColorFactor;
-#else
+#elif defined(HAS_COLOR)
     vec4 baseColor = v_Color * u_BaseColorFactor;
+#else
+    vec4 baseColor = u_BaseColorFactor;
 #endif
     oColor = vec4(pow(baseColor.rgb, vec3(1.0/2.2)), baseColor.a);
 }
