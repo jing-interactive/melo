@@ -8,6 +8,9 @@ in vec4 ciPosition;
 #ifdef HAS_UV
     in vec2 ciTexCoord0;
 #endif
+#ifdef HAS_COLOR
+    in vec4 ciColor;
+#endif
 
 uniform mat4 ciModelViewProjection;
 uniform mat4 ciModelMatrix;
@@ -24,7 +27,9 @@ uniform bool u_flipV;
         out vec3 v_Normal;
     #endif
 #endif
-
+#ifdef HAS_COLOR
+    out vec4 v_Color;
+#endif
 
 void main()
 {
@@ -50,6 +55,8 @@ void main()
     #else
         v_UV = vec2(0.,0.);
     #endif
-
+    #ifdef HAS_COLOR
+        v_Color = ciColor;
+    #endif
     gl_Position = ciModelViewProjection * ciPosition; // needs w for proper perspective correction
 }

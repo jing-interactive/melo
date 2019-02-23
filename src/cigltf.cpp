@@ -97,8 +97,12 @@ MeshGLTF::Ref MeshGLTF::create(ModelGLTFRef modelGLTF, const tinygltf::Mesh& pro
             kv.second->setLabel(info);
             vboId++;
         }
-        sprintf(info, "%s #%d indices", property.name.c_str(), primId);
-        primitive->ciVboMesh->getIndexVbo()->setLabel(info);
+        auto ibo = primitive->ciVboMesh->getIndexVbo();
+        if (ibo)
+        {
+            sprintf(info, "%s #%d indices", property.name.c_str(), primId);
+            ibo->setLabel(info);
+        }
 #endif
     }
 
@@ -514,10 +518,7 @@ MaterialGLTF::Ref MaterialGLTF::create(ModelGLTFRef modelGLTF, const tinygltf::M
         }
     }
 #ifndef CINDER_LESS
-    auto fmt = gl::GlslProg::Format();
-    fmt.define("HAS_UV");
-    //fmt.define("HAS_TANGENTS");
-    //fmt.define("HAS_NORMALS");
+    auto& fmt = ref->ciShaderFormat;
     if (ref->baseColorTexture)
         fmt.define("HAS_BASECOLORMAP");
     if (ref->diffuseTexture)
@@ -539,68 +540,23 @@ MaterialGLTF::Ref MaterialGLTF::create(ModelGLTFRef modelGLTF, const tinygltf::M
         fmt.define("HAS_TEX_LOD");
     }
 
-    gl::GlslProgRef ciShader;
-
     if (ref->materialType == MATERIAL_PBR_METAL_ROUGHNESS)
     {
         fmt.vertex(DataSourcePath::create(app::getAssetPath("pbr.vert")));
         fmt.fragment(DataSourcePath::create(app::getAssetPath("pbr.frag")));
         fmt.label("pbr.vert/pbr.frag");
-
-        ciShader = gl::GlslProg::create(fmt);
     }
     else if (ref->materialType == MATERIAL_PBR_SPEC_GLOSSINESS)
     {
         fmt.define("PBR_SPECCULAR_GLOSSINESS_WORKFLOW");
         fmt.vertex(DataSourcePath::create(app::getAssetPath("pbr.vert")));
         fmt.fragment(DataSourcePath::create(app::getAssetPath("pbr.frag")));
-        fmt.label("pbr.vert/pbr.frag");
-
-        ciShader = gl::GlslProg::create(fmt);
     }
     else if (ref->materialType == MATERIAL_UNLIT)
     {
         fmt.vertex(DataSourcePath::create(app::getAssetPath("pbr.vert")));
         fmt.fragment(DataSourcePath::create(app::getAssetPath("unlit.frag")));
         fmt.label("pbr.vert/unlit.frag");
-
-        ciShader = gl::GlslProg::create(fmt);
-    }
-    CI_ASSERT(ciShader && "Shader compile fails");
-    ref->ciShader = ciShader;
-
-#ifndef NDEBUG
-    auto uniforms = ciShader->getActiveUniforms();
-    auto uniformBlocks = ciShader->getActiveUniformBlocks();
-    auto attribs = ciShader->getActiveAttributes();
-#endif
-
-    if (ref->materialType == MATERIAL_PBR_METAL_ROUGHNESS)
-    {
-        ciShader->uniform("u_BaseColorSampler", 0);
-        ciShader->uniform("u_MetallicRoughnessSampler", 3);
-    }
-    else if (ref->materialType == MATERIAL_PBR_SPEC_GLOSSINESS)
-    {
-        ciShader->uniform("u_DiffuseSampler", 0);
-        ciShader->uniform("u_SpecularGlossinessSampler", 3);
-    }
-
-    ciShader->uniform("u_LightDirection", vec3(1.0f, 1.0f, 1.0f));
-    ciShader->uniform("u_LightColor", vec3(1.0f, 1.0f, 1.0f));
-
-    if (ref->normalTexture)
-        ciShader->uniform("u_NormalSampler", 1);
-    if (ref->emissiveTexture)
-        ciShader->uniform("u_EmissiveSampler", 2);
-    if (ref->occlusionTexture)
-        ciShader->uniform("u_OcclusionSampler", 4);
-
-    if (modelGLTF->radianceTexture && modelGLTF->irradianceTexture && modelGLTF->brdfLUTTexture)
-    {
-        ciShader->uniform("u_DiffuseEnvSampler", 5);
-        ciShader->uniform("u_SpecularEnvSampler", 6);
-        ciShader->uniform("u_brdfLUT", 7);
     }
 #endif
     return ref;
@@ -815,6 +771,8 @@ PrimitiveGLTF::Ref PrimitiveGLTF::create(ModelGLTFRef modelGLTF,
         ref->material = modelGLTF->materials[property.material];
     }
 
+    const auto& material = ref->material;
+
     AccessorGLTF::Ref indices;
     if (property.indices >= 0)
     {
@@ -840,6 +798,7 @@ PrimitiveGLTF::Ref PrimitiveGLTF::create(ModelGLTFRef modelGLTF,
         ref->vertexCount = acc->property.count;
     }
 #else
+
     gl::VboRef oglIndexVbo;
     if (indices)
     {
@@ -863,8 +822,13 @@ PrimitiveGLTF::Ref PrimitiveGLTF::create(ModelGLTFRef modelGLTF,
     {
         AccessorGLTF::Ref acc = modelGLTF->accessors[kv.second];
         geom::BufferLayout layout;
+        auto attrib = (geom::Attrib)getAttribFromString(kv.first);
+        if (attrib == geom::TEX_COORD_0) material->ciShaderFormat.define("HAS_UV");
+        if (attrib == geom::NORMAL) material->ciShaderFormat.define("HAS_NORMALS");
+        if (attrib == geom::TANGENT) material->ciShaderFormat.define("HAS_TANGENTS");
+        if (attrib == geom::COLOR) material->ciShaderFormat.define("HAS_COLOR");
         layout.append(
-            (geom::Attrib)getAttribFromString(kv.first), getDataType((GltfComponentType)acc->property.componentType),
+            attrib, getDataType((GltfComponentType)acc->property.componentType),
             getTypeSizeInBytes((GltfType)acc->property.type), acc->byteStride, acc->property.byteOffset);
         oglVboLayouts.emplace_back(layout, acc->gpuBuffer);
 
@@ -883,6 +847,50 @@ PrimitiveGLTF::Ref PrimitiveGLTF::create(ModelGLTFRef modelGLTF,
         ref->ciVboMesh =
             gl::VboMesh::create(numVertices, (GLenum)ref->primitiveMode, oglVboLayouts);
     }
+
+    // create shader
+
+    if (!material->ciShader)
+    {
+        material->ciShader = gl::GlslProg::create(material->ciShaderFormat);
+        auto& ciShader = material->ciShader;
+        CI_ASSERT(ciShader && "Shader compile fails");
+
+#ifndef NDEBUG
+        auto uniforms = ciShader->getActiveUniforms();
+        auto uniformBlocks = ciShader->getActiveUniformBlocks();
+        auto attribs = ciShader->getActiveAttributes();
+#endif
+
+        if (material->materialType == MATERIAL_PBR_METAL_ROUGHNESS)
+        {
+            ciShader->uniform("u_BaseColorSampler", 0);
+            ciShader->uniform("u_MetallicRoughnessSampler", 3);
+        }
+        else if (material->materialType == MATERIAL_PBR_SPEC_GLOSSINESS)
+        {
+            ciShader->uniform("u_DiffuseSampler", 0);
+            ciShader->uniform("u_SpecularGlossinessSampler", 3);
+        }
+
+        ciShader->uniform("u_LightDirection", vec3(1.0f, 1.0f, 1.0f));
+        ciShader->uniform("u_LightColor", vec3(1.0f, 1.0f, 1.0f));
+
+        if (material->normalTexture)
+            ciShader->uniform("u_NormalSampler", 1);
+        if (material->emissiveTexture)
+            ciShader->uniform("u_EmissiveSampler", 2);
+        if (material->occlusionTexture)
+            ciShader->uniform("u_OcclusionSampler", 4);
+
+        if (modelGLTF->radianceTexture && modelGLTF->irradianceTexture && modelGLTF->brdfLUTTexture)
+        {
+            ciShader->uniform("u_DiffuseEnvSampler", 5);
+            ciShader->uniform("u_SpecularEnvSampler", 6);
+            ciShader->uniform("u_brdfLUT", 7);
+        }
+    }
+
 #endif
     return ref;
 }
