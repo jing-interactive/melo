@@ -31,4 +31,5 @@ GROUP_DEF(Model)
 //ITEM_DEF(string, FS_NAME, "texture")
 ITEM_DEF_MINMAX(float, MESH_SCALE, 1, 0, 10)
 ITEM_DEF(int, MESH_FILE_ID, 0)
+ITEM_DEF_MINMAX(float, POINT_SIZE, 1, 0, 10)
 

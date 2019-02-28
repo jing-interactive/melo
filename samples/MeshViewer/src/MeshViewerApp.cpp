@@ -296,6 +296,8 @@ struct MeshViewerApp : public App
                     mSkyBoxBatch->draw();
                 }
 
+                gl::pointSize(POINT_SIZE);
+
                 gl::setWireframeEnabled(WIRE_FRAME);
                 mModelGLTF->currentScene->setScale({ MESH_SCALE,MESH_SCALE,MESH_SCALE });
                 mModelGLTF->currentScene->setRotation(mMeshRotation);
