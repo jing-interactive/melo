@@ -210,7 +210,15 @@ struct MeshViewerApp : public App
                 {
                     if (CI_OBJ_LOADER)
                     {
-                        mVboMesh = am::vboMesh(path.string());
+                        auto leaf = path.filename();
+                        auto mtlPath = leaf.generic_string() + "./mtl";
+                        TriMeshRef triMesh;
+                        if (fs::exists(mtlPath))
+                            triMesh = am::triMesh(path.string(), mtlPath);
+                        else
+                            triMesh = am::triMesh(path.string());
+                        triMesh->recalculateNormals();
+                        mVboMesh = gl::VboMesh::create(*triMesh);
                     }
                     else
                     {

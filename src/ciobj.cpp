@@ -160,7 +160,7 @@ MaterialObj::Ref MaterialObj::create(ModelObjRef modelObj, const tinyobj::materi
 #if 1
     auto ciShader = gl::GlslProg::create(fmt);
 #else
-    auto ciShader = am::glslProg("lambert");
+    auto ciShader = am::glslProg("lambert texture");
 #endif
     CI_ASSERT_MSG(ciShader, "Shader compile fails");
     ref->ciShader = ciShader;
