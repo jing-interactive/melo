@@ -3,6 +3,7 @@
 #include "cinder/app/App.h"
 #include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
+#include "cinder/ObjLoader.h"
 
 #include "AssetManager.h"
 #include "MiniConfig.h"
@@ -68,6 +69,7 @@ struct MeshViewerApp : public App
     ModelGLTFRef mModelGLTF;
     ModelObjRef mModelObj;
     gl::VboMeshRef mVboMesh;
+    TriMeshRef mTriMesh;
 
     gl::VertBatchRef mGrid;
 
@@ -140,6 +142,11 @@ struct MeshViewerApp : public App
         mParams = createConfigUI({400, 500});
         ADD_ENUM_TO_INT(mParams.get(), MESH_FILE_ID, mMeshFilenames);
         mParams->addParam("MESH_ROTATION", &mMeshRotation);
+        mParams->addButton("Save OBJ", [&] {
+            if (!mTriMesh) return;
+            fs::path path = mMeshFilenames[mMeshFileId];
+            writeObj(writeFile(path.string() + "_new.obj"), mTriMesh);
+        });
 #endif
         gl::enableDepth();
 
@@ -202,6 +209,7 @@ struct MeshViewerApp : public App
                 {
                     path = getAssetPath(mMeshFilenames[mMeshFileId]);
                 }
+                mTriMesh.reset();
                 mVboMesh.reset();
                 mModelObj.reset();
                 mModelGLTF.reset();
@@ -212,13 +220,12 @@ struct MeshViewerApp : public App
                     {
                         auto leaf = path.filename();
                         auto mtlPath = leaf.generic_string() + "./mtl";
-                        TriMeshRef triMesh;
                         if (fs::exists(mtlPath))
-                            triMesh = am::triMesh(path.string(), mtlPath);
+                            mTriMesh = am::triMesh(path.string(), mtlPath);
                         else
-                            triMesh = am::triMesh(path.string());
-                        triMesh->recalculateNormals();
-                        mVboMesh = gl::VboMesh::create(*triMesh);
+                            mTriMesh = am::triMesh(path.string());
+                        mTriMesh->recalculateNormals();
+                        mVboMesh = gl::VboMesh::create(*mTriMesh);
                     }
                     else
                     {
