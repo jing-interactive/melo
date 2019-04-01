@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <cinder>
 <block
-	name="Nodes"
-	id="jing.nodes"
+	name="melo"
+	id="jing.melo"
 	author="Jing Interactive"
-	summary="Nodes library for Cinder"
+	summary="Mesh Loader for Cinder"
 	license="MIT License"
-	git="https://github.com/jing-interactive/Cinder-Nodes.git"
+	git="https://github.com/jing-interactive/melo.git"
 	>	
 	<includePath>include</includePath>
 	
 	<sourcePattern>src/*.*</sourcePattern>
+	<sourcePattern>3rdparty/*.*</sourcePattern>
 	<headerPattern>include/*.*</headerPattern>
 	
 </block>

@@ -1,5 +1,5 @@
-# MeshViewer
-OBJ / glTF2 mesh viewer library for `Cinder` and `standalone viewer` on Windows and macOS.
+# melo
+melo is mesh loader for OBJ, glTF2 and PLY, also includes a `Cinder` based mesh viewer on Windows and macOS.
 
 # Features
 
@@ -27,7 +27,7 @@ The folder structure should appear like this:
 Cinder/
     blocks/
         Cinder-VNM/
-        MeshViewer/
+        melo/
             samples/BasicSample/vc2015/MeshViewer.sln
             assets/
                 Cube/

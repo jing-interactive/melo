@@ -12,8 +12,8 @@
 #include "cinder/Arcball.h"
 #include "cinder/params/Params.h"
 
-#include "Cinder-MeshViewer/include/CinderMeshViewer.h"
-#include "Cinder-MeshViewer/include/FirstPersonCamera.h"
+#include "CinderMeshViewer.h"
+#include "FirstPersonCamera.h"
 
 using namespace ci;
 using namespace ci::app;
