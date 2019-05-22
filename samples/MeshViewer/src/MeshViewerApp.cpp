@@ -293,7 +293,7 @@ struct MeshViewerApp : public App
                 gl::setMatrices(mFpsCam);
             else
                 gl::setMatrices(mMayaCam);
-            gl::clear();
+            gl::clear(Color::gray(0.2f));
 
             mParams->show(GUI_VISIBLE);
 
