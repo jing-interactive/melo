@@ -157,7 +157,7 @@ MaterialObj::Ref MaterialObj::create(ModelObjRef modelObj, const tinyobj::materi
     fmt.fragment(DataSourcePath::create(app::getAssetPath("pbr.frag")));
     fmt.label("pbr.vert/pbr.frag");
 
-#if 1
+#if 0 // use stock shader for the moment
     auto ciShader = gl::GlslProg::create(fmt);
 #else
     auto ciShader = am::glslProg("lambert texture");
