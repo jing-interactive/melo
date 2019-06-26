@@ -14,7 +14,8 @@ MeshObj::Ref MeshObj::create(ModelObjRef modelObj, const tinyobj::shape_t& prope
 
     const auto& attrib = modelObj->attrib;
 
-    CI_ASSERT_MSG(property.path.indices.empty(), "TODO: support line");
+    CI_ASSERT_MSG(property.lines.indices.empty(), "TODO: support line");
+    CI_ASSERT_MSG(property.points.indices.empty(), "TODO: support points");
     const auto& indices = property.mesh.indices;
     vector<vec3> positions;
     vector<vec3> normals;
