@@ -11,7 +11,8 @@
 	<includePath>include</includePath>
 	
 	<sourcePattern>src/*.*</sourcePattern>
-	<sourcePattern>3rdparty/*.*</sourcePattern>
+	<sourcePattern>3rdparty/tinygltf/*.*</sourcePattern>
+	<sourcePattern>3rdparty/tinyobjloader/*.*</sourcePattern>
 	<headerPattern>include/*.*</headerPattern>
 	
 </block>
