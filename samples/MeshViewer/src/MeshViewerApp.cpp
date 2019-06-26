@@ -12,7 +12,7 @@
 #include "cinder/Arcball.h"
 #include "cinder/params/Params.h"
 
-#include "CinderMeshViewer.h"
+#include "melo.h"
 #include "FirstPersonCamera.h"
 
 using namespace ci;
