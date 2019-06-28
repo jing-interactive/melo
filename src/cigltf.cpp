@@ -288,7 +288,7 @@ NodeGLTF::Ref NodeGLTF::create(ModelGLTFRef modelGLTF, const tinygltf::Node& pro
 
     if (!property.matrix.empty())
     {
-        ref->setTransform(glm::make_mat4x4(property.matrix.data()));
+        ref->setConstantTransform(glm::make_mat4x4(property.matrix.data()));
     }
     if (!property.translation.empty())
     {

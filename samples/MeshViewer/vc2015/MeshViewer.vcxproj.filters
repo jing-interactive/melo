@@ -93,9 +93,6 @@
     <ClCompile Include="..\..\..\..\Cinder-VNM\src\MiniConfig.cpp">
       <Filter>Blocks\vnm\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\include\read_vox.cpp">
-      <Filter>Blocks\Nodes</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\cigltf.cpp">
       <Filter>Blocks\Nodes</Filter>
     </ClCompile>
@@ -117,6 +114,9 @@
     <ClCompile Include="..\..\..\3rdparty\tinyply\tinyply.cpp">
       <Filter>Blocks\3rdparty</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\vox\read_vox.cpp">
+      <Filter>Blocks\Nodes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Resources.h">
@@ -129,9 +129,6 @@
       <Filter>Blocks\Nodes</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\include\ciobj.h">
-      <Filter>Blocks\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\include\read_vox.h">
       <Filter>Blocks\Nodes</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\include\FirstPersonCamera.h">
@@ -163,6 +160,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\3rdparty\tinyply\tinyply.h">
       <Filter>Blocks\3rdparty</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\vox\read_vox.h">
+      <Filter>Blocks\Nodes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

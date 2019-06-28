@@ -27,54 +27,60 @@
 
 namespace nodes {
 
-	// Basic support for 3D nodes
-	typedef std::shared_ptr<class Node3D> Node3DRef;
+    // Basic support for 3D nodes
+    typedef std::shared_ptr<class Node3D> Node3DRef;
 
-	class Node3D : public Node {
-	public:
-		Node3D(void);
-		virtual ~Node3D(void);
+    class Node3D : public Node {
+    public:
+        Node3D(void);
+        virtual ~Node3D(void);
 
-		// getters and setters
-		virtual glm::vec3 getPosition() const { return mPosition; }
+        // getters and setters
+        virtual glm::vec3 getPosition() const { return mPosition; }
 
-		virtual void setPosition(const glm::vec3 &pt)
-		{
-			mPosition = pt;
-			invalidateTransform();
-		}
+        virtual void setPosition(const glm::vec3 &pt)
+        {
+            mPosition = pt;
+            invalidateTransform();
+        }
 
-		virtual glm::quat getRotation() const { return mRotation; }
+        virtual glm::quat getRotation() const { return mRotation; }
         virtual void setRotation(float radians);
         virtual void setRotation(const glm::vec3 &radians);
         virtual void setRotation(const glm::vec3 &axis, float radians);
         virtual void setRotation(const glm::quat &rot);
 
-		virtual glm::vec3 getScale() const { return mScale; }
+        virtual glm::vec3 getScale() const { return mScale; }
 
-		virtual void setScale(const glm::vec3 &scale)
-		{
-			mScale = scale;
-			invalidateTransform();
-		}
+        virtual void setScale(const glm::vec3 &scale)
+        {
+            mScale = scale;
+            invalidateTransform();
+        }
 
-		virtual glm::vec3 getAnchor() const { return mAnchor; }
+        virtual glm::vec3 getAnchor() const { return mAnchor; }
 
         virtual void setAnchor(const glm::vec3 &pt)
-		{
-			mAnchor = pt;
-			invalidateTransform();
-		}
+        {
+            mAnchor = pt;
+            invalidateTransform();
+        }
 
-		// stream support
-		virtual inline std::string toString() const { return "Node3D"; }
-	protected:
-		glm::vec3 mPosition;
-		glm::quat mRotation;
-		glm::vec3 mScale;
-		glm::vec3 mAnchor;
+        void setConstantTransform(const glm::mat4& transform);
 
-		// required function (see: class Node)
+        // stream support
+        virtual inline std::string toString() const { return "Node3D"; }
+    protected:
+        glm::vec3 mPosition;
+        glm::quat mRotation;
+        glm::vec3 mScale;
+        glm::vec3 mAnchor;
+
+        // required function (see: class Node)
         virtual void transform() const;
-	};
+
+        // whether to ingore values of mPosition, mRotation, mScale, mAnchor
+        glm::mat4 mConstantTransform;
+        bool mIsConstantTransform;
+    };
 } // namespace nodes

@@ -30,7 +30,7 @@ using namespace std;
 
 namespace nodes
 {
-    Node3D::Node3D(void) : mScale(1) { setName("Node3D"); }
+    Node3D::Node3D(void) : mScale(1), mIsConstantTransform(false) { setName("Node3D"); }
 
     Node3D::~Node3D(void) {}
 
@@ -56,12 +56,23 @@ namespace nodes
     }
     void Node3D::transform() const
     {
-        // construct transformation matrix
-        glm::mat4 transform = glm::translate(mPosition);
-        transform *= glm::toMat4(mRotation);
-        transform *= glm::scale(mScale);
-        transform *= glm::translate(-mAnchor);
-
-        setTransform(transform);
+        if (mIsConstantTransform)
+        {
+            setTransform(mConstantTransform);
+        }
+        else
+        {
+            // construct transformation matrix
+            glm::mat4 transform = glm::translate(mPosition);
+            transform *= glm::toMat4(mRotation);
+            transform *= glm::scale(mScale);
+            transform *= glm::translate(-mAnchor);
+            setTransform(transform);
+        }
+    }
+    void Node3D::setConstantTransform(const glm::mat4& transform)
+    {
+        mIsConstantTransform = true;
+        mConstantTransform = transform;
     }
 } // namespace nodes

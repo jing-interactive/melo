@@ -117,13 +117,13 @@
     <ClInclude Include="..\..\..\3rdparty\tinygltf\tiny_gltf.h" />
     <ClInclude Include="..\..\..\3rdparty\tinyobjloader\tiny_obj_loader.h" />
     <ClInclude Include="..\..\..\3rdparty\tinyply\tinyply.h" />
+    <ClInclude Include="..\..\..\3rdparty\vox\read_vox.h" />
     <ClInclude Include="..\..\..\include\FirstPersonCamera.h" />
     <ClInclude Include="..\..\..\include\Node.h" />
     <ClInclude Include="..\..\..\include\Node3D.h" />
     <ClInclude Include="..\..\..\include\cigltf.h" />
     <ClInclude Include="..\..\..\include\CinderMeshViewer.h" />
     <ClInclude Include="..\..\..\include\ciobj.h" />
-    <ClInclude Include="..\..\..\include\read_vox.h" />
     <ClInclude Include="..\include\Resources.h" />
     <ClInclude Include="..\include\item.def" />
     <ClInclude Include="..\..\..\..\Cinder-VNM\include\AnsiToUtf.h" />
@@ -145,9 +145,9 @@
     <ClCompile Include="..\..\..\3rdparty\tinygltf\tiny_gltf.cc" />
     <ClCompile Include="..\..\..\3rdparty\tinyobjloader\tiny_obj_loader.cc" />
     <ClCompile Include="..\..\..\3rdparty\tinyply\tinyply.cpp" />
+    <ClCompile Include="..\..\..\3rdparty\vox\read_vox.cpp" />
     <ClCompile Include="..\..\..\src\Node.cpp" />
     <ClCompile Include="..\..\..\src\Node3D.cpp" />
-    <ClCompile Include="..\..\..\include\read_vox.cpp" />
     <ClCompile Include="..\..\..\src\cigltf.cpp" />
     <ClCompile Include="..\..\..\src\ciobj.cpp" />
     <ClCompile Include="..\src\MeshViewerApp.cpp" />
