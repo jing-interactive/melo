@@ -199,8 +199,8 @@ struct TextureGLTF
     uint8_t textureUnit;
 #endif
 
-    void preDraw(uint8_t texUnit = 0);
-    void postDraw();
+    void predraw(uint8_t texUnit = 0);
+    void postdraw();
 
     static Ref create(ModelGLTFRef modelGLTF, const tinygltf::Texture& property);
 };
@@ -256,9 +256,9 @@ struct MaterialGLTF
 
     static Ref create(ModelGLTFRef modelGLTF, const tinygltf::Material& property);
 
-    void preDraw();
+    void predraw();
 
-    void postDraw();
+    void postdraw();
 };
 
 struct PrimitiveGLTF
@@ -326,7 +326,9 @@ struct NodeGLTF : public nodes::Node3D
 
     void update(double elapsed = 0.0);
 
+    void predraw();
     void draw();
+    void postdraw();
 };
 
 struct SceneGLTF : public NodeGLTF
@@ -337,15 +339,15 @@ struct SceneGLTF : public NodeGLTF
     static Ref create(ModelGLTFRef modelGLTF, const tinygltf::Scene& property);
 };
 
-struct ModelGLTF
+struct ModelGLTF : public nodes::Node3D
 {
     tinygltf::Model property;
 
     static ModelGLTFRef create(const fs2::path& meshPath, std::string* loadingError = nullptr);
 
-    void update();
+    void update(double elapsed = 0.0) override;
 
-    void draw();
+    void draw() override;
 
     std::vector<AccessorGLTF::Ref> accessors;
     std::vector<AnimationGLTF::Ref> animations;

@@ -36,10 +36,6 @@
 namespace cinder
 {
     class AxisAlignedBox;
-    class Camera;
-    class CameraPersp;
-    class CameraStereo;
-    class CameraOrtho;
     namespace app
     {
         class MouseEvent;

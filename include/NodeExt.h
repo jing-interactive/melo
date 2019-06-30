@@ -27,14 +27,14 @@
 
 namespace nodes
 {
-
     using namespace ci;
 
     struct GridNode : public Node3D
     {
         gl::VertBatchRef vertBatch;
+        float mMeters;
 
-        GridNode(float meters = 10.0f)
+        GridNode(float meters = 10.0f) : mMeters(meters)
         {
             vertBatch = gl::VertBatch::create(GL_LINES);
             vertBatch->begin(GL_LINES);
@@ -60,7 +60,7 @@ namespace nodes
             gl::ScopedDepthWrite depthWrite(false);
             gl::ScopedGlslProg glsl(am::glslProg("color"));
             vertBatch->draw();
-            gl::drawCoordinateFrame(1, 0.1, 0.01);
+            gl::drawCoordinateFrame(mMeters * 0.1f, mMeters * 0.01f, mMeters * 0.001f);
         }
 
         virtual inline std::string toString() const { return "GridNode"; }

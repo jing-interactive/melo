@@ -56,6 +56,7 @@ struct MeshViewerApp : public App
 {
     CameraPersp mMayaCam;
     CameraUi mMayaCamUi;
+    Camera* mCurrentCam = nullptr;
     bool mIsFpsCamera = false;
     Arcball mArcball;
     quat mMeshRotation;
@@ -243,49 +244,51 @@ struct MeshViewerApp : public App
                 }
             }
 
+            if (mIsFpsCamera != FPS_CAMERA)
+            {
+                if (FPS_CAMERA)
+                {
+                    mFpsCam.setActive(true);
+                    mFpsCam.setEyePoint(mMayaCam.getEyePoint());
+                    mFpsCam.setViewDirection(mMayaCam.getViewDirection());
+                    //mFpsCam.look = mMayaCam.getPivotPoint();
+                }
+                else
+                {
+                    mFpsCam.setActive(false);
+                    mMayaCam.lookAt(mFpsCam.getEyePoint(), mMayaCam.getPivotPoint());
+                    mMayaCam.setViewDirection(mFpsCam.getViewDirection());
+                    mMayaCam.setWorldUp(mFpsCam.getWorldUp());
+                }
+                mIsFpsCamera = FPS_CAMERA;
+            }
+
             if (FPS_CAMERA)
             {
-                CAM_POS_X = mFpsCam.eye.x;
-                CAM_POS_Y = mFpsCam.eye.y;
-                CAM_POS_Z = mFpsCam.eye.z;
+                mCurrentCam = &mFpsCam;
             }
             else
             {
-                CAM_POS_X = mMayaCam.getEyePoint().x;
-                CAM_POS_Y = mMayaCam.getEyePoint().y;
-                CAM_POS_Z = mMayaCam.getEyePoint().z;
+                mCurrentCam = &mMayaCam;
             }
-            mMayaCam.setNearClip(CAM_Z_NEAR);
-            mMayaCam.setFarClip(CAM_Z_FAR);
+            CAM_POS_X = mMayaCam.getEyePoint().x;
+            CAM_POS_Y = mMayaCam.getEyePoint().y;
+            CAM_POS_Z = mMayaCam.getEyePoint().z;
+            mCurrentCam->setNearClip(CAM_Z_NEAR);
+            mCurrentCam->setFarClip(CAM_Z_FAR);
 
             if (mModelGLTF)
             {
                 mModelGLTF->flipV = FLIP_V;
-                mModelGLTF->cameraPosition = mMayaCam.getEyePoint();
+                mModelGLTF->cameraPosition = mCurrentCam->getEyePoint();
                 mModelGLTF->update();
             }
 
             if (mModelObj)
             {
                 mModelObj->flipV = FLIP_V;
-                mModelObj->cameraPosition = mMayaCam.getEyePoint();
-            }
-
-            if (mIsFpsCamera != FPS_CAMERA)
-            {
-                if (FPS_CAMERA)
-                {
-                    mFpsCam.setActive(true);
-                    mFpsCam.eye = mMayaCam.getEyePoint();
-                    //mFpsCam.look = mMayaCam.getPivotPoint();
-                }
-                else
-                {
-                    mFpsCam.setActive(false);
-                    mMayaCam.lookAt(mFpsCam.eye, mFpsCam.look, mFpsCam.up);
-                }
-                mIsFpsCamera = FPS_CAMERA;
-            }
+                mModelObj->cameraPosition = mCurrentCam->getEyePoint();
+            }            
         });
 
         getWindow()->getSignalDraw().connect([&] {

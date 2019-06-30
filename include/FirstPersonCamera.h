@@ -16,9 +16,9 @@ struct FirstPersonCamera : public CameraPersp
     bool mIsKeyPressed[KeyEvent::KEY_LAST] = { false };
     bool mIsRMousePressed = false;
 
-    vec3 eye = { 3.0f, 3.0f, 3.0f };
-    vec3 look = { 0.0f, 0.0f, 1.0f };
-    const vec3 up = { 0.0f, 1.0f, 0.0f };
+    //vec3 eye = { 3.0f, 3.0f, 3.0f };
+    //vec3 look = { 0.0f, 0.0f, 1.0f };
+    //const vec3 up = { 0.0f, 1.0f, 0.0f };
     float eye_speed = 3.0f;
     float degrees_per_cursor_move = 0.2f;
     float max_pitch_rotation_degrees = 80.0f;
@@ -32,6 +32,8 @@ struct FirstPersonCamera : public CameraPersp
 
     void setup()
     {
+        mWorldUp = { 0.0f, 1.0f, 0.0f };
+        mViewDirection = { 0.0f, 0.0f, 1.0f };
         mElapsedSeconds = getElapsedSeconds();
         //        mCam.lookAt(aabb.getMax() * 2.0f, aabb.getCenter());
 
@@ -60,7 +62,7 @@ struct FirstPersonCamera : public CameraPersp
             mElapsedSeconds = getElapsedSeconds();
 
             flythrough_camera_update(
-                glm::value_ptr(eye), glm::value_ptr(look), glm::value_ptr(up),
+                glm::value_ptr(mEyePoint), glm::value_ptr(mViewDirection), glm::value_ptr(mWorldUp),
                 glm::value_ptr(mViewMatrix), delta_time_sec,
                 eye_speed * (mIsKeyPressed[KeyEvent::KEY_LSHIFT] ? 2.0f : 1.0f) * activated,
                 degrees_per_cursor_move, max_pitch_rotation_degrees, mMousePos.x - mPrevMousePos.x,
@@ -73,8 +75,8 @@ struct FirstPersonCamera : public CameraPersp
             {
                 float* view = glm::value_ptr(mViewMatrix);
                 printf("\n");
-                printf("pos: %f, %f, %f\n", eye[0], eye[1], eye[2]);
-                printf("look: %f, %f, %f\n", look[0], look[1], look[2]);
+                printf("pos: %f, %f, %f\n", mEyePoint[0], mEyePoint[1], mEyePoint[2]);
+                printf("look: %f, %f, %f\n", mViewDirection[0], mViewDirection[1], mViewDirection[2]);
                 printf("view: %f %f %f %f\n"
                     "      %f %f %f %f\n"
                     "      %f %f %f %f\n"

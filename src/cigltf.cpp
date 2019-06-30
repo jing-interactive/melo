@@ -4,6 +4,7 @@
 #include "cinder/Log.h"
 #include "cinder/app/App.h"
 //#include "cinder/ip/Checkerboard.h"
+//#include "../../Remotery/lib/Remotery.h"
 
 using namespace ci;
 #else
@@ -65,14 +66,14 @@ void PrimitiveGLTF::draw()
 {
     if (material)
     {
-        material->preDraw();
+        material->predraw();
     }
 #ifndef CINDER_LESS
     gl::draw(ciVboMesh);
 #endif
     if (material)
     {
-        material->postDraw();
+        material->postdraw();
     }
 }
 
@@ -144,6 +145,16 @@ void NodeGLTF::draw()
     }
 }
 
+void NodeGLTF::predraw()
+{
+    //rmt_BeginOpenGLSampleDynamic(getName().c_str());
+}
+
+void NodeGLTF::postdraw()
+{
+    //rmt_EndOpenGLSample();
+}
+
 #ifndef CINDER_LESS
 gl::TextureCubeMapRef ModelGLTF::radianceTexture;
 gl::TextureCubeMapRef ModelGLTF::irradianceTexture;
@@ -196,11 +207,23 @@ ModelGLTFRef ModelGLTF::create(const fs2::path& meshPath, std::string* loadingEr
     ModelGLTFRef ref = make_shared<ModelGLTF>();
     ref->property = model;
     ref->meshPath = meshPath;
+    ref->setName(meshPath.generic_string());
 
     {
         tinygltf::Material mtrl = {"default"};
         mtrl.extensions["KHR_materials_unlit"] = {};
         ref->fallbackMaterial = MaterialGLTF::create(ref, mtrl);
+    }
+
+    if (model.scenes.size() == 1 && model.scenes[0].name == "OSG_Scene")
+    {
+        // sanitize gltf from sketchfab
+        // https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#node
+        CI_ASSERT_MSG(model.nodes[0].name == "RootNode (gltf orientation matrix)", model.nodes[0].name.c_str());
+        CI_ASSERT_MSG(model.nodes[1].name == "RootNode (model correction matrix)", model.nodes[1].name.c_str());
+
+        model.nodes[0].rotation = { 0,0,0,1 };
+        model.nodes[2].matrix = { 1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1 };
     }
 
     for (auto& item : model.buffers)
@@ -233,19 +256,36 @@ ModelGLTFRef ModelGLTF::create(const fs2::path& meshPath, std::string* loadingEr
     for (auto& item : model.scenes)
     {
         auto scene = SceneGLTF::create(ref, item);
-        scene->setName(meshPath.generic_string());
         ref->scenes.emplace_back(scene);
     }
 
     if (model.defaultScene == -1)
         model.defaultScene = 0;
     ref->currentScene = ref->scenes[model.defaultScene];
+
+    vec3 boxMin = { +FLT_MAX, +FLT_MAX, +FLT_MAX };
+    vec3 boxMax = {-FLT_MIN, -FLT_MIN, -FLT_MIN};
+    for (auto& item : model.accessors)
+    {
+        if (item.type == TINYGLTF_TYPE_VEC3 && !item.minValues.empty())
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                if (item.minValues[i] < boxMin[i]) boxMin[i] = item.minValues[i];
+                if (item.maxValues[i] > boxMax[i]) boxMax[i] = item.maxValues[i];
+            }
+        }
+    }
+    ref->boundingBox.set(boxMin, boxMax);
     ref->update();
 
     return ref;
 }
 
-void ModelGLTF::update() { currentScene->treeUpdate(); }
+void ModelGLTF::update(double elapsed)
+{
+    currentScene->treeUpdate(elapsed);
+}
 
 void ModelGLTF::draw()
 {
@@ -333,6 +373,8 @@ SceneGLTF::Ref SceneGLTF::create(ModelGLTFRef modelGLTF, const tinygltf::Scene& 
 #endif
         ref->addChild(child);
     }
+    if (!property.name.empty())
+        ref->setName(property.name);
 
     return ref;
 }
@@ -563,11 +605,11 @@ MaterialGLTF::Ref MaterialGLTF::create(ModelGLTFRef modelGLTF, const tinygltf::M
 }
 
 #ifdef CINDER_LESS
-void MaterialGLTF::preDraw() {}
-void MaterialGLTF::postDraw() {}
+void MaterialGLTF::predraw() {}
+void MaterialGLTF::postdraw() {}
 
 #else
-void MaterialGLTF::preDraw()
+void MaterialGLTF::predraw()
 {
     ciShader->uniform("u_flipV", modelGLTF->flipV);
     ciShader->uniform("u_Camera", modelGLTF->cameraPosition);
@@ -600,22 +642,22 @@ void MaterialGLTF::preDraw()
 
     ciShader->bind();
     if (baseColorTexture)
-        baseColorTexture->preDraw(0);
+        baseColorTexture->predraw(0);
     if (diffuseTexture)
-        diffuseTexture->preDraw(0);
+        diffuseTexture->predraw(0);
     if (normalTexture)
-        normalTexture->preDraw(1);
+        normalTexture->predraw(1);
     if (emissiveTexture)
-        emissiveTexture->preDraw(2);
+        emissiveTexture->predraw(2);
     if (metallicRoughnessTexture)
-        metallicRoughnessTexture->preDraw(3);
+        metallicRoughnessTexture->predraw(3);
     if (specularGlossinessTexture)
-        specularGlossinessTexture->preDraw(3);
+        specularGlossinessTexture->predraw(3);
     if (occlusionTexture)
-        occlusionTexture->preDraw(4);
+        occlusionTexture->predraw(4);
 }
 
-void MaterialGLTF::postDraw()
+void MaterialGLTF::postdraw()
 {
     if (doubleSided)
     {
@@ -627,19 +669,19 @@ void MaterialGLTF::postDraw()
         gl::context()->popBlendFuncSeparate();
     }
     if (baseColorTexture)
-        baseColorTexture->postDraw();
+        baseColorTexture->postdraw();
     if (diffuseTexture)
-        diffuseTexture->postDraw();
+        diffuseTexture->postdraw();
     if (normalTexture)
-        normalTexture->postDraw();
+        normalTexture->postdraw();
     if (emissiveTexture)
-        emissiveTexture->postDraw();
+        emissiveTexture->postdraw();
     if (metallicRoughnessTexture)
-        metallicRoughnessTexture->postDraw();
+        metallicRoughnessTexture->postdraw();
     if (specularGlossinessTexture)
-        specularGlossinessTexture->postDraw();
+        specularGlossinessTexture->postdraw();
     if (occlusionTexture)
-        occlusionTexture->postDraw();
+        occlusionTexture->postdraw();
 }
 #endif
 
@@ -921,10 +963,10 @@ TextureGLTF::Ref TextureGLTF::create(ModelGLTFRef modelGLTF, const tinygltf::Tex
     return ref;
 }
 #ifdef CINDER_LESS
-void TextureGLTF::preDraw(uint8_t texUnit) {}
-void TextureGLTF::postDraw() {}
+void TextureGLTF::predraw(uint8_t texUnit) {}
+void TextureGLTF::postdraw() {}
 #else
-void TextureGLTF::preDraw(uint8_t texUnit)
+void TextureGLTF::predraw(uint8_t texUnit)
 {
     if (!ciTexture)
         return;
@@ -938,7 +980,7 @@ void TextureGLTF::preDraw(uint8_t texUnit)
         ciSampler->bind(textureUnit);
 }
 
-void TextureGLTF::postDraw()
+void TextureGLTF::postdraw()
 {
     if (!ciTexture)
         return;
