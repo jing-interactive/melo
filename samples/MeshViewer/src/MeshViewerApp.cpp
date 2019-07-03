@@ -83,7 +83,7 @@ struct MeloViewer : public App
     vector<string> listGlTFFiles()
     {
         vector<string> files;
-        auto assetModel = getAssetPath("");
+        auto assetModel = getAppPath() / "../assets";
         for (auto& p :
             fs::recursive_directory_iterator(assetModel
 #ifdef CINDER_MSW_DESKTOP
@@ -110,6 +110,7 @@ struct MeloViewer : public App
     void setup() override
     {
         log::makeLogger<log::LoggerFile>();
+        addAssetDirectory(getAppPath() / "../assets");
         addAssetDirectory(getAppPath() / "../../../assets");
 
         texFont = FontHelper::createTextureFont("Helvetica", 24);

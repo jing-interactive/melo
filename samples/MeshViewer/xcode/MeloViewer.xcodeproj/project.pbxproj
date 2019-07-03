@@ -18,9 +18,16 @@
 		00B9955B1B128DF400A5C623 /* IOSurface.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00B995591B128DF400A5C623 /* IOSurface.framework */; };
 		248C10CEEF4E402D9D256B49 /* MiniConfig.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3FFFE341EF014552AFC9D642 /* MiniConfig.cpp */; };
 		5323E6B20EAFCA74003A9687 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5323E6B10EAFCA74003A9687 /* CoreVideo.framework */; };
-		7447322522505BD700714BF7 /* 3rdparty in Resources */ = {isa = PBXBuildFile; fileRef = 7447322422505BD700714BF7 /* 3rdparty */; };
-		747E80582247CF6200FFB28C /* include in Resources */ = {isa = PBXBuildFile; fileRef = 747E80572247CF6200FFB28C /* include */; };
-		747E80612247CFBE00FFB28C /* src in Resources */ = {isa = PBXBuildFile; fileRef = 747E80602247CFBE00FFB28C /* src */; };
+		7410ED3D22CCD29F005F53D8 /* tiny_gltf.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7410ED2E22CCD29F005F53D8 /* tiny_gltf.cc */; };
+		7410ED3E22CCD29F005F53D8 /* tiny_obj_loader.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7410ED3122CCD29F005F53D8 /* tiny_obj_loader.cc */; };
+		7410ED3F22CCD29F005F53D8 /* tinyply.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7410ED3422CCD29F005F53D8 /* tinyply.cpp */; };
+		7410ED4022CCD29F005F53D8 /* read_vox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7410ED3822CCD29F005F53D8 /* read_vox.cpp */; };
+		7410ED4122CCD29F005F53D8 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 7410ED3A22CCD29F005F53D8 /* LICENSE */; };
+		7410ED4222CCD29F005F53D8 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 7410ED3C22CCD29F005F53D8 /* README.md */; };
+		7410ED4B22CCD2A8005F53D8 /* Node.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7410ED4522CCD2A8005F53D8 /* Node.cpp */; };
+		7410ED4C22CCD2A8005F53D8 /* ciobj.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7410ED4622CCD2A8005F53D8 /* ciobj.cpp */; };
+		7410ED4D22CCD2A8005F53D8 /* cigltf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7410ED4722CCD2A8005F53D8 /* cigltf.cpp */; };
+		7410ED4F22CCD2A8005F53D8 /* Node3D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7410ED4922CCD2A8005F53D8 /* Node3D.cpp */; };
 		749CEAE321F2D45D008C8AA2 /* assets in Resources */ = {isa = PBXBuildFile; fileRef = 749CEAE221F2D45D008C8AA2 /* assets */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		9CD73AC15AB140A882E1628C /* CinderApp.icns in Resources */ = {isa = PBXBuildFile; fileRef = 17DC403A7D974506B9398D7B /* CinderApp.icns */; };
@@ -51,13 +58,28 @@
 		3FFFE341EF014552AFC9D642 /* MiniConfig.cpp */ = {isa = PBXFileReference; explicitFileType = "\"\""; lastKnownFileType = sourcecode.cpp.cpp; name = MiniConfig.cpp; path = "../../../../../blocks/Cinder-VNM/src/MiniConfig.cpp"; sourceTree = "<group>"; };
 		5323E6B10EAFCA74003A9687 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = /System/Library/Frameworks/CoreVideo.framework; sourceTree = "<absolute>"; };
 		5E089795C140415A88B80BBC /* TuioHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TuioHelper.h; path = "../../../../../blocks/Cinder-VNM/include/TuioHelper.h"; sourceTree = "<group>"; };
-		63E04ED620934A179031D036 /* MeshViewer_Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; path = MeshViewer_Prefix.pch; sourceTree = "<group>"; };
+		63E04ED620934A179031D036 /* MeloViewer_Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MeloViewer_Prefix.pch; sourceTree = "<group>"; };
 		7056A9E4AC1D4045B0D05A93 /* MiniConfigImgui.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MiniConfigImgui.h; path = "../../../../../blocks/Cinder-VNM/include/MiniConfigImgui.h"; sourceTree = "<group>"; };
-		7447322422505BD700714BF7 /* 3rdparty */ = {isa = PBXFileReference; lastKnownFileType = folder; name = 3rdparty; path = ../../../3rdparty; sourceTree = "<group>"; };
-		747E80572247CF6200FFB28C /* include */ = {isa = PBXFileReference; lastKnownFileType = folder; name = include; path = ../../../include; sourceTree = "<group>"; };
-		747E80602247CFBE00FFB28C /* src */ = {isa = PBXFileReference; lastKnownFileType = folder; name = src; path = ../../../src; sourceTree = "<group>"; };
+		7410ED2B22CCD29F005F53D8 /* json.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = json.hpp; sourceTree = "<group>"; };
+		7410ED2C22CCD29F005F53D8 /* stb_image_write.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_image_write.h; sourceTree = "<group>"; };
+		7410ED2D22CCD29F005F53D8 /* stb_image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_image.h; sourceTree = "<group>"; };
+		7410ED2E22CCD29F005F53D8 /* tiny_gltf.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tiny_gltf.cc; sourceTree = "<group>"; };
+		7410ED2F22CCD29F005F53D8 /* tiny_gltf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tiny_gltf.h; sourceTree = "<group>"; };
+		7410ED3122CCD29F005F53D8 /* tiny_obj_loader.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tiny_obj_loader.cc; sourceTree = "<group>"; };
+		7410ED3222CCD29F005F53D8 /* tiny_obj_loader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tiny_obj_loader.h; sourceTree = "<group>"; };
+		7410ED3422CCD29F005F53D8 /* tinyply.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tinyply.cpp; sourceTree = "<group>"; };
+		7410ED3522CCD29F005F53D8 /* tinyply.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tinyply.h; sourceTree = "<group>"; };
+		7410ED3722CCD29F005F53D8 /* read_vox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = read_vox.h; sourceTree = "<group>"; };
+		7410ED3822CCD29F005F53D8 /* read_vox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = read_vox.cpp; sourceTree = "<group>"; };
+		7410ED3A22CCD29F005F53D8 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		7410ED3B22CCD29F005F53D8 /* flythrough_camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = flythrough_camera.h; sourceTree = "<group>"; };
+		7410ED3C22CCD29F005F53D8 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		7410ED4522CCD2A8005F53D8 /* Node.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Node.cpp; sourceTree = "<group>"; };
+		7410ED4622CCD2A8005F53D8 /* ciobj.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ciobj.cpp; sourceTree = "<group>"; };
+		7410ED4722CCD2A8005F53D8 /* cigltf.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cigltf.cpp; sourceTree = "<group>"; };
+		7410ED4922CCD2A8005F53D8 /* Node3D.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Node3D.cpp; sourceTree = "<group>"; };
 		749CEAE221F2D45D008C8AA2 /* assets */ = {isa = PBXFileReference; lastKnownFileType = folder; name = assets; path = ../../../assets; sourceTree = "<group>"; };
-		8D1107320486CEB800E47090 /* MeshViewer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MeshViewer.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8D1107320486CEB800E47090 /* MeloViewer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MeloViewer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9584F0AFEEAD48FFA432C73E /* AssetManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AssetManager.h; path = "../../../../../blocks/Cinder-VNM/include/AssetManager.h"; sourceTree = "<group>"; };
 		A521CAB1E47048AB92BAFAE9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B6C4577BC5EA4E63B610B4E8 /* MiniConfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MiniConfig.h; path = "../../../../../blocks/Cinder-VNM/include/MiniConfig.h"; sourceTree = "<group>"; };
@@ -96,9 +118,8 @@
 		01B97315FEAEA392516A2CEA /* Blocks */ = {
 			isa = PBXGroup;
 			children = (
-				7447322422505BD700714BF7 /* 3rdparty */,
-				747E80602247CFBE00FFB28C /* src */,
-				747E80572247CF6200FFB28C /* include */,
+				7410ED4322CCD2A8005F53D8 /* src */,
+				7410ED2922CCD29F005F53D8 /* 3rdparty */,
 				49E91D466005464AA238D5B8 /* vnm */,
 			);
 			name = Blocks;
@@ -142,7 +163,7 @@
 		19C28FACFE9D520D11CA2CBB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				8D1107320486CEB800E47090 /* MeshViewer.app */,
+				8D1107320486CEB800E47090 /* MeloViewer.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -173,7 +194,7 @@
 			isa = PBXGroup;
 			children = (
 				FEB38ED8C7844559BF2957EB /* Resources.h */,
-				63E04ED620934A179031D036 /* MeshViewer_Prefix.pch */,
+				63E04ED620934A179031D036 /* MeloViewer_Prefix.pch */,
 				FE74054C98C14480BD9A49CB /* item.def */,
 			);
 			name = Headers;
@@ -228,12 +249,86 @@
 			name = vnm;
 			sourceTree = "<group>";
 		};
+		7410ED2922CCD29F005F53D8 /* 3rdparty */ = {
+			isa = PBXGroup;
+			children = (
+				7410ED2A22CCD29F005F53D8 /* tinygltf */,
+				7410ED3022CCD29F005F53D8 /* tinyobjloader */,
+				7410ED3322CCD29F005F53D8 /* tinyply */,
+				7410ED3622CCD29F005F53D8 /* vox */,
+				7410ED3922CCD29F005F53D8 /* flythrough_camera */,
+			);
+			name = 3rdparty;
+			path = ../../../3rdparty;
+			sourceTree = "<group>";
+		};
+		7410ED2A22CCD29F005F53D8 /* tinygltf */ = {
+			isa = PBXGroup;
+			children = (
+				7410ED2B22CCD29F005F53D8 /* json.hpp */,
+				7410ED2C22CCD29F005F53D8 /* stb_image_write.h */,
+				7410ED2D22CCD29F005F53D8 /* stb_image.h */,
+				7410ED2E22CCD29F005F53D8 /* tiny_gltf.cc */,
+				7410ED2F22CCD29F005F53D8 /* tiny_gltf.h */,
+			);
+			path = tinygltf;
+			sourceTree = "<group>";
+		};
+		7410ED3022CCD29F005F53D8 /* tinyobjloader */ = {
+			isa = PBXGroup;
+			children = (
+				7410ED3122CCD29F005F53D8 /* tiny_obj_loader.cc */,
+				7410ED3222CCD29F005F53D8 /* tiny_obj_loader.h */,
+			);
+			path = tinyobjloader;
+			sourceTree = "<group>";
+		};
+		7410ED3322CCD29F005F53D8 /* tinyply */ = {
+			isa = PBXGroup;
+			children = (
+				7410ED3422CCD29F005F53D8 /* tinyply.cpp */,
+				7410ED3522CCD29F005F53D8 /* tinyply.h */,
+			);
+			path = tinyply;
+			sourceTree = "<group>";
+		};
+		7410ED3622CCD29F005F53D8 /* vox */ = {
+			isa = PBXGroup;
+			children = (
+				7410ED3722CCD29F005F53D8 /* read_vox.h */,
+				7410ED3822CCD29F005F53D8 /* read_vox.cpp */,
+			);
+			path = vox;
+			sourceTree = "<group>";
+		};
+		7410ED3922CCD29F005F53D8 /* flythrough_camera */ = {
+			isa = PBXGroup;
+			children = (
+				7410ED3A22CCD29F005F53D8 /* LICENSE */,
+				7410ED3B22CCD29F005F53D8 /* flythrough_camera.h */,
+				7410ED3C22CCD29F005F53D8 /* README.md */,
+			);
+			path = flythrough_camera;
+			sourceTree = "<group>";
+		};
+		7410ED4322CCD2A8005F53D8 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				7410ED4522CCD2A8005F53D8 /* Node.cpp */,
+				7410ED4622CCD2A8005F53D8 /* ciobj.cpp */,
+				7410ED4722CCD2A8005F53D8 /* cigltf.cpp */,
+				7410ED4922CCD2A8005F53D8 /* Node3D.cpp */,
+			);
+			name = src;
+			path = ../../../src;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		8D1107260486CEB800E47090 /* MeshViewer */ = {
+		8D1107260486CEB800E47090 /* MeloViewer */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = C01FCF4A08A954540054247B /* Build configuration list for PBXNativeTarget "MeshViewer" */;
+			buildConfigurationList = C01FCF4A08A954540054247B /* Build configuration list for PBXNativeTarget "MeloViewer" */;
 			buildPhases = (
 				8D1107290486CEB800E47090 /* Resources */,
 				8D11072C0486CEB800E47090 /* Sources */,
@@ -243,10 +338,10 @@
 			);
 			dependencies = (
 			);
-			name = MeshViewer;
+			name = MeloViewer;
 			productInstallPath = "$(HOME)/Applications";
 			productName = MeshViewer;
-			productReference = 8D1107320486CEB800E47090 /* MeshViewer.app */;
+			productReference = 8D1107320486CEB800E47090 /* MeloViewer.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -257,21 +352,22 @@
 			attributes = {
 				LastUpgradeCheck = 0940;
 			};
-			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "MeshViewer" */;
+			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "MeloViewer" */;
 			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 1;
 			knownRegions = (
-				English,
-				Japanese,
-				French,
-				German,
+				de,
+				fr,
+				ja,
+				Base,
+				en,
 			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* MeshViewer */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				8D1107260486CEB800E47090 /* MeshViewer */,
+				8D1107260486CEB800E47090 /* MeloViewer */,
 			);
 		};
 /* End PBXProject section */
@@ -281,11 +377,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				747E80582247CF6200FFB28C /* include in Resources */,
+				7410ED4122CCD29F005F53D8 /* LICENSE in Resources */,
 				749CEAE321F2D45D008C8AA2 /* assets in Resources */,
+				7410ED4222CCD29F005F53D8 /* README.md in Resources */,
 				9CD73AC15AB140A882E1628C /* CinderApp.icns in Resources */,
-				747E80612247CFBE00FFB28C /* src in Resources */,
-				7447322522505BD700714BF7 /* 3rdparty in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -296,9 +391,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7410ED4B22CCD2A8005F53D8 /* Node.cpp in Sources */,
+				7410ED4C22CCD2A8005F53D8 /* ciobj.cpp in Sources */,
+				7410ED3D22CCD29F005F53D8 /* tiny_gltf.cc in Sources */,
+				7410ED3F22CCD29F005F53D8 /* tinyply.cpp in Sources */,
+				7410ED4F22CCD2A8005F53D8 /* Node3D.cpp in Sources */,
 				E5922A0830AF4D81A9622112 /* MeshViewerApp.cpp in Sources */,
+				7410ED4022CCD29F005F53D8 /* read_vox.cpp in Sources */,
+				7410ED3E22CCD29F005F53D8 /* tiny_obj_loader.cc in Sources */,
 				F6D85CC6EECE4A0E87E277DC /* AssetManager.cpp in Sources */,
 				248C10CEEF4E402D9D256B49 /* MiniConfig.cpp in Sources */,
+				7410ED4D22CCD2A8005F53D8 /* cigltf.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -318,14 +421,14 @@
 				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = MeshViewer_Prefix.pch;
+				GCC_PREFIX_HEADER = MeloViewer_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = TINYGLTF_NO_STB_IMAGE_WRITE;
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				OTHER_LDFLAGS = "\"$(CINDER_PATH)/lib/macosx/$(CONFIGURATION)/libcinder.a\"";
-				PRODUCT_BUNDLE_IDENTIFIER = "org.libcinder.${PRODUCT_NAME:rfc1034identifier}";
-				PRODUCT_NAME = MeshViewer;
+				PRODUCT_BUNDLE_IDENTIFIER = org.libcinder.MeloViewer;
+				PRODUCT_NAME = MeloViewer;
 				SYMROOT = ./build;
 				WRAPPER_EXTENSION = app;
 			};
@@ -345,14 +448,14 @@
 				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
 				GCC_OPTIMIZATION_LEVEL = 3;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = MeshViewer_Prefix.pch;
+				GCC_PREFIX_HEADER = MeloViewer_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = TINYGLTF_NO_STB_IMAGE_WRITE;
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				OTHER_LDFLAGS = "\"$(CINDER_PATH)/lib/macosx/$(CONFIGURATION)/libcinder.a\"";
-				PRODUCT_BUNDLE_IDENTIFIER = "org.libcinder.${PRODUCT_NAME:rfc1034identifier}";
-				PRODUCT_NAME = MeshViewer;
+				PRODUCT_BUNDLE_IDENTIFIER = org.libcinder.MeloViewer;
+				PRODUCT_NAME = MeloViewer;
 				STRIP_INSTALLED_PRODUCT = YES;
 				SYMROOT = ./build;
 				WRAPPER_EXTENSION = app;
@@ -397,7 +500,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
-				USER_HEADER_SEARCH_PATHS = "\"$(CINDER_PATH)/include\" ../include \"$(CINDER_PATH)/blocks/Cinder-VNM/include\" \"$(CINDER_PATH)/blocks\"";
+				USER_HEADER_SEARCH_PATHS = "\"$(CINDER_PATH)/include\" ../include \"$(CINDER_PATH)/blocks/Cinder-VNM/include\" \"$(CINDER_PATH)/blocks\" \"$(CINDER_PATH)/blocks/melo/include\"";
 			};
 			name = Debug;
 		};
@@ -437,14 +540,14 @@
 				HEADER_SEARCH_PATHS = "\"$(CINDER_PATH)/include\"";
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				SDKROOT = macosx;
-				USER_HEADER_SEARCH_PATHS = "\"$(CINDER_PATH)/include\" ../include \"$(CINDER_PATH)/blocks/Cinder-VNM/include\" \"$(CINDER_PATH)/blocks\"";
+				USER_HEADER_SEARCH_PATHS = "\"$(CINDER_PATH)/include\" ../include \"$(CINDER_PATH)/blocks/Cinder-VNM/include\" \"$(CINDER_PATH)/blocks\" \"$(CINDER_PATH)/blocks/melo/include\"";
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		C01FCF4A08A954540054247B /* Build configuration list for PBXNativeTarget "MeshViewer" */ = {
+		C01FCF4A08A954540054247B /* Build configuration list for PBXNativeTarget "MeloViewer" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C01FCF4B08A954540054247B /* Debug */,
@@ -453,7 +556,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		C01FCF4E08A954540054247B /* Build configuration list for PBXProject "MeshViewer" */ = {
+		C01FCF4E08A954540054247B /* Build configuration list for PBXProject "MeloViewer" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C01FCF4F08A954540054247B /* Debug */,
