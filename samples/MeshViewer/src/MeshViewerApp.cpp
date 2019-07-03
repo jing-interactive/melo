@@ -52,7 +52,7 @@ gl::VertBatchRef createGrid()
 }
 
 
-struct MeshViewerApp : public App
+struct MeloViewer : public App
 {
     CameraPersp mMayaCam;
     CameraUi mMayaCamUi;
@@ -389,7 +389,7 @@ auto gfxOption = RendererGl::Options().msaa(4).debug().debugLog(GL_DEBUG_SEVERIT
 #else
 auto gfxOption = RendererGl::Options().msaa(4);
 #endif
-CINDER_APP(MeshViewerApp, RendererGl(gfxOption), [](App::Settings* settings) {
+CINDER_APP(MeloViewer, RendererGl(gfxOption), [](App::Settings* settings) {
     readConfig();
     settings->setWindowSize(APP_WIDTH, APP_HEIGHT);
     settings->setMultiTouchEnabled(false);
