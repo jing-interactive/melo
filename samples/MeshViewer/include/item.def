@@ -23,7 +23,7 @@ ITEM_DEF(float, CAM_Z_FAR, 1000)
 
 GROUP_DEF(Model)
 //ITEM_DEF(string, MESH_NAME, "Cube/Cube.gltf")
-//ITEM_DEF(string, TEX0_NAME, "checkerboard")
+ITEM_DEF(string, TEX0_NAME, "checkerboard")
 //ITEM_DEF(string, TEX1_NAME, "checkerboard")
 //ITEM_DEF(string, TEX2_NAME, "checkerboard")
 //ITEM_DEF(string, TEX3_NAME, "checkerboard")

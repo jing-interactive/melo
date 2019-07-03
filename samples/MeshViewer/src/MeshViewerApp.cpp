@@ -41,10 +41,10 @@ gl::VertBatchRef createGrid()
         grid->color(Color(0.25f, 0.25f, 0.25f));
         grid->color(Color(0.25f, 0.25f, 0.25f));
 
-        grid->vertex(float(i)*scale, 0.0f, -10.0f*scale);
-        grid->vertex(float(i)*scale, 0.0f, +10.0f*scale);
-        grid->vertex(-10.0f*scale, 0.0f, float(i)*scale);
-        grid->vertex(+10.0f*scale, 0.0f, float(i)*scale);
+        grid->vertex(float(i) * scale, 0.0f, -10.0f * scale);
+        grid->vertex(float(i) * scale, 0.0f, +10.0f * scale);
+        grid->vertex(-10.0f * scale, 0.0f, float(i) * scale);
+        grid->vertex(+10.0f * scale, 0.0f, float(i) * scale);
     }
     grid->end();
 
@@ -85,20 +85,20 @@ struct MeshViewerApp : public App
         vector<string> files;
         auto assetModel = getAssetPath("");
         for (auto& p :
-             fs::recursive_directory_iterator(assetModel
+            fs::recursive_directory_iterator(assetModel
 #ifdef CINDER_MSW_DESKTOP
-                                              ,
-                                              fs::directory_options::follow_directory_symlink
+                ,
+                fs::directory_options::follow_directory_symlink
 #endif
-                                              ))
+            ))
         {
             auto ext = p.path().extension();
             if (ext == ".gltf" || ext == ".glb" || ext == ".obj")
             {
                 auto filename = p.path().generic_string();
                 filename.replace(filename.find(assetModel.generic_string()),
-                                 assetModel.generic_string().size(),
-                                 ""); // Left trim the assets prefix
+                    assetModel.generic_string().size(),
+                    ""); // Left trim the assets prefix
 
                 files.push_back(filename);
             }
@@ -129,7 +129,7 @@ struct MeshViewerApp : public App
         mSkyBoxBatch = gl::Batch::create(geom::Cube().size(vec3(400)), skyBoxShader);
         mGrid = createGrid();
 
-        mMayaCam.lookAt({CAM_POS_X, CAM_POS_Y, CAM_POS_Z}, vec3(), vec3(0, 1, 0));
+        mMayaCam.lookAt({ CAM_POS_X, CAM_POS_Y, CAM_POS_Z }, vec3(), vec3(0, 1, 0));
         mMayaCamUi = CameraUi(&mMayaCam, getWindow(), -1);
 
         mMeshFilenames = listGlTFFiles();
@@ -140,14 +140,14 @@ struct MeshViewerApp : public App
             mMeshFilenames.push_back(args[1]);
         }
 #ifndef CINDER_COCOA_TOUCH
-        mParams = createConfigUI({400, 500});
+        mParams = createConfigUI({ 400, 500 });
         ADD_ENUM_TO_INT(mParams.get(), MESH_FILE_ID, mMeshFilenames);
         mParams->addParam("MESH_ROTATION", &mMeshRotation);
         mParams->addButton("Save OBJ", [&] {
             if (!mTriMesh) return;
             fs::path path = mMeshFilenames[mMeshFileId];
             writeObj(writeFile(path.string() + "_new.obj"), mTriMesh);
-        });
+            });
 #endif
         gl::enableDepth();
 
@@ -161,7 +161,7 @@ struct MeshViewerApp : public App
             APP_WIDTH = getWindowWidth();
             APP_HEIGHT = getWindowHeight();
             mMayaCam.setAspectRatio(getWindowAspectRatio());
-        });
+            });
 
         getWindow()->getSignalKeyUp().connect([&](KeyEvent& event) {
             auto code = event.getCode();
@@ -177,7 +177,7 @@ struct MeshViewerApp : public App
                 GUI_VISIBLE = !GUI_VISIBLE;
             if (code == KeyEvent::KEY_f)
                 FPS_CAMERA = !FPS_CAMERA;
-        });
+            });
 
         getWindow()->getSignalFileDrop().connect([&](FileDropEvent& event) {
 
@@ -195,7 +195,7 @@ struct MeshViewerApp : public App
                     break;
                 }
             }
-        });
+            });
 
         getSignalUpdate().connect([&] {
             if (MESH_FILE_ID > mMeshFilenames.size() - 1)
@@ -288,8 +288,36 @@ struct MeshViewerApp : public App
             {
                 mModelObj->flipV = FLIP_V;
                 mModelObj->cameraPosition = mCurrentCam->getEyePoint();
-            }            
-        });
+            }
+            });
+
+        getWindow()->getSignalFileDrop().connect([&](FileDropEvent& event) {
+
+            int texIdx = 0;
+            static auto imageExts = ImageIo::getLoadExtensions();
+
+            for (auto& filePath : event.getFiles())
+            {
+                if (fs::is_directory(filePath)) continue;
+                if (!filePath.has_extension()) continue;
+
+                auto fileName = filePath.string();
+                auto fileExt = filePath.extension().string();
+                std::transform(fileExt.begin(), fileExt.end(), fileExt.begin(), ::tolower);
+                fileExt = fileExt.substr(1, string::npos);
+
+                // image
+                {
+                    bool isImageType = std::find(imageExts.begin(), imageExts.end(), fileExt) != imageExts.end();
+                    if (isImageType)
+                    {
+                        TEX0_NAME = fileName;
+                        break;
+                    }
+                }
+            }
+            });
+
 
         getWindow()->getSignalDraw().connect([&] {
             if (mIsFpsCamera)
@@ -326,6 +354,7 @@ struct MeshViewerApp : public App
             if (mModelObj)
             {
                 gl::setWireframeEnabled(WIRE_FRAME);
+                gl::ScopedTextureBind tex0(am::texture2d(TEX0_NAME));
                 mModelObj->setScale({ MESH_SCALE,MESH_SCALE,MESH_SCALE });
                 mModelObj->setRotation(mMeshRotation);
                 mModelObj->treeDraw();
@@ -335,7 +364,7 @@ struct MeshViewerApp : public App
             if (mVboMesh)
             {
                 gl::ScopedGlslProg glsl(am::glslProg("lambert texture"));
-                gl::ScopedTextureBind tex0(am::texture2d("checkerboard"));
+                gl::ScopedTextureBind tex0(am::texture2d(TEX0_NAME));
                 gl::setWireframeEnabled(WIRE_FRAME);
                 gl::ScopedModelMatrix mtx;
                 gl::scale(MESH_SCALE, MESH_SCALE, MESH_SCALE);
@@ -351,7 +380,7 @@ struct MeshViewerApp : public App
                 gl::ScopedDepthTest depthTest(false);
                 gl::drawCoordinateFrame(10, 0.5, 0.1);
             }
-        });
+            });
     }
 };
 
@@ -364,4 +393,4 @@ CINDER_APP(MeshViewerApp, RendererGl(gfxOption), [](App::Settings* settings) {
     readConfig();
     settings->setWindowSize(APP_WIDTH, APP_HEIGHT);
     settings->setMultiTouchEnabled(false);
-})
+    })
