@@ -195,6 +195,13 @@ struct MeloViewer : public App
                     MESH_FILE_ID = mMeshFilenames.size() - 1;
                     break;
                 }
+
+                bool isImageType = std::find(imageExts.begin(), imageExts.end(), filePath.extension()) != imageExts.end();
+                if (isImageType)
+                {
+                    TEX0_NAME = filePath.string();
+                    break;
+                }
             }
             });
 
@@ -293,34 +300,6 @@ struct MeloViewer : public App
                 mModelObj->cameraPosition = mCurrentCam->getEyePoint();
             }
             });
-
-        getWindow()->getSignalFileDrop().connect([&](FileDropEvent& event) {
-
-            int texIdx = 0;
-            static auto imageExts = ImageIo::getLoadExtensions();
-
-            for (auto& filePath : event.getFiles())
-            {
-                if (fs::is_directory(filePath)) continue;
-                if (!filePath.has_extension()) continue;
-
-                auto fileName = filePath.string();
-                auto fileExt = filePath.extension().string();
-                std::transform(fileExt.begin(), fileExt.end(), fileExt.begin(), ::tolower);
-                fileExt = fileExt.substr(1, string::npos);
-
-                // image
-                {
-                    bool isImageType = std::find(imageExts.begin(), imageExts.end(), fileExt) != imageExts.end();
-                    if (isImageType)
-                    {
-                        TEX0_NAME = fileName;
-                        break;
-                    }
-                }
-            }
-            });
-
 
         getWindow()->getSignalDraw().connect([&] {
             if (mIsFpsCamera)
