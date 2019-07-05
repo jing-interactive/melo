@@ -29,29 +29,6 @@ namespace cinder {
 }
 #endif
 
-gl::VertBatchRef createGrid()
-{
-    auto grid = gl::VertBatch::create(GL_LINES);
-    grid->begin(GL_LINES);
-    float scale = 1.0f;
-    for (int i = -10; i <= 10; ++i)
-    {
-        grid->color(Color(0.25f, 0.25f, 0.25f));
-        grid->color(Color(0.25f, 0.25f, 0.25f));
-        grid->color(Color(0.25f, 0.25f, 0.25f));
-        grid->color(Color(0.25f, 0.25f, 0.25f));
-
-        grid->vertex(float(i) * scale, 0.0f, -10.0f * scale);
-        grid->vertex(float(i) * scale, 0.0f, +10.0f * scale);
-        grid->vertex(-10.0f * scale, 0.0f, float(i) * scale);
-        grid->vertex(+10.0f * scale, 0.0f, float(i) * scale);
-    }
-    grid->end();
-
-    return grid;
-}
-
-
 struct MeloViewer : public App
 {
     CameraPersp mMayaCam;
@@ -60,6 +37,10 @@ struct MeloViewer : public App
     bool mIsFpsCamera = false;
     Arcball mArcball;
     quat mMeshRotation;
+
+    // args
+    bool mSnapshotMode = false;
+    string mOutputFilename;
 
     gl::GlslProgRef mGlslProg;
     gl::BatchRef mSkyBoxBatch;
@@ -72,7 +53,7 @@ struct MeloViewer : public App
     gl::VboMeshRef mVboMesh;
     TriMeshRef mTriMesh;
 
-    gl::VertBatchRef mGrid;
+    nodes::Node3DRef mGridNode;
 
     FirstPersonCamera mFpsCam;
 
@@ -113,33 +94,17 @@ struct MeloViewer : public App
         addAssetDirectory(getAppPath() / "../assets");
         addAssetDirectory(getAppPath() / "../../../assets");
 
-        texFont = FontHelper::createTextureFont("Helvetica", 24);
-
-        mFpsCam.setup();
-
-        auto skyBoxShader = am::glslProg("SkyBox.vert", "SkyBox.frag");
-        if (!skyBoxShader)
-        {
-            quit();
-            return;
-        }
-        skyBoxShader->uniform("uCubeMapTex", 0);
-        skyBoxShader->uniform("uExposure", 2.0f);
-        skyBoxShader->uniform("uGamma", 2.0f);
-
-        mSkyBoxBatch = gl::Batch::create(geom::Cube().size(vec3(400)), skyBoxShader);
-        mGrid = createGrid();
-
         mMayaCam.lookAt({ CAM_POS_X, CAM_POS_Y, CAM_POS_Z }, vec3(), vec3(0, 1, 0));
         mMayaCamUi = CameraUi(&mMayaCam, getWindow(), -1);
+        mFpsCam.setup();
 
-        mMeshFilenames = listGlTFFiles();
-        auto& args = getCommandLineArgs();
-        if (args.size() == 2)
-        {
-            MESH_FILE_ID = mMeshFilenames.size();
-            mMeshFilenames.push_back(args[1]);
-        }
+        texFont = FontHelper::createTextureFont("Helvetica", 24);
+
+        parseArgs();
+
+        if (!mSnapshotMode)
+            mMeshFilenames = listGlTFFiles();
+
 #ifndef CINDER_COCOA_TOUCH
         mParams = createConfigUI({ 400, 500 });
         ADD_ENUM_TO_INT(mParams.get(), MESH_FILE_ID, mMeshFilenames);
@@ -151,10 +116,6 @@ struct MeloViewer : public App
             });
 #endif
         gl::enableDepth();
-
-        ModelGLTF::radianceTexture = am::textureCubeMap(RADIANCE_TEX);
-        ModelGLTF::irradianceTexture = am::textureCubeMap(IRRADIANCE_TEX);
-        ModelGLTF::brdfLUTTexture = am::texture2d(BRDF_LUT_TEX);
 
         getSignalCleanup().connect([&] { writeConfig(); });
 
@@ -240,14 +201,29 @@ struct MeloViewer : public App
                     {
                         mModelObj = ModelObj::create(path, &mLoadingError);
                         auto box = mModelObj->boundingBox;
-                        mMayaCam.lookAt(box.getMax() * vec3(CAM_NEW_MESH_DISTANCE_X, CAM_NEW_MESH_DISTANCE_Y, CAM_NEW_MESH_DISTANCE_Z), box.getCenter());
+                        if (true || mSnapshotMode)
+                            // TODO: ugly
+                            mMayaCam.lookAt(box.getMax() * vec3(CAM_NEW_MESH_DISTANCE_X, CAM_NEW_MESH_DISTANCE_Y, CAM_NEW_MESH_DISTANCE_Z), box.getCenter());
+                        else
+                            mMayaCam.lookAt(box.getMax() * vec3(0, 0, 1), box.getCenter());
                     }
                 }
                 else
                 {
+                    if (ModelGLTF::radianceTexture == nullptr)
+                    {
+                        ModelGLTF::radianceTexture = am::textureCubeMap(RADIANCE_TEX);
+                        ModelGLTF::irradianceTexture = am::textureCubeMap(IRRADIANCE_TEX);
+                        ModelGLTF::brdfLUTTexture = am::texture2d(BRDF_LUT_TEX);
+                    }
+
                     mModelGLTF = ModelGLTF::create(path, &mLoadingError);
                     auto box = mModelGLTF->boundingBox;
-                    mMayaCam.lookAt(box.getMax()* vec3(CAM_NEW_MESH_DISTANCE_X, CAM_NEW_MESH_DISTANCE_Y, CAM_NEW_MESH_DISTANCE_Z), box.getCenter());
+                    if (true || mSnapshotMode)
+                        // TODO: ugly*2
+                        mMayaCam.lookAt(box.getMax() * vec3(CAM_NEW_MESH_DISTANCE_X, CAM_NEW_MESH_DISTANCE_Y, CAM_NEW_MESH_DISTANCE_Z), box.getCenter());
+                    else
+                        mMayaCam.lookAt(box.getMax() * vec3(0, 0, 1), box.getCenter());
                 }
 
                 if (!mModelObj && !mVboMesh && !mModelGLTF)
@@ -323,6 +299,20 @@ struct MeloViewer : public App
                 if (ENV_VISIBLE)
                 {
                     gl::ScopedDepthWrite depthWrite(false);
+                    if (mSkyBoxBatch == nullptr)
+                    {
+                        auto skyBoxShader = am::glslProg("SkyBox.vert", "SkyBox.frag");
+                        if (!skyBoxShader)
+                        {
+                            quit();
+                            return;
+                        }
+                        skyBoxShader->uniform("uCubeMapTex", 0);
+                        skyBoxShader->uniform("uExposure", 2.0f);
+                        skyBoxShader->uniform("uGamma", 2.0f);
+
+                        mSkyBoxBatch = gl::Batch::create(geom::Cube().size(vec3(400)), skyBoxShader);
+                    }
                     mSkyBoxBatch->draw();
                 }
 
@@ -360,11 +350,46 @@ struct MeloViewer : public App
             if (XYZ_VISIBLE)
             {
                 gl::ScopedGlslProg glsl(am::glslProg("color"));
-                mGrid->draw();
+                if (mGridNode == nullptr)
+                    mGridNode = nodes::GridNode::create();
+                mGridNode->treeDraw();
                 gl::ScopedDepthTest depthTest(false);
                 gl::drawCoordinateFrame(10, 0.5, 0.1);
             }
+
+            if (mSnapshotMode)
+            {
+                auto windowSurf = copyWindowSurface();
+                fs::path writePath = mOutputFilename;
+                writeImage(writePath, windowSurf);
+                quit();
+            }
             });
+    }
+    void parseArgs()
+    {
+        auto& args = getCommandLineArgs();
+
+        if (args.size() > 1)
+        {
+            // MeloViewer.exe file.obj
+            MESH_FILE_ID = mMeshFilenames.size();
+            mMeshFilenames.push_back(args[1]);
+
+            if (args.size() > 2)
+            {
+                // MeloViewer.exe file.obj snapshot.png
+                mSnapshotMode = true;
+                GUI_VISIBLE = false;
+                mOutputFilename = args[2];
+
+                if (args.size() > 3)
+                {
+                    // MeloViewer.exe file.obj snapshot.png new_shining_texture.png
+                    TEX0_NAME = args[3];
+                }
+            }
+        }
     }
 };
 
@@ -375,6 +400,7 @@ auto gfxOption = RendererGl::Options().msaa(4);
 #endif
 CINDER_APP(MeloViewer, RendererGl(gfxOption), [](App::Settings* settings) {
     readConfig();
+    settings->setConsoleWindowEnabled(CONSOLE_ENABLED);
     settings->setWindowSize(APP_WIDTH, APP_HEIGHT);
     settings->setMultiTouchEnabled(false);
     })

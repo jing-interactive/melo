@@ -74,6 +74,7 @@ struct FirstPersonCamera : public CameraPersp
             if (activated)
             {
                 float* view = glm::value_ptr(mViewMatrix);
+#if 0
                 printf("\n");
                 printf("pos: %f, %f, %f\n", mEyePoint[0], mEyePoint[1], mEyePoint[2]);
                 printf("look: %f, %f, %f\n", mViewDirection[0], mViewDirection[1], mViewDirection[2]);
@@ -84,6 +85,7 @@ struct FirstPersonCamera : public CameraPersp
                     view[0], view[1], view[2], view[3], view[4], view[5], view[6], view[7],
                     view[8], view[9], view[10], view[11], view[12], view[13], view[14],
                     view[15]);
+#endif
                 mModelViewCached = true;
             }
             mPrevMousePos = mMousePos;
