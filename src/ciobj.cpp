@@ -78,6 +78,7 @@ MeshObj::Ref MeshObj::create(ModelObjRef modelObj, const tinyobj::shape_t& prope
         triMesh.recalculateNormals();
     }
     triMesh.recalculateTangents();
+    ref->boundingBox = triMesh.calcBoundingBox();
 
     ref->vboMesh = gl::VboMesh::create(triMesh);
     int mtrl = property.mesh.material_ids[0];
@@ -238,7 +239,11 @@ ModelObjRef ModelObj::create(const fs::path& meshPath, std::string* loadingError
         ref->materials.emplace_back(MaterialObj::create(ref, item));
 
     for (auto& item : shapes)
-        ref->addChild(MeshObj::create(ref, item));
+    {
+        auto mesh = MeshObj::create(ref, item);
+        ref->boundingBox = mesh->boundingBox; // TODO: support union of allboxes
+        ref->addChild(mesh);
+    }
 
     return ref;
 }

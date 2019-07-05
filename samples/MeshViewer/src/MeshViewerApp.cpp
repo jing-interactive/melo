@@ -232,6 +232,8 @@ struct MeloViewer : public App
                     else
                     {
                         mModelObj = ModelObj::create(path, &mLoadingError);
+                        auto box = mModelObj->boundingBox;
+                        mMayaCam.lookAt(box.getMax() * vec3(CAM_NEW_MESH_DISTANCE_X, CAM_NEW_MESH_DISTANCE_Y, CAM_NEW_MESH_DISTANCE_Z), box.getCenter());
                     }
                 }
                 else
@@ -282,7 +284,7 @@ struct MeloViewer : public App
             {
                 mModelGLTF->flipV = FLIP_V;
                 mModelGLTF->cameraPosition = mCurrentCam->getEyePoint();
-                mModelGLTF->update();
+                mModelGLTF->treeUpdate();
             }
 
             if (mModelObj)
@@ -346,9 +348,9 @@ struct MeloViewer : public App
                 gl::pointSize(POINT_SIZE);
 
                 gl::setWireframeEnabled(WIRE_FRAME);
-                mModelGLTF->currentScene->setScale({ MESH_SCALE,MESH_SCALE,MESH_SCALE });
-                mModelGLTF->currentScene->setRotation(mMeshRotation);
-                mModelGLTF->draw();
+                mModelGLTF->setScale({ MESH_SCALE,MESH_SCALE,MESH_SCALE });
+                mModelGLTF->setRotation(mMeshRotation);
+                mModelGLTF->treeDraw();
                 gl::disableWireframe();
             }
 
