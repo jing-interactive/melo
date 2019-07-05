@@ -24,61 +24,54 @@
 #pragma once
 
 #include "Node3D.h"
+#include "cinder/gl/gl.h"
 
+namespace cinder {
+    namespace geom {
+        class Source;
+    }
+    typedef std::shared_ptr<class TriMesh>		TriMeshRef;
+}
 namespace nodes
 {
     using namespace ci;
 
     struct GridNode : public Node3D
     {
+        typedef std::shared_ptr<GridNode> Ref;
+
         gl::VertBatchRef vertBatch;
+        gl::GlslProgRef shader;
         float mMeters;
 
-        GridNode(float meters = 10.0f) : mMeters(meters)
+        static Ref create(float meters = 10.0f)
         {
-            vertBatch = gl::VertBatch::create(GL_LINES);
-            vertBatch->begin(GL_LINES);
-            for (int i = -meters; i <= meters; ++i)
-            {
-                vertBatch->color(Color(0.25f, 0.25f, 0.25f));
-                vertBatch->color(Color(0.25f, 0.25f, 0.25f));
-                vertBatch->color(Color(0.25f, 0.25f, 0.25f));
-                vertBatch->color(Color(0.25f, 0.25f, 0.25f));
-
-                vertBatch->vertex(float(i), 0.0f, -meters);
-                vertBatch->vertex(float(i), 0.0f, +meters);
-                vertBatch->vertex(-meters, 0.0f, float(i));
-                vertBatch->vertex(+meters, 0.0f, float(i));
-            }
-            vertBatch->end();
-
-            setName("GridNode");
+            return std::make_shared<GridNode>(meters);
         }
 
-        void draw()
-        {
-            gl::ScopedDepthWrite depthWrite(false);
-            gl::ScopedGlslProg glsl(am::glslProg("color"));
-            vertBatch->draw();
-            gl::drawCoordinateFrame(mMeters * 0.1f, mMeters * 0.01f, mMeters * 0.001f);
-        }
+        GridNode(float meters = 10.0f);
+
+        void draw();
 
         virtual inline std::string toString() const { return "GridNode"; }
     };
 
-    struct TriMeshNode : public Node3D
+    struct BuiltinMeshNode : public Node3D
     {
-        TriMeshRef triMesh;
+        typedef std::shared_ptr<BuiltinMeshNode> Ref;
 
-        TriMeshNode(TriMeshRef triMesh) : triMesh(triMesh) {}
+        gl::VboMeshRef vboMesh;
+        gl::GlslProgRef shader;
 
-        void draw()
+        static Ref create(TriMeshRef triMesh)
         {
-            if (triMesh)
-            {
-                gl::draw(*triMesh);
-            }
+            return std::make_shared<BuiltinMeshNode>(triMesh);
         }
+
+        static Ref create(const geom::Source& source);
+        BuiltinMeshNode(TriMeshRef triMesh);
+
+        void draw();
 
         virtual inline std::string toString() const { return "TriMeshNode"; }
     };

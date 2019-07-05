@@ -345,9 +345,10 @@ struct ModelGLTF : public nodes::Node3D
 
     static ModelGLTFRef create(const fs2::path& meshPath, std::string* loadingError = nullptr);
 
-    void update(double elapsed = 0.0) override;
+    //void update(double elapsed = 0.0) override;
 
-    void draw() override;
+    void predraw() override;
+    void postdraw() override;
 
     std::vector<AccessorGLTF::Ref> accessors;
     std::vector<AnimationGLTF::Ref> animations;

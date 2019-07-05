@@ -41,7 +41,7 @@ namespace nodes
 
     Node::Node(void)
         : mUuid(uuidCount), mIsVisible(true), mIsClickable(true), mIsSelected(false),
-          mIsSetup(false), mIsTransformInvalidated(true)
+        mIsSetup(false), mIsTransformInvalidated(true)
     {
         // default constructor for [Node]
         nodeCount++;
@@ -265,12 +265,13 @@ namespace nodes
         if (mIsTransformInvalidated)
             transform();
 
-            // let derived class know we are about to draw stuff
+        // let derived class know we are about to draw stuff
 #if defined(CINDER_MSW_DESKTOP)
         if (!mName.empty())
             gl::pushDebugGroup(mName);
 #endif
         predraw();
+        signalPredraw.emit();
 
 #ifndef CINDER_LESS
         // apply transform
@@ -291,6 +292,7 @@ namespace nodes
 #endif
 
         // let derived class know we are done drawing
+        signalPostdraw.emit();
         postdraw();
 #if defined(CINDER_MSW_DESKTOP)
         if (!mName.empty())
@@ -438,5 +440,25 @@ namespace nodes
     void Node::setName(const string& name) { mName = name; }
 
     const string& Node::getName() const { return mName; }
+
+    const glm::mat4& Node::getTransform() const
+    {
+        if (mIsTransformInvalidated) transform();
+        return mTransform;
+    }
+
+    const glm::mat4& Node::getWorldTransform() const
+    {
+        if (mIsTransformInvalidated) transform();
+        return mWorldTransform;
+    }
+
+    void Node::invalidateTransform() const
+    {
+        mIsTransformInvalidated = true;
+
+        for (auto& child : mChildren)
+            child->invalidateTransform();
+    }
 
 } // namespace nodes

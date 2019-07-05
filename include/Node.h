@@ -32,7 +32,7 @@
 #include <glm/vec3.hpp>
 
 #ifndef CINDER_LESS
-// forward declarations
+ // forward declarations
 namespace cinder
 {
     class AxisAlignedBox;
@@ -40,16 +40,14 @@ namespace cinder
     {
         class MouseEvent;
         class KeyEvent;
-        class ResizeEvent;
-        class FileDropEvent;
     } // namespace app
 } // namespace cinder
 #include "cinder/gl/GlslProg.h"
+#include "cinder/Signals.h"
 #endif
 
 namespace nodes
 {
-
     typedef std::shared_ptr<class Node> NodeRef;
     typedef std::shared_ptr<const class Node> NodeConstRef;
     typedef std::weak_ptr<class Node> NodeWeakRef;
@@ -58,7 +56,7 @@ namespace nodes
 
     class Node : public std::enable_shared_from_this<Node>
     {
-      public:
+    public:
         Node(void);
         virtual ~Node(void);
 
@@ -93,12 +91,12 @@ namespace nodes
         static glm::vec3 uuidToColor(unsigned int uuid)
         {
             return glm::vec3((uuid & 0xFF) / 255.0f, ((uuid >> 8) & 0xFF) / 255.0f,
-                             ((uuid >> 16) & 0xFF) / 255.0f);
+                ((uuid >> 16) & 0xFF) / 255.0f);
         }
         static unsigned int colorToUuid(glm::vec3 color)
         {
             return colorToUuid((unsigned char)(color.r * 255), (unsigned char)(color.g * 255),
-                               (unsigned char)(color.b * 255));
+                (unsigned char)(color.b * 255));
         }
         static unsigned int colorToUuid(unsigned char r, unsigned char g, unsigned char b)
         {
@@ -166,27 +164,13 @@ namespace nodes
         virtual bool isClickable() const { return mIsClickable; }
 
         //! returns the transformation matrix of this node
-        const glm::mat4& getTransform() const
-        {
-            if (mIsTransformInvalidated) transform();
-            return mTransform;
-        }
+        const glm::mat4& getTransform() const;
         //! sets the transformation matrices of this node
         void setTransform(const glm::mat4& transform) const;
         //! returns the accumulated transformation matrix of this node
-        const glm::mat4& getWorldTransform() const
-        {
-            if (mIsTransformInvalidated) transform();
-            return mWorldTransform;
-        }
+        const glm::mat4& getWorldTransform() const;
         //!
-        void invalidateTransform() const
-        {
-            mIsTransformInvalidated = true;
-
-            for (auto& child : mChildren)
-                child->invalidateTransform();
-        }
+        void invalidateTransform() const;
 
         //!
         virtual void setSelected(bool selected = true) { mIsSelected = selected; }
@@ -249,6 +233,10 @@ namespace nodes
 
         virtual bool keyDown(ci::app::KeyEvent event);
         virtual bool keyUp(ci::app::KeyEvent event);
+
+        // signal is better than OOP, isn't it?
+        ci::signals::Signal<void()> signalPredraw;
+        ci::signals::Signal<void()> signalPostdraw;
 #endif
 
         //! calls the resize() function of this node and all its decendants until a TRUE is passed
@@ -263,7 +251,7 @@ namespace nodes
         void setName(const std::string& name);
         const std::string& getName() const;
 
-      protected:
+    protected:
         std::string mName;
 
         bool mIsVisible;
@@ -275,7 +263,7 @@ namespace nodes
         NodeWeakRef mParent;
         NodeList mChildren;
 
-      protected:
+    protected:
         virtual void setup() {}
         virtual void shutdown() {}
         virtual void update(double elapsed = 0.0) {}
@@ -289,7 +277,7 @@ namespace nodes
         //! required transform() function to populate the transform matrix
         virtual void transform() const = 0;
 
-      private:
+    private:
         bool mIsSetup;
 
         //! nodeCount is used to count the number of Node instances for debugging purposes

@@ -32,6 +32,11 @@ namespace nodes
 {
     Node3D::Node3D(void) : mScale(1), mIsConstantTransform(false) { setName("Node3D"); }
 
+    Node3DRef Node3D::create()
+    {
+        return make_shared<Node3D>();
+    }
+
     Node3D::~Node3D(void) {}
 
     void Node3D::setRotation(float radians)

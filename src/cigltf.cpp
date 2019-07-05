@@ -220,10 +220,11 @@ ModelGLTFRef ModelGLTF::create(const fs2::path& meshPath, std::string* loadingEr
         // sanitize gltf from sketchfab
         // https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#node
         CI_ASSERT_MSG(model.nodes[0].name == "RootNode (gltf orientation matrix)", model.nodes[0].name.c_str());
-        CI_ASSERT_MSG(model.nodes[1].name == "RootNode (model correction matrix)", model.nodes[1].name.c_str());
-
         model.nodes[0].rotation = { 0,0,0,1 };
-        model.nodes[2].matrix = { 1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1 };
+
+        //CI_ASSERT_MSG(model.nodes[1].name == "RootNode (model correction matrix)", model.nodes[1].name.c_str());
+        if (!model.nodes[1].matrix.empty()) model.nodes[1].matrix = { 1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1 };
+        if (!model.nodes[2].matrix.empty()) model.nodes[2].matrix = { 1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1 };
     }
 
     for (auto& item : model.buffers)
@@ -263,6 +264,8 @@ ModelGLTFRef ModelGLTF::create(const fs2::path& meshPath, std::string* loadingEr
         model.defaultScene = 0;
     ref->currentScene = ref->scenes[model.defaultScene];
 
+    ref->addChild(ref->currentScene);
+
     vec3 boxMin = { +FLT_MAX, +FLT_MAX, +FLT_MAX };
     vec3 boxMax = {-FLT_MIN, -FLT_MIN, -FLT_MIN};
     for (auto& item : model.accessors)
@@ -277,31 +280,38 @@ ModelGLTFRef ModelGLTF::create(const fs2::path& meshPath, std::string* loadingEr
         }
     }
     ref->boundingBox.set(boxMin, boxMax);
-    ref->update();
+    ref->treeUpdate();
 
     return ref;
 }
 
-void ModelGLTF::update(double elapsed)
-{
-    currentScene->treeUpdate(elapsed);
-}
+//void ModelGLTF::update(double elapsed)
+//{
+//    currentScene->treeUpdate(elapsed);
+//}
 
-void ModelGLTF::draw()
+void ModelGLTF::predraw()
 {
 #ifndef CINDER_LESS
     if (irradianceTexture && radianceTexture && brdfLUTTexture)
     {
-        gl::ScopedTextureBind scpIrr(irradianceTexture, 5);
-        gl::ScopedTextureBind scpRad(radianceTexture, 6);
-        gl::ScopedTextureBind scpBrdf(brdfLUTTexture, 7);
-
-        currentScene->treeDraw();
-        return;
+        irradianceTexture->bind(5);
+        radianceTexture->bind(6);
+        brdfLUTTexture->bind(7);
     }
 #endif
+}
 
-    currentScene->treeDraw();
+void ModelGLTF::postdraw()
+{
+#ifndef CINDER_LESS
+    if (irradianceTexture && radianceTexture && brdfLUTTexture)
+    {
+        irradianceTexture->unbind();
+        radianceTexture->unbind();
+        brdfLUTTexture->unbind();
+    }
+#endif
 }
 
 void NodeGLTF::setup()

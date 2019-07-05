@@ -36,6 +36,8 @@ namespace nodes {
         Node3D(void);
         virtual ~Node3D(void);
 
+        static Node3DRef create();
+
         // getters and setters
         virtual glm::vec3 getPosition() const { return mPosition; }
 
