@@ -246,6 +246,8 @@ struct MeloViewer : public App
                 else
                 {
                     mModelGLTF = ModelGLTF::create(path, &mLoadingError);
+                    auto box = mModelGLTF->boundingBox;
+                    mMayaCam.lookAt(box.getMax()* vec3(CAM_NEW_MESH_DISTANCE_X, CAM_NEW_MESH_DISTANCE_Y, CAM_NEW_MESH_DISTANCE_Z), box.getCenter());
                 }
 
                 if (!mModelObj && !mVboMesh && !mModelGLTF)
