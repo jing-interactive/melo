@@ -110,10 +110,8 @@ struct MeloViewer : public App
 
         texFont = FontHelper::createTextureFont("Helvetica", 24);
 
+        mMeshFilenames = listGlTFFiles();
         parseArgs();
-
-        if (!mSnapshotMode)
-            mMeshFilenames = listGlTFFiles();
 
 #ifndef CINDER_COCOA_TOUCH
         mParams = createConfigUI({ 400, 500 });
@@ -159,15 +157,16 @@ struct MeloViewer : public App
             {
                 if (fs::is_directory(filePath)) continue;
                 if (!filePath.has_extension()) continue;
+                auto ext = filePath.extension().string().substr(1, 3);
 
-                if (filePath.extension() == ".obj" || filePath.extension() == ".gltf" || filePath.extension() == ".glb")
+                if (ext == "obj" || ext == "gltf" || ext == "glb")
                 {
                     mMeshFilenames.emplace_back(filePath.string());
                     MESH_FILE_ID = mMeshFilenames.size() - 1;
                     break;
                 }
 
-                bool isImageType = std::find(imageExts.begin(), imageExts.end(), filePath.extension()) != imageExts.end();
+                bool isImageType = std::find(imageExts.begin(), imageExts.end(), ext) != imageExts.end();
                 if (isImageType)
                 {
                     TEX0_NAME = filePath.string();
@@ -295,9 +294,9 @@ struct MeloViewer : public App
             else
                 gl::setMatrices(mMayaCam);
             if (mSnapshotMode)
-                gl::clear(ColorA::gray(0, 0.0f));
+                gl::clear(ColorA::gray(0.0f, 0.0f));
             else
-                gl::clear(Color::gray(0.2f));
+                gl::clear(ColorA::gray(0.2f, 1.0f));
 
 
             mParams->show(GUI_VISIBLE);
@@ -395,6 +394,7 @@ struct MeloViewer : public App
                 // MeloViewer.exe file.obj snapshot.png
                 mSnapshotMode = true;
                 GUI_VISIBLE = false;
+                WIRE_FRAME = false;
                 mOutputFilename = args[2];
 
                 if (args.size() > 3)
