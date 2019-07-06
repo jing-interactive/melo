@@ -4,13 +4,11 @@
 #include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
 #include "cinder/ObjLoader.h"
-
+#include "cinder/params/Params.h"
+#include "cinder/ip/Flip.h"
 #include "AssetManager.h"
 #include "MiniConfig.h"
 #include "FontHelper.h"
-
-#include "cinder/Arcball.h"
-#include "cinder/params/Params.h"
 
 #include "melo.h"
 #include "FirstPersonCamera.h"
@@ -29,13 +27,25 @@ namespace cinder {
 }
 #endif
 
+Surface copyWindowSurfaceWithAlpha() {
+    Area area = getWindowBounds();
+    Surface s(area.getWidth(), area.getHeight(), true);
+    glFlush();
+    GLint oldPackAlignment;
+    glGetIntegerv(GL_PACK_ALIGNMENT, &oldPackAlignment);
+    glPixelStorei(GL_PACK_ALIGNMENT, 1);
+    glReadPixels(area.x1, getWindowHeight() - area.y2, area.getWidth(), area.getHeight(), GL_RGBA, GL_UNSIGNED_BYTE, s.getData());
+    glPixelStorei(GL_PACK_ALIGNMENT, oldPackAlignment);
+    ip::flipVertical(&s);
+    return s;
+}
+
 struct MeloViewer : public App
 {
     CameraPersp mMayaCam;
     CameraUi mMayaCamUi;
     Camera* mCurrentCam = nullptr;
     bool mIsFpsCamera = false;
-    Arcball mArcball;
     quat mMeshRotation;
 
     // args
@@ -284,7 +294,11 @@ struct MeloViewer : public App
                 gl::setMatrices(mFpsCam);
             else
                 gl::setMatrices(mMayaCam);
-            gl::clear(Color::gray(0.2f));
+            if (mSnapshotMode)
+                gl::clear(ColorA::gray(0, 0.0f));
+            else
+                gl::clear(Color::gray(0.2f));
+
 
             mParams->show(GUI_VISIBLE);
 
@@ -359,7 +373,7 @@ struct MeloViewer : public App
 
             if (mSnapshotMode)
             {
-                auto windowSurf = copyWindowSurface();
+                auto windowSurf = copyWindowSurfaceWithAlpha();
                 fs::path writePath = mOutputFilename;
                 writeImage(writePath, windowSurf);
                 quit();
