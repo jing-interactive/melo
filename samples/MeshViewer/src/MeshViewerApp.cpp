@@ -134,6 +134,8 @@ struct MeloViewer : public App
             });
 
         getWindow()->getSignalKeyUp().connect([&](KeyEvent& event) {
+            if (mSnapshotMode) return;
+
             auto code = event.getCode();
             if (code == KeyEvent::KEY_ESCAPE)
                 quit();
