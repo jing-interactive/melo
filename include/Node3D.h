@@ -24,7 +24,6 @@
 
 #include "Node.h"
 #include <glm/gtc/quaternion.hpp>
-#include "Cinder/AxisAlignedBox.h"
 
 namespace nodes {
 
@@ -74,7 +73,8 @@ namespace nodes {
         // stream support
         virtual inline std::string toString() const { return "Node3D"; }
 
-        ci::AxisAlignedBox boundingBox;
+        glm::vec3 mBoundBoxMin, mBoundBoxMax;
+
     protected:
         glm::vec3 mPosition;
         glm::quat mRotation;

@@ -219,7 +219,9 @@ ModelGLTFRef ModelGLTF::create(const fs2::path& meshPath, std::string* loadingEr
     {
         // sanitize gltf from sketchfab
         // https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#node
+#ifndef CINDER_LESS
         CI_ASSERT_MSG(model.nodes[0].name == "RootNode (gltf orientation matrix)", model.nodes[0].name.c_str());
+#endif
         model.nodes[0].rotation = { 0,0,0,1 };
 
         //CI_ASSERT_MSG(model.nodes[1].name == "RootNode (model correction matrix)", model.nodes[1].name.c_str());
@@ -266,8 +268,8 @@ ModelGLTFRef ModelGLTF::create(const fs2::path& meshPath, std::string* loadingEr
 
     ref->addChild(ref->currentScene);
 
-    vec3 boxMin = { +FLT_MAX, +FLT_MAX, +FLT_MAX };
-    vec3 boxMax = {-FLT_MIN, -FLT_MIN, -FLT_MIN};
+    glm::vec3 boxMin = { +FLT_MAX, +FLT_MAX, +FLT_MAX };
+    glm::vec3 boxMax = {-FLT_MIN, -FLT_MIN, -FLT_MIN};
     for (auto& item : model.accessors)
     {
         if (item.type == TINYGLTF_TYPE_VEC3 && !item.minValues.empty())
@@ -279,7 +281,8 @@ ModelGLTFRef ModelGLTF::create(const fs2::path& meshPath, std::string* loadingEr
             }
         }
     }
-    ref->boundingBox.set(boxMin, boxMax);
+    ref->mBoundBoxMin = boxMin;
+    ref->mBoundBoxMax = boxMax;
     ref->treeUpdate();
 
     return ref;

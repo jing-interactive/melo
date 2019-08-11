@@ -271,9 +271,9 @@ namespace nodes
             gl::pushDebugGroup(mName);
 #endif
         predraw();
-        signalPredraw.emit();
 
 #ifndef CINDER_LESS
+        signalPredraw.emit();
         // apply transform
         gl::pushModelView();
 
@@ -289,10 +289,11 @@ namespace nodes
 
         // restore transform
         gl::popModelView();
-#endif
 
         // let derived class know we are done drawing
         signalPostdraw.emit();
+#endif
+
         postdraw();
 #if defined(CINDER_MSW_DESKTOP)
         if (!mName.empty())

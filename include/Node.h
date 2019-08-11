@@ -71,17 +71,6 @@ namespace nodes
         {
             return std::dynamic_pointer_cast<T>(mParent.lock());
         }
-        //! returns a node higher up in the hierarchy of the desired type, if any
-        template <class T> std::shared_ptr<T> getTreeParent() const
-        {
-            std::shared_ptr<T> node = std::dynamic_pointer_cast<T>(mParent.lock());
-            if (node)
-                return node;
-            else if (mParent.lock())
-                return mParent.lock()->getTreeParent<T>();
-            else
-                return node;
-        }
 
         // functions to get the Node's unique identifier and to quickly find a Node with a specific
         // uuid
@@ -102,8 +91,6 @@ namespace nodes
         {
             return r + (g << 8) + (b << 16);
         }
-
-        static NodeRef findNode(unsigned int uuid) { return uuidLookup[uuid].lock(); }
 
         // parent functions
         //! returns wether this node has a specific child
@@ -158,11 +145,6 @@ namespace nodes
             return mIsVisible;
         }
 
-        //!
-        virtual void setClickable(bool clickable = true) { mIsClickable = clickable; }
-        //! returns wether this node is clickable
-        virtual bool isClickable() const { return mIsClickable; }
-
         //! returns the transformation matrix of this node
         const glm::mat4& getTransform() const;
         //! sets the transformation matrices of this node
@@ -171,24 +153,6 @@ namespace nodes
         const glm::mat4& getWorldTransform() const;
         //!
         void invalidateTransform() const;
-
-        //!
-        virtual void setSelected(bool selected = true) { mIsSelected = selected; }
-        //! returns wether this node is selected
-        virtual bool isSelected() const { return mIsSelected; }
-
-        //! signal parent that this node has been clicked or activated
-        virtual void selectChild(NodeRef node)
-        {
-            for (auto& child : mChildren)
-                child->setSelected(child == node);
-        }
-        //! signal parent that this node has been released or deactivated
-        virtual void deselectChild(NodeRef node)
-        {
-            for (auto& child : mChildren)
-                child->setSelected(false);
-        }
 
         // tree parse functions
         void treeVisitor(std::function<void(NodeRef)> visitor);
@@ -255,8 +219,7 @@ namespace nodes
         std::string mName;
 
         bool mIsVisible;
-        bool mIsClickable;
-        bool mIsSelected;
+
 
         const unsigned int mUuid;
 

@@ -32,6 +32,7 @@ namespace cinder {
     }
     typedef std::shared_ptr<class TriMesh>		TriMeshRef;
 }
+
 namespace nodes
 {
     using namespace ci;
@@ -44,10 +45,7 @@ namespace nodes
         gl::GlslProgRef shader;
         float mMeters;
 
-        static Ref create(float meters = 10.0f)
-        {
-            return std::make_shared<GridNode>(meters);
-        }
+        static Ref create(float meters = 10.0f);
 
         GridNode(float meters = 10.0f);
 
@@ -63,10 +61,7 @@ namespace nodes
         gl::VboMeshRef vboMesh;
         gl::GlslProgRef shader;
 
-        static Ref create(TriMeshRef triMesh)
-        {
-            return std::make_shared<BuiltinMeshNode>(triMesh);
-        }
+        static Ref create(TriMeshRef triMesh);
 
         static Ref create(const geom::Source& source);
         BuiltinMeshNode(TriMeshRef triMesh);

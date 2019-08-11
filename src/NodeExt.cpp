@@ -6,6 +6,11 @@
 using namespace std;
 using namespace nodes;
 
+GridNode::Ref GridNode::create(float meters)
+{
+    return std::make_shared<GridNode>(meters);
+}
+
 GridNode::GridNode(float meters) : mMeters(meters)
 {
     vertBatch = gl::VertBatch::create(GL_LINES);
@@ -35,6 +40,11 @@ void GridNode::draw()
     gl::ScopedGlslProg glsl(shader);
     vertBatch->draw();
     gl::drawCoordinateFrame(mMeters * 0.1f, mMeters * 0.01f, mMeters * 0.001f);
+}
+
+BuiltinMeshNode::Ref BuiltinMeshNode::create(TriMeshRef triMesh)
+{
+    return std::make_shared<BuiltinMeshNode>(triMesh);
 }
 
 BuiltinMeshNode::BuiltinMeshNode(TriMeshRef triMesh)
