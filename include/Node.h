@@ -27,6 +27,7 @@
 #include <memory>
 #include <vector>
 #include <functional>
+#include <string>
 
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
@@ -52,7 +53,6 @@ namespace nodes
     typedef std::shared_ptr<const class Node> NodeConstRef;
     typedef std::weak_ptr<class Node> NodeWeakRef;
     typedef std::vector<NodeRef> NodeList;
-    typedef std::map<unsigned int, NodeWeakRef> NodeMap;
 
     class Node : public std::enable_shared_from_this<Node>
     {
@@ -70,26 +70,6 @@ namespace nodes
         template <class T> std::shared_ptr<T> getParent() const
         {
             return std::dynamic_pointer_cast<T>(mParent.lock());
-        }
-
-        // functions to get the Node's unique identifier and to quickly find a Node with a specific
-        // uuid
-        unsigned int getUuid() const { return mUuid; }
-        glm::vec3 getUuidColor() const { return uuidToColor(mUuid); }
-
-        static glm::vec3 uuidToColor(unsigned int uuid)
-        {
-            return glm::vec3((uuid & 0xFF) / 255.0f, ((uuid >> 8) & 0xFF) / 255.0f,
-                ((uuid >> 16) & 0xFF) / 255.0f);
-        }
-        static unsigned int colorToUuid(glm::vec3 color)
-        {
-            return colorToUuid((unsigned char)(color.r * 255), (unsigned char)(color.g * 255),
-                (unsigned char)(color.b * 255));
-        }
-        static unsigned int colorToUuid(unsigned char r, unsigned char g, unsigned char b)
-        {
-            return r + (g << 8) + (b << 16);
         }
 
         // parent functions
@@ -119,9 +99,6 @@ namespace nodes
             }
             return result;
         }
-
-        //!
-        NodeRef findChild(unsigned int uuid);
 
         // child functions
         //! removes this node from its parent
@@ -220,9 +197,6 @@ namespace nodes
 
         bool mIsVisible;
 
-
-        const unsigned int mUuid;
-
         NodeWeakRef mParent;
         NodeList mChildren;
 
@@ -245,10 +219,6 @@ namespace nodes
 
         //! nodeCount is used to count the number of Node instances for debugging purposes
         static int nodeCount;
-        //! uuidCount is used to generate new unique id's
-        static unsigned int uuidCount;
-        //! uuidLookup allows us to quickly find a Node by id
-        static NodeMap uuidLookup;
 
         mutable bool mIsTransformInvalidated;
         mutable glm::mat4 mTransform;

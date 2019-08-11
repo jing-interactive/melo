@@ -78,7 +78,8 @@ MeshObj::Ref MeshObj::create(ModelObjRef modelObj, const tinyobj::shape_t& prope
         triMesh.recalculateNormals();
     }
     triMesh.recalculateTangents();
-    ref->boundingBox = triMesh.calcBoundingBox();
+    ref->mBoundBoxMin = triMesh.calcBoundingBox().getMin();
+    ref->mBoundBoxMax = triMesh.calcBoundingBox().getMax();
 
     ref->vboMesh = gl::VboMesh::create(triMesh);
     int mtrl = property.mesh.material_ids[0];
@@ -241,7 +242,8 @@ ModelObjRef ModelObj::create(const fs::path& meshPath, std::string* loadingError
     for (auto& item : shapes)
     {
         auto mesh = MeshObj::create(ref, item);
-        ref->boundingBox = mesh->boundingBox; // TODO: support union of allboxes
+        ref->mBoundBoxMin = mesh->mBoundBoxMin; // TODO: support union of allboxes
+        ref->mBoundBoxMax = mesh->mBoundBoxMax; // TODO: support union of allboxes
         ref->addChild(mesh);
     }
 

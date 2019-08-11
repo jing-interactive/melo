@@ -36,16 +36,13 @@ namespace nodes
 {
 
     int Node::nodeCount = 0;
-    unsigned int Node::uuidCount = 1;
-    NodeMap Node::uuidLookup;
 
     Node::Node(void)
-        : mUuid(uuidCount), mIsVisible(true), mIsClickable(true), mIsSelected(false),
+        : mIsVisible(true),
         mIsSetup(false), mIsTransformInvalidated(true)
     {
         // default constructor for [Node]
         nodeCount++;
-        uuidCount++;
     }
 
     Node::~Node(void)
@@ -55,9 +52,6 @@ namespace nodes
 
         //
         nodeCount--;
-
-        // remove from lookup table
-        uuidLookup.erase(mUuid);
     }
 
     void Node::removeFromParent()
@@ -81,10 +75,6 @@ namespace nodes
 
             // set parent
             node->setParent(shared_from_this());
-
-            // store nodes in lookup table if not done yet
-            uuidLookup[mUuid] = NodeWeakRef(shared_from_this());
-            uuidLookup[node->mUuid] = NodeWeakRef(node);
         }
     }
 
@@ -193,22 +183,6 @@ namespace nodes
 
         // add to start of list
         mChildren.insert(mChildren.begin(), node);
-    }
-
-    NodeRef Node::findChild(unsigned int uuid)
-    {
-        if (mUuid == uuid)
-            return shared_from_this();
-
-        NodeRef node;
-        for (auto& child : mChildren)
-        {
-            node = child->findChild(uuid);
-            if (node)
-                return node;
-        }
-
-        return node;
     }
 
     void Node::treeVisitor(std::function<void(NodeRef)> visitor)

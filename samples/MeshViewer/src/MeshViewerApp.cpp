@@ -10,7 +10,9 @@
 #include "MiniConfig.h"
 #include "FontHelper.h"
 
-#include "melo.h"
+#include "cigltf.h"
+#include "ciobj.h"
+#include "NodeExt.h"
 #include "FirstPersonCamera.h"
 
 using namespace ci;
@@ -211,7 +213,7 @@ struct MeloViewer : public App
                     else
                     {
                         mModelObj = ModelObj::create(path, &mLoadingError);
-                        auto box = mModelObj->boundingBox;
+                        auto box = ci::AxisAlignedBox(mModelGLTF->mBoundBoxMin, mModelGLTF->mBoundBoxMax);
                         if (true || mSnapshotMode)
                             // TODO: ugly
                             mMayaCam.lookAt(box.getMax() * vec3(CAM_NEW_MESH_DISTANCE_X, CAM_NEW_MESH_DISTANCE_Y, CAM_NEW_MESH_DISTANCE_Z), box.getCenter());
@@ -229,7 +231,7 @@ struct MeloViewer : public App
                     }
 
                     mModelGLTF = ModelGLTF::create(path, &mLoadingError);
-                    auto box = mModelGLTF->boundingBox;
+                    auto box = ci::AxisAlignedBox(mModelGLTF->mBoundBoxMin, mModelGLTF->mBoundBoxMax);
                     if (true || mSnapshotMode)
                         // TODO: ugly*2
                         mMayaCam.lookAt(box.getMax() * vec3(CAM_NEW_MESH_DISTANCE_X, CAM_NEW_MESH_DISTANCE_Y, CAM_NEW_MESH_DISTANCE_Z), box.getCenter());
