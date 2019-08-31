@@ -126,7 +126,7 @@ bool NodeRectangle::mouseMove(MouseEvent event)
     glm::vec2 pt = screenToObject(event.getPos());
 
     // select node if mouse is inside
-    setSelected(getBounds().contains(pt));
+    mIsSelected = getBounds().contains(pt);
 
     if (mIsSelected)
     {

@@ -86,6 +86,9 @@ public:
 protected:
     TouchMode		mTouchMode;
 
+    bool mIsClickable;
+    bool mIsSelected;
+
 	ci::vec2 mInitialPosition;
 	ci::quat mInitialRotation;
 	ci::vec2 mInitialScale;
