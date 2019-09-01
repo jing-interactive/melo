@@ -161,9 +161,9 @@ struct MeloViewer : public App
             {
                 if (fs::is_directory(filePath)) continue;
                 if (!filePath.has_extension()) continue;
-                auto ext = filePath.extension().string().substr(1, 3);
+                auto ext = filePath.extension();
 
-                if (ext == "obj" || ext == "gltf" || ext == "glb")
+                if (ext == ".obj" || ext == ".gltf" || ext == ".glb")
                 {
                     mMeshFilenames.emplace_back(filePath.string());
                     MESH_FILE_ID = mMeshFilenames.size() - 1;

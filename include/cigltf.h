@@ -4,7 +4,6 @@
 #include <filesystem>
 namespace fs2 = std::experimental::filesystem;
 #else
-#define TINYGLTF_NO_STB_IMAGE
 #include <cinder/Filesystem.h>
 #include <cinder/gl/gl.h>
 namespace fs2 = ci::fs;
@@ -13,9 +12,6 @@ namespace fs2 = ci::fs;
 #include <memory>
 #include <vector>
 
-#ifndef TINYGLTF_NO_STB_IMAGE_WRITE
-#define TINYGLTF_NO_STB_IMAGE_WRITE
-#endif
 #include "../3rdparty/tinygltf/tiny_gltf.h"
 
 #include "Node3D.h"

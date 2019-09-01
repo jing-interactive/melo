@@ -412,14 +412,13 @@ ImageGLTF::Ref ImageGLTF::create(ModelGLTFRef modelGLTF, const tinygltf::Image& 
     ImageGLTF::Ref ref = make_shared<ImageGLTF>();
     ref->property = property;
 #ifndef CINDER_LESS
-#if 1
-    ref->surface = am::surface((modelGLTF->meshPath.parent_path() / property.uri).string());
-#else
-    ref->surface = Surface::create((uint8_t*)property.image.data(), property.width, property.height,
+    if (property.image.empty())
+        ref->surface = am::surface((modelGLTF->meshPath.parent_path() / property.uri).string());
+    else
+        ref->surface = Surface::create((uint8_t*)property.image.data(), property.width, property.height,
                                    property.width * property.component,
                                    (property.component == 4) ? SurfaceChannelOrder::RGBA
                                                              : SurfaceChannelOrder::RGB);
-#endif
 #endif
     return ref;
 }
