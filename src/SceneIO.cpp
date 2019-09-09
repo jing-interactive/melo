@@ -18,6 +18,10 @@ void addNode(Node3DRef node, int& nodeidx, tinygltf::Model& gltfmodel, tinygltf:
     gltfnode.name = node->getName();
     auto ptr = glm::value_ptr(node->getTransform());
     gltfnode.matrix = { ptr, ptr + 16 };
+
+    tinygltf::Value::Object attributes;
+    attributes["visible"] = tinygltf::Value(node->isVisible());
+    gltfnode.extras = tinygltf::Value(attributes);
     gltfmodel.nodes.emplace_back(gltfnode);
     int idx = nodeidx;
 

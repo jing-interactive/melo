@@ -74,6 +74,7 @@ namespace nodes {
         virtual inline std::string toString() const { return "Node3D"; }
 
         glm::vec3 mBoundBoxMin, mBoundBoxMax;
+        glm::vec3 cameraPosition = { 1,1,1 };
 
     protected:
         glm::vec3 mPosition;

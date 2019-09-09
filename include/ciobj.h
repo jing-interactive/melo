@@ -41,8 +41,26 @@ struct MeshObj : public nodes::Node3D
 {
     typedef std::shared_ptr<MeshObj> Ref;
     tinyobj::shape_t property;
-    gl::VboMeshRef vboMesh;
-    MaterialObj::Ref material;
+    
+    struct SubMesh
+    {
+        // very stupid design of OBJ spec...
+        gl::VboMeshRef vboMesh;
+        MaterialObj::Ref material;
+        glm::vec3 boundBoxMin, boundBoxMax;
+
+        // these are scratch data, keep them here for easier life...
+        std::vector<glm::vec3> positions;
+        std::vector<glm::vec3> normals;
+        std::vector<glm::vec2> texcoords;
+        std::vector<Color> colors;
+        std::vector<uint32_t> indexArray;
+
+        void setup();
+        void draw();
+    };
+
+    std::unordered_map<int, SubMesh> submeshes;
 
     static Ref create(ModelObjRef modelObj, const tinyobj::shape_t& property);
 
@@ -57,7 +75,6 @@ struct ModelObj : public MeshObj
     fs::path baseDir;
 
     bool flipV = true;
-    vec3 cameraPosition;
 
     std::vector<MaterialObj::Ref> materials;
     tinyobj::attrib_t attrib;

@@ -17,54 +17,77 @@ MeshObj::Ref MeshObj::create(ModelObjRef modelObj, const tinyobj::shape_t& prope
     CI_ASSERT_MSG(property.lines.indices.empty(), "TODO: support line");
     CI_ASSERT_MSG(property.points.indices.empty(), "TODO: support points");
     const auto& indices = property.mesh.indices;
-    vector<vec3> positions;
-    vector<vec3> normals;
-    vector<vec2> texcoords;
-    vector<Color> colors;
-    vector<uint32_t> indexArray;
+    CI_ASSERT_MSG(property.mesh.num_face_vertices.size() == property.mesh.material_ids.size(), "indices.size() is not equal to material_ids.size()");
+    CI_ASSERT(!attrib.vertices.empty());
 
     int i = 0;
+    int prevMtrl = -1;
+    SubMesh* pSubMesh = nullptr;
     for (const auto& index : indices)
     {
+        int mtrl = property.mesh.material_ids[i/3];
+        if (mtrl == -1) mtrl = 0;
+        if (mtrl != prevMtrl)
+        {
+            prevMtrl = mtrl;
+            if (ref->submeshes.find(mtrl) == ref->submeshes.end())
+            {
+                ref->submeshes[mtrl] = {};
+                ref->submeshes[mtrl].material = modelObj->materials[mtrl];
+            }
+            pSubMesh = &ref->submeshes[mtrl];
+        }
+
+        pSubMesh->indexArray.push_back(pSubMesh->positions.size());
+
         if (!attrib.vertices.empty())
         {
-            positions.push_back({ attrib.vertices[3 * index.vertex_index + 0],
+            pSubMesh->positions.push_back({ attrib.vertices[3 * index.vertex_index + 0],
                 attrib.vertices[3 * index.vertex_index + 1],
                 attrib.vertices[3 * index.vertex_index + 2]
             });
         }
         if (index.normal_index >= 0 && !attrib.normals.empty())
         {
-            normals.push_back({ attrib.normals[3 * index.normal_index + 0],
+            pSubMesh->normals.push_back({ attrib.normals[3 * index.normal_index + 0],
                 attrib.normals[3 * index.normal_index + 1],
                 attrib.normals[3 * index.normal_index + 2]
             });
         }
         if (index.texcoord_index >=0 && !attrib.texcoords.empty())
         {
-            texcoords.push_back({ attrib.texcoords[2 * index.texcoord_index + 0],
+            pSubMesh->texcoords.push_back({ attrib.texcoords[2 * index.texcoord_index + 0],
                 attrib.texcoords[2 * index.texcoord_index + 1]
             });
         }
         if (!attrib.colors.empty())
         {
-            colors.push_back({ attrib.colors[3 * index.vertex_index + 0],
+            pSubMesh->colors.push_back({ attrib.colors[3 * index.vertex_index + 0],
                 attrib.colors[3 * index.vertex_index + 1],
                 attrib.colors[3 * index.vertex_index + 2]
             });
         }
-        indexArray.push_back(i);
         i++;
     }
 
+    for (auto& kv : ref->submeshes)
+    {
+        auto& submesh = kv.second;
+        submesh.setup();
+    }
+
+    return ref;
+}
+
+void MeshObj::SubMesh::setup()
+{
     TriMesh::Format fmt;
     fmt.positions();
     fmt.normals();
-    if (!attrib.texcoords.empty()) fmt.texCoords();
-    if (!attrib.colors.empty()) fmt.colors();
+    if (!texcoords.empty()) fmt.texCoords();
+    if (!colors.empty()) fmt.colors();
     TriMesh triMesh(fmt);
 
-    CI_ASSERT(!attrib.vertices.empty());
     triMesh.appendPositions(positions.data(), positions.size());
     if (!normals.empty())
         triMesh.appendNormals(normals.data(), normals.size());
@@ -78,24 +101,31 @@ MeshObj::Ref MeshObj::create(ModelObjRef modelObj, const tinyobj::shape_t& prope
         triMesh.recalculateNormals();
     }
     triMesh.recalculateTangents();
-    ref->mBoundBoxMin = triMesh.calcBoundingBox().getMin();
-    ref->mBoundBoxMax = triMesh.calcBoundingBox().getMax();
+    boundBoxMin = triMesh.calcBoundingBox().getMin();
+    boundBoxMax = triMesh.calcBoundingBox().getMax();
 
-    ref->vboMesh = gl::VboMesh::create(triMesh);
-    int mtrl = property.mesh.material_ids[0];
-    if (mtrl == -1) mtrl = 0;
-    ref->material = modelObj->materials[mtrl];
+    positions.clear();
+    texcoords.clear();
+    colors.clear();
+    normals.clear();
+    indexArray.clear();
 
-    return ref;
+    vboMesh = gl::VboMesh::create(triMesh);
+}
+
+void MeshObj::SubMesh::draw()
+{
+    material->preDraw();
+    gl::draw(vboMesh);
+    material->postDraw();
 }
 
 void MeshObj::draw()
 {
-    if (!vboMesh) return;
-
-    material->preDraw();
-    gl::draw(vboMesh);
-    material->postDraw();
+    for (auto& kv : submeshes)
+    {
+        kv.second.draw();
+    }
 }
 
 void MaterialObj::preDraw()
@@ -203,6 +233,7 @@ ModelObjRef ModelObj::create(const fs::path& meshPath, std::string* loadingError
 
     auto ref = make_shared<ModelObj>();
     ref->meshPath = meshPath;
+    ref->setName(meshPath.string());
     ref->baseDir = meshPath.parent_path().string();
 
     std::vector<tinyobj::shape_t> shapes;

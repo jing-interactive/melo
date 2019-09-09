@@ -142,50 +142,6 @@ namespace nodes
         //! calls the draw() function of this node and all its decendants
         void treeDraw();
 
-#ifndef CINDER_LESS
-        // supported events
-        //! calls the mouseMove() function of this node and all its decendants until a TRUE is
-        //! passed back
-        bool treeMouseMove(ci::app::MouseEvent event);
-        //! calls the mouseDown() function of this node and all its decendants until a TRUE is
-        //! passed back
-        bool treeMouseDown(ci::app::MouseEvent event);
-        //! calls the mouseDrag() function of this node and all its decendants until a TRUE is
-        //! passed back
-        bool treeMouseDrag(ci::app::MouseEvent event);
-        //! calls the mouseUp() function of this node and all its decendants until a TRUE is passed
-        //! back
-        bool treeMouseUp(ci::app::MouseEvent event);
-
-        virtual bool mouseMove(ci::app::MouseEvent event);
-        virtual bool mouseDown(ci::app::MouseEvent event);
-        virtual bool mouseDrag(ci::app::MouseEvent event);
-        virtual bool mouseUp(ci::app::MouseEvent event);
-
-        // support for easy picking system
-        virtual bool mouseUpOutside(ci::app::MouseEvent event);
-
-        //! calls the keyDown() function of this node and all its decendants until a TRUE is passed
-        //! back
-        bool treeKeyDown(ci::app::KeyEvent event);
-        //! calls the keyUp() function of this node and all its decendants until a TRUE is passed
-        //! back
-        bool treeKeyUp(ci::app::KeyEvent event);
-
-        virtual bool keyDown(ci::app::KeyEvent event);
-        virtual bool keyUp(ci::app::KeyEvent event);
-
-        // signal is better than OOP, isn't it?
-        ci::signals::Signal<void()> signalPredraw;
-        ci::signals::Signal<void()> signalPostdraw;
-#endif
-
-        //! calls the resize() function of this node and all its decendants until a TRUE is passed
-        //! back
-        bool treeResize();
-
-        virtual bool resize();
-
         // stream support
         virtual inline std::string toString() const { return "Node"; }
 

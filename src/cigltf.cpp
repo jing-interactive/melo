@@ -626,16 +626,6 @@ void MaterialGLTF::predraw()
     ciShader->uniform("u_flipV", modelGLTF->flipV);
     ciShader->uniform("u_Camera", modelGLTF->cameraPosition);
 
-    ciShader->uniform("u_SpecularGlossinessValues", vec4(specularFactor, glossinessFactor));
-    ciShader->uniform("u_DiffuseFactor", diffuseFactor);
-
-    ciShader->uniform("u_MetallicRoughnessValues", vec2(metallicFactor, roughnessFactor));
-    ciShader->uniform("u_BaseColorFactor", baseColorFacor);
-
-    ciShader->uniform("u_NormalScale", normalTextureScale);
-    ciShader->uniform("u_EmissiveFactor", emissiveFactor);
-    ciShader->uniform("u_OcclusionStrength", occlusionStrength);
-
     auto ctx = gl::context();
     if (doubleSided)
     {
@@ -906,7 +896,11 @@ PrimitiveGLTF::Ref PrimitiveGLTF::create(ModelGLTFRef modelGLTF,
 
     if (!material->ciShader)
     {
+#if 1
         material->ciShader = gl::GlslProg::create(material->ciShaderFormat);
+#else
+        material->ciShader = am::glslProg("lambert texture");
+#endif
         auto& ciShader = material->ciShader;
         CI_ASSERT(ciShader && "Shader compile fails");
 
@@ -943,6 +937,16 @@ PrimitiveGLTF::Ref PrimitiveGLTF::create(ModelGLTFRef modelGLTF,
             ciShader->uniform("u_SpecularEnvSampler", 6);
             ciShader->uniform("u_brdfLUT", 7);
         }
+
+        ciShader->uniform("u_SpecularGlossinessValues", vec4(material->specularFactor, material->glossinessFactor));
+        ciShader->uniform("u_DiffuseFactor", material->diffuseFactor);
+
+        ciShader->uniform("u_MetallicRoughnessValues", vec2(material->metallicFactor, material->roughnessFactor));
+        ciShader->uniform("u_BaseColorFactor", material->baseColorFacor);
+
+        ciShader->uniform("u_NormalScale", material->normalTextureScale);
+        ciShader->uniform("u_EmissiveFactor", material->emissiveFactor);
+        ciShader->uniform("u_OcclusionStrength", material->occlusionStrength);
     }
 
 #endif

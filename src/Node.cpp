@@ -247,7 +247,6 @@ namespace nodes
         predraw();
 
 #ifndef CINDER_LESS
-        signalPredraw.emit();
         // apply transform
         gl::pushModelView();
 
@@ -263,9 +262,6 @@ namespace nodes
 
         // restore transform
         gl::popModelView();
-
-        // let derived class know we are done drawing
-        signalPostdraw.emit();
 #endif
 
         postdraw();
@@ -274,143 +270,6 @@ namespace nodes
             gl::popDebugGroup();
 #endif
     }
-
-#ifndef CINDER_LESS
-
-    // Note: the scene graph implementation is currently not fast enough to support mouseMove events
-    //  when there are more than a few nodes.
-    bool Node::treeMouseMove(MouseEvent event)
-    {
-        if (!mIsVisible)
-            return false;
-
-        // test children first, from top to bottom
-        bool handled = false;
-        for (auto itr = mChildren.rbegin(); itr != mChildren.rend() && !handled; ++itr)
-            handled = (*itr)->treeMouseMove(event);
-
-        // if not handled, test this node
-        if (!handled)
-            handled = mouseMove(event);
-
-        return handled;
-    } //*/
-
-    bool Node::treeMouseDown(MouseEvent event)
-    {
-        if (!mIsVisible)
-            return false;
-
-        // test children first, from top to bottom
-        bool handled = false;
-        for (auto itr = mChildren.rbegin(); itr != mChildren.rend() && !handled; ++itr)
-            handled = (*itr)->treeMouseDown(event);
-
-        // if not handled, test this node
-        if (!handled)
-            handled = mouseDown(event);
-
-        return handled;
-    }
-
-    bool Node::treeMouseDrag(MouseEvent event)
-    {
-        if (!mIsVisible)
-            return false;
-
-        // test children first, from top to bottom
-        bool handled = false;
-        for (auto itr = mChildren.rbegin(); itr != mChildren.rend() && !handled; ++itr)
-            handled = (*itr)->treeMouseDrag(event);
-
-        // if not handled, test this node
-        if (!handled)
-            handled = mouseDrag(event);
-
-        return handled;
-    }
-
-    bool Node::treeMouseUp(MouseEvent event)
-    {
-        if (!mIsVisible)
-            return false;
-
-        // test children first, from top to bottom
-        bool handled = false;
-        for (auto itr = mChildren.rbegin(); itr != mChildren.rend() && !handled; ++itr)
-            (*itr)->treeMouseUp(event); // don't care about 'handled' for now
-
-        // if not handled, test this node
-        if (!handled)
-            handled = mouseUp(event);
-
-        return handled;
-    }
-
-    bool Node::mouseMove(MouseEvent event) { return false; }
-
-    bool Node::mouseDown(MouseEvent event) { return false; }
-
-    bool Node::mouseDrag(MouseEvent event) { return false; }
-
-    bool Node::mouseUp(MouseEvent event) { return false; }
-
-    bool Node::mouseUpOutside(MouseEvent event) { return false; }
-
-    bool Node::treeKeyDown(KeyEvent event)
-    {
-        if (!mIsVisible)
-            return false;
-
-        // test children first, from top to bottom
-        bool handled = false;
-        for (auto itr = mChildren.rbegin(); itr != mChildren.rend() && !handled; ++itr)
-            handled = (*itr)->treeKeyDown(event);
-
-        // if not handled, test this node
-        if (!handled)
-            handled = keyDown(event);
-
-        return handled;
-    }
-
-    bool Node::treeKeyUp(KeyEvent event)
-    {
-        if (!mIsVisible)
-            return false;
-
-        // test children first, from top to bottom
-        bool handled = false;
-        for (auto itr = mChildren.rbegin(); itr != mChildren.rend() && !handled; ++itr)
-            handled = (*itr)->treeKeyUp(event);
-
-        // if not handled, test this node
-        if (!handled)
-            handled = keyUp(event);
-
-        return handled;
-    }
-
-    bool Node::keyDown(KeyEvent event) { return false; }
-
-    bool Node::keyUp(KeyEvent event) { return false; }
-#endif
-
-    bool Node::treeResize()
-    {
-        // test children first, from top to bottom
-        bool handled = false;
-        for (auto itr = mChildren.rbegin(); itr != mChildren.rend() && !handled; ++itr)
-            handled = (*itr)->treeResize();
-
-        // if not handled, test this node
-        if (!handled)
-            handled = resize();
-
-        return handled;
-    }
-
-    bool Node::resize() { return false; }
 
     void Node::setName(const string& name) { mName = name; }
 
