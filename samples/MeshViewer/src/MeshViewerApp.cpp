@@ -10,9 +10,7 @@
 #include "MiniConfig.h"
 #include "FontHelper.h"
 
-#include "cigltf.h"
-#include "ciobj.h"
-#include "NodeExt.h"
+#include "melo.h"
 #include "FirstPersonCamera.h"
 
 using namespace ci;
@@ -60,10 +58,7 @@ struct MeloViewer : public App
     vector<string> mMeshFilenames;
 
     // 1 of 3
-    ModelGLTFRef mModelGLTF;
-    ModelObjRef mModelObj;
-    gl::VboMeshRef mVboMesh;
-    TriMeshRef mTriMesh;
+    nodes::Node3DRef mModel;
 
     nodes::Node3DRef mGridNode;
 
@@ -102,9 +97,10 @@ struct MeloViewer : public App
 
     void setup() override
     {
-        log::makeLogger<log::LoggerFile>();
-        addAssetDirectory(getAppPath() / "../assets");
-        addAssetDirectory(getAppPath() / "../../../assets");
+        log::makeLogger<log::LoggerFileRotating>(fs::path(), "IG.%Y.%m.%d.log");
+        am::addAssetDirectory(getAppPath() / "../assets");
+        am::addAssetDirectory(getAppPath() / "../../assets");
+        am::addAssetDirectory(getAppPath() / "../../../assets");
 
         mMayaCam.lookAt({ CAM_POS_X, CAM_POS_Y, CAM_POS_Z }, vec3(), vec3(0, 1, 0));
         mMayaCamUi = CameraUi(&mMayaCam, getWindow(), -1);
@@ -119,11 +115,6 @@ struct MeloViewer : public App
         mParams = createConfigUI({ 400, 500 });
         ADD_ENUM_TO_INT(mParams.get(), MESH_FILE_ID, mMeshFilenames);
         mParams->addParam("MESH_ROTATION", &mMeshRotation);
-        mParams->addButton("Save OBJ", [&] {
-            if (!mTriMesh) return;
-            fs::path path = mMeshFilenames[mMeshFileId];
-            writeObj(writeFile(path.string() + "_new.obj"), mTriMesh);
-            });
 #endif
         gl::enableDepth();
 
@@ -192,46 +183,18 @@ struct MeloViewer : public App
                 {
                     path = getAssetPath(mMeshFilenames[mMeshFileId]);
                 }
-                mTriMesh.reset();
-                mVboMesh.reset();
-                mModelObj.reset();
-                mModelGLTF.reset();
+                mModel.reset();
 
-                if (path.extension() == ".obj")
+                if (nodes::Node3D::radianceTexture == nullptr)
                 {
-                    if (CI_OBJ_LOADER)
-                    {
-                        auto leaf = path.filename();
-                        auto mtlPath = leaf.generic_string() + "./mtl";
-                        if (fs::exists(mtlPath))
-                            mTriMesh = am::triMesh(path.string(), mtlPath);
-                        else
-                            mTriMesh = am::triMesh(path.string());
-                        mTriMesh->recalculateNormals();
-                        mVboMesh = gl::VboMesh::create(*mTriMesh);
-                    }
-                    else
-                    {
-                        mModelObj = ModelObj::create(path, &mLoadingError);
-                        auto box = ci::AxisAlignedBox(mModelGLTF->mBoundBoxMin, mModelGLTF->mBoundBoxMax);
-                        if (true || mSnapshotMode)
-                            // TODO: ugly
-                            mMayaCam.lookAt(box.getMax() * vec3(CAM_NEW_MESH_DISTANCE_X, CAM_NEW_MESH_DISTANCE_Y, CAM_NEW_MESH_DISTANCE_Z), box.getCenter());
-                        else
-                            mMayaCam.lookAt(box.getMax() * vec3(0, 0, 1), box.getCenter());
-                    }
+                    nodes::Node3D::radianceTexture = am::textureCubeMap(RADIANCE_TEX);
+                    nodes::Node3D::irradianceTexture = am::textureCubeMap(IRRADIANCE_TEX);
+                    nodes::Node3D::brdfLUTTexture = am::texture2d(BRDF_LUT_TEX);
                 }
-                else
-                {
-                    if (ModelGLTF::radianceTexture == nullptr)
-                    {
-                        ModelGLTF::radianceTexture = am::textureCubeMap(RADIANCE_TEX);
-                        ModelGLTF::irradianceTexture = am::textureCubeMap(IRRADIANCE_TEX);
-                        ModelGLTF::brdfLUTTexture = am::texture2d(BRDF_LUT_TEX);
-                    }
 
-                    mModelGLTF = ModelGLTF::create(path, &mLoadingError);
-                    auto box = ci::AxisAlignedBox(mModelGLTF->mBoundBoxMin, mModelGLTF->mBoundBoxMax);
+                {
+                    mModel = Melo::createFromFile(path);
+                    auto box = ci::AxisAlignedBox(mModel->mBoundBoxMin, mModel->mBoundBoxMax);
                     if (true || mSnapshotMode)
                         // TODO: ugly*2
                         mMayaCam.lookAt(box.getMax() * vec3(CAM_NEW_MESH_DISTANCE_X, CAM_NEW_MESH_DISTANCE_Y, CAM_NEW_MESH_DISTANCE_Z), box.getCenter());
@@ -239,9 +202,9 @@ struct MeloViewer : public App
                         mMayaCam.lookAt(box.getMax() * vec3(0, 0, 1), box.getCenter());
                 }
 
-                if (!mModelObj && !mVboMesh && !mModelGLTF)
+                if (mModel)
                 {
-                    mVboMesh = am::vboMesh("Teapot");
+                    //mModel = am::vboMesh("Teapot");
                 }
             }
 
@@ -278,18 +241,13 @@ struct MeloViewer : public App
             mCurrentCam->setNearClip(CAM_Z_NEAR);
             mCurrentCam->setFarClip(CAM_Z_FAR);
 
-            if (mModelGLTF)
+            if (mModel)
             {
-                mModelGLTF->flipV = FLIP_V;
-                mModelGLTF->cameraPosition = mCurrentCam->getEyePoint();
-                mModelGLTF->treeUpdate();
+                //mModel->flipV = FLIP_V;
+                mModel->cameraPosition = mCurrentCam->getEyePoint();
+                mModel->treeUpdate();
             }
 
-            if (mModelObj)
-            {
-                mModelObj->flipV = FLIP_V;
-                mModelObj->cameraPosition = mCurrentCam->getEyePoint();
-            }
             });
 
         getWindow()->getSignalDraw().connect([&] {
@@ -310,9 +268,9 @@ struct MeloViewer : public App
                 texFont->drawString(mLoadingError, { 10, APP_HEIGHT - 150 });
             }
 
-            if (mModelGLTF)
+            if (mModel)
             {
-                gl::ScopedTextureBind scpTex(mModelGLTF->radianceTexture, 0);
+                gl::ScopedTextureBind scpTex(mModel->radianceTexture, 0);
                 if (ENV_VISIBLE)
                 {
                     gl::ScopedDepthWrite depthWrite(false);
@@ -336,31 +294,9 @@ struct MeloViewer : public App
                 gl::pointSize(POINT_SIZE);
 
                 gl::setWireframeEnabled(WIRE_FRAME);
-                mModelGLTF->setScale({ MESH_SCALE,MESH_SCALE,MESH_SCALE });
-                mModelGLTF->setRotation(mMeshRotation);
-                mModelGLTF->treeDraw();
-                gl::disableWireframe();
-            }
-
-            if (mModelObj)
-            {
-                gl::setWireframeEnabled(WIRE_FRAME);
-                gl::ScopedTextureBind tex0(am::texture2d(TEX0_NAME));
-                mModelObj->setScale({ MESH_SCALE,MESH_SCALE,MESH_SCALE });
-                mModelObj->setRotation(mMeshRotation);
-                mModelObj->treeDraw();
-                gl::disableWireframe();
-            }
-
-            if (mVboMesh)
-            {
-                gl::ScopedGlslProg glsl(am::glslProg("lambert texture"));
-                gl::ScopedTextureBind tex0(am::texture2d(TEX0_NAME));
-                gl::setWireframeEnabled(WIRE_FRAME);
-                gl::ScopedModelMatrix mtx;
-                gl::scale(MESH_SCALE, MESH_SCALE, MESH_SCALE);
-                gl::rotate(mMeshRotation);
-                gl::draw(mVboMesh);
+                mModel->setScale({ MESH_SCALE,MESH_SCALE,MESH_SCALE });
+                mModel->setRotation(mMeshRotation);
+                mModel->treeDraw();
                 gl::disableWireframe();
             }
 
@@ -368,7 +304,7 @@ struct MeloViewer : public App
             {
                 gl::ScopedGlslProg glsl(am::glslProg("color"));
                 if (mGridNode == nullptr)
-                    mGridNode = nodes::GridNode::create();
+                    mGridNode = Melo::createGrid();
                 mGridNode->treeDraw();
                 gl::ScopedDepthTest depthTest(false);
                 gl::drawCoordinateFrame(10, 0.5, 0.1);

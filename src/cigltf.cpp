@@ -18,7 +18,7 @@ using namespace ci;
 #include <glm/gtc/type_ptr.hpp>
 
 using namespace std;
-
+using namespace nodes;
 
 AnimationGLTF::Ref AnimationGLTF::create(ModelGLTFRef modelGLTF,
                                          const tinygltf::Animation& property)
@@ -155,11 +155,6 @@ void NodeGLTF::postdraw()
     //rmt_EndOpenGLSample();
 }
 
-#ifndef CINDER_LESS
-gl::TextureCubeMapRef ModelGLTF::radianceTexture;
-gl::TextureCubeMapRef ModelGLTF::irradianceTexture;
-gl::Texture2dRef ModelGLTF::brdfLUTTexture;
-#endif
 
 ModelGLTFRef ModelGLTF::create(const fs2::path& meshPath, std::string* loadingError)
 {
@@ -210,7 +205,8 @@ ModelGLTFRef ModelGLTF::create(const fs2::path& meshPath, std::string* loadingEr
     ref->setName(meshPath.generic_string());
 
     {
-        tinygltf::Material mtrl = {"default"};
+        tinygltf::Material mtrl;
+        mtrl.name = "default";
         mtrl.extensions["KHR_materials_unlit"] = {};
         ref->fallbackMaterial = MaterialGLTF::create(ref, mtrl);
     }
@@ -296,11 +292,11 @@ ModelGLTFRef ModelGLTF::create(const fs2::path& meshPath, std::string* loadingEr
 void ModelGLTF::predraw()
 {
 #ifndef CINDER_LESS
-    if (irradianceTexture && radianceTexture && brdfLUTTexture)
+    if (Node3D::irradianceTexture && Node3D::radianceTexture && Node3D::brdfLUTTexture)
     {
-        irradianceTexture->bind(5);
-        radianceTexture->bind(6);
-        brdfLUTTexture->bind(7);
+        Node3D::irradianceTexture->bind(5);
+        Node3D::radianceTexture->bind(6);
+        Node3D::brdfLUTTexture->bind(7);
     }
 #endif
 }
@@ -308,11 +304,11 @@ void ModelGLTF::predraw()
 void ModelGLTF::postdraw()
 {
 #ifndef CINDER_LESS
-    if (irradianceTexture && radianceTexture && brdfLUTTexture)
+    if (Node3D::irradianceTexture && Node3D::radianceTexture && Node3D::brdfLUTTexture)
     {
-        irradianceTexture->unbind();
-        radianceTexture->unbind();
-        brdfLUTTexture->unbind();
+        Node3D::irradianceTexture->unbind(5);
+        Node3D::radianceTexture->unbind(6);
+        Node3D::brdfLUTTexture->unbind(7);
     }
 #endif
 }
@@ -437,7 +433,11 @@ MaterialGLTF::Ref MaterialGLTF::create(ModelGLTFRef modelGLTF, const tinygltf::M
     ref->property = property;
     ref->modelGLTF = modelGLTF;
 
-    ref->doubleSided = false;
+    ref->doubleSided = property.doubleSided;
+    if (property.alphaMode == "BLEND")
+        ref->alphaMode = ALPHA_BLEND;
+    else if (property.alphaMode == "MASK")
+        ref->alphaMode = ALPHA_MASK;
 
     for (auto& kv : property.values)
     {
@@ -477,8 +477,6 @@ MaterialGLTF::Ref MaterialGLTF::create(ModelGLTFRef modelGLTF, const tinygltf::M
         }
         else if (kv.first == "occlusionTexture")
             ref->occlusionTexture = modelGLTF->textures[kv.second.TextureIndex()];
-        else if (kv.first == "doubleSided")
-            ref->doubleSided = kv.second.bool_value;
     }
 
     ref->materialType = MATERIAL_PBR_METAL_ROUGHNESS;
@@ -588,7 +586,7 @@ MaterialGLTF::Ref MaterialGLTF::create(ModelGLTFRef modelGLTF, const tinygltf::M
     if (ref->occlusionTexture)
         fmt.define("HAS_OCCLUSIONMAP");
 
-    if (modelGLTF->radianceTexture && modelGLTF->irradianceTexture && modelGLTF->brdfLUTTexture)
+    if (Node3D::radianceTexture && Node3D::irradianceTexture && Node3D::brdfLUTTexture)
     {
         fmt.define("HAS_IBL");
         fmt.define("HAS_TEX_LOD");

@@ -120,6 +120,9 @@
     <ClCompile Include="..\..\..\src\NodeExt.cpp">
       <Filter>Blocks\melo</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\melo.cpp">
+      <Filter>Blocks\melo</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Resources.h">
@@ -165,6 +168,9 @@
       <Filter>Blocks\3rdparty</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\3rdparty\vox\read_vox.h">
+      <Filter>Blocks\melo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\melo.h">
       <Filter>Blocks\melo</Filter>
     </ClInclude>
   </ItemGroup>

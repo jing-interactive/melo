@@ -120,6 +120,7 @@
     <ClInclude Include="..\..\..\3rdparty\tinyply\tinyply.h" />
     <ClInclude Include="..\..\..\3rdparty\vox\read_vox.h" />
     <ClInclude Include="..\..\..\include\FirstPersonCamera.h" />
+    <ClInclude Include="..\..\..\include\melo.h" />
     <ClInclude Include="..\..\..\include\Node.h" />
     <ClInclude Include="..\..\..\include\Node3D.h" />
     <ClInclude Include="..\..\..\include\cigltf.h" />
@@ -147,6 +148,7 @@
     <ClCompile Include="..\..\..\3rdparty\tinyobjloader\tiny_obj_loader.cc" />
     <ClCompile Include="..\..\..\3rdparty\tinyply\tinyply.cpp" />
     <ClCompile Include="..\..\..\3rdparty\vox\read_vox.cpp" />
+    <ClCompile Include="..\..\..\src\melo.cpp" />
     <ClCompile Include="..\..\..\src\Node.cpp" />
     <ClCompile Include="..\..\..\src\Node3D.cpp" />
     <ClCompile Include="..\..\..\src\cigltf.cpp" />

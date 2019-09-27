@@ -20,10 +20,12 @@ struct MaterialObj
     ModelObjRef modelObj;
 
     gl::Texture2dRef diffuseTexture;
-    glm::vec4 diffuseFactor = glm::vec4(0);
-    glm::vec3 ambientFactor = glm::vec3(0);
-    glm::vec3 specularFactor = glm::vec3(0);
-    glm::vec3 emissiveFactor = glm::vec3(0);
+    gl::Texture2dRef normalTexture;
+
+    glm::vec4 diffuseFactor = glm::vec4(1);
+    glm::vec3 ambientFactor = glm::vec3(1);
+    glm::vec3 specularFactor = glm::vec3(1);
+    glm::vec3 emissiveFactor = glm::vec3(1);
     glm::vec3 transmittanceFactor = glm::vec3(0);
     float glossinessFactor = 1.0f;
     float ior = 1.0f;
@@ -32,9 +34,11 @@ struct MaterialObj
 
     gl::GlslProgRef ciShader;
 
+    nodes::MaterialType materialType;
+
     static Ref create(ModelObjRef modelObj, const tinyobj::material_t& property);
-    void preDraw();
-    void postDraw();
+    void predraw();
+    void postdraw();
 };
 
 struct MeshObj : public nodes::Node3D
@@ -65,6 +69,8 @@ struct MeshObj : public nodes::Node3D
     static Ref create(ModelObjRef modelObj, const tinyobj::shape_t& property);
 
     virtual void draw();
+    virtual void predraw();
+    virtual void postdraw();
 };
 
 struct ModelObj : public MeshObj

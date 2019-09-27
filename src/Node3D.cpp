@@ -21,6 +21,9 @@
  OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef CINDER_LESS
+#include <cinder/gl/Texture.h>
+#endif
 #include "../include/Node3D.h"
 #include <glm/glm.hpp>
 #include <glm/gtx/quaternion.hpp>
@@ -30,6 +33,11 @@ using namespace std;
 
 namespace nodes
 {
+#ifndef CINDER_LESS
+    ci::gl::TextureCubeMapRef Node3D::radianceTexture;
+    ci::gl::TextureCubeMapRef Node3D::irradianceTexture;
+    ci::gl::Texture2dRef Node3D::brdfLUTTexture;
+#endif
     Node3D::Node3D(void) : mScale(1), mIsConstantTransform(false) { setName("Node3D"); }
 
     Node3DRef Node3D::create()

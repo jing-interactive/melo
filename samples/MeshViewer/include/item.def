@@ -6,7 +6,6 @@ ITEM_DEF(bool, ENV_VISIBLE, true)
 ITEM_DEF(bool, XYZ_VISIBLE, false)
 ITEM_DEF(bool, WIRE_FRAME, false)
 ITEM_DEF(bool, FLIP_V, true)
-ITEM_DEF(bool, CI_OBJ_LOADER, false)
 ITEM_DEF(bool, FPS_CAMERA, false)
 ITEM_DEF(bool, CONSOLE_ENABLED, false)
 

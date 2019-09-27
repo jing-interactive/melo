@@ -25,10 +25,29 @@
 #include "Node.h"
 #include <glm/gtc/quaternion.hpp>
 
+#ifndef CINDER_LESS
+namespace cinder {
+    namespace gl {
+
+        typedef std::shared_ptr<class Texture2d>		Texture2dRef;
+        typedef std::shared_ptr<class TextureCubeMap>	TextureCubeMapRef;
+    }
+}
+#endif
+
 namespace nodes {
 
     // Basic support for 3D nodes
     typedef std::shared_ptr<class Node3D> Node3DRef;
+
+    enum MaterialType
+    {
+        MATERIAL_PBR_METAL_ROUGHNESS,
+        MATERIAL_PBR_SPEC_GLOSSINESS,
+        MATERIAL_UNLIT,
+
+        MATERIAL_COUNT,
+    };
 
     class Node3D : public Node {
     public:
@@ -75,6 +94,12 @@ namespace nodes {
 
         glm::vec3 mBoundBoxMin, mBoundBoxMax;
         glm::vec3 cameraPosition = { 1,1,1 };
+
+#ifndef CINDER_LESS
+        static ci::gl::TextureCubeMapRef radianceTexture;
+        static ci::gl::TextureCubeMapRef irradianceTexture;
+        static ci::gl::Texture2dRef brdfLUTTexture;
+#endif
 
     protected:
         glm::vec3 mPosition;

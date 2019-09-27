@@ -79,15 +79,6 @@ enum AttribGLTF
     NUM_ATTRIBS,
 };
 
-enum MaterialType
-{
-    MATERIAL_PBR_METAL_ROUGHNESS,
-    MATERIAL_PBR_SPEC_GLOSSINESS,
-    MATERIAL_UNLIT,
-
-    MATERIAL_COUNT,
-};
-
 // WeakBuffer doesn't own memory storage
 struct WeakBuffer
 {
@@ -248,7 +239,7 @@ struct MaterialGLTF
     glm::vec3 specularFactor = {1, 1, 1};
     float glossinessFactor = 1;
 
-    MaterialType materialType;
+    nodes::MaterialType materialType;
 
     static Ref create(ModelGLTFRef modelGLTF, const tinygltf::Material& property);
 
@@ -362,11 +353,6 @@ struct ModelGLTF : public nodes::Node3D
 
     fs2::path meshPath;
 
-#ifndef CINDER_LESS
-    static ci::gl::TextureCubeMapRef radianceTexture;
-    static ci::gl::TextureCubeMapRef irradianceTexture;
-    static ci::gl::Texture2dRef brdfLUTTexture;
-#endif
     bool flipV = true;
 
     MaterialGLTF::Ref fallbackMaterial; // if (material == -1)
