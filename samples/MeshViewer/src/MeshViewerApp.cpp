@@ -11,6 +11,7 @@
 #include "GLHelper.h"
 
 #include "melo.h"
+#include "SkyNode.h"
 #include "FirstPersonCamera.h"
 
 #include "MiniConfigImgui.h"
@@ -33,13 +34,16 @@ struct MeloViewer : public App
     string mOutputFilename;
 
     gl::GlslProgRef mGlslProg;
-    gl::BatchRef mSkyBoxBatch;
     int mMeshFileId = -1;
     vector<string> mMeshFilenames;
 
+    nodes::Node3DRef mScene;
     nodes::Node3DRef mModel;
-
+    nodes::Node3DRef mSkyNode;
     nodes::Node3DRef mGridNode;
+
+    nodes::Node3DRef mPickedNode;
+    mat4 mPickedTransform;
 
     FirstPersonCamera mFpsCam;
 
@@ -86,6 +90,17 @@ struct MeloViewer : public App
         mFpsCam.setup();
 
         texFont = FontHelper::createTextureFont("Helvetica", 24);
+
+        {
+            mScene = nodes::Node3D::create();
+            mScene->setName("SceneRoot");
+
+            mSkyNode = make_shared<SkyNode>();
+            mScene->addChild(mSkyNode);
+
+            mGridNode = Melo::createGrid(100.0f);
+            mScene->addChild(mGridNode);
+        }
 
         mMeshFilenames = listGlTFFiles();
         parseArgs();
@@ -174,7 +189,10 @@ struct MeloViewer : public App
                 {
                     auto box = ci::AxisAlignedBox(newModel->mBoundBoxMin, newModel->mBoundBoxMax);
                     mMayaCam.lookAt(box.getMax(), box.getCenter());
+                    mScene->removeChild(mModel);
                     mModel = newModel;
+                    mScene->addChild(mModel);
+                    mPickedNode = mModel;
                 }
             }
 
@@ -218,6 +236,49 @@ struct MeloViewer : public App
                 mModel->treeUpdate();
             }
 
+            if (ui::Begin("Scene Inspector"))
+            {
+                // selectable list
+                if (ui::ListBoxHeader("Nodes"))
+                {
+                    static bool selected = false;
+                    for (auto node : mScene->getChildren<nodes::Node3D>())
+                    {
+                        if (ui::Selectable(node->getName().c_str(), mPickedNode == node))
+                        {
+                            mPickedNode = node;
+                            mPickedTransform = mPickedNode->getTransform();
+                        }
+                    }
+                    ui::ListBoxFooter();
+                }
+
+                ui::ScopedGroup group;
+                if (!mIsFpsCamera && mPickedNode != nullptr)
+                {
+                    bool isVisible = mPickedNode->isVisible();
+                    if (ui::Checkbox("Visible", &isVisible))
+                    {
+                        mPickedNode->setVisible(isVisible);
+                    }
+                    if (ui::Button("Reset Transform"))
+                    {
+                        mPickedTransform = {};
+                        mPickedNode->setTransform(mPickedTransform);
+                    }
+                    if (ui::EditGizmo(mCurrentCam->getViewMatrix(), mCurrentCam->getProjectionMatrix(), &mPickedTransform))
+                    {
+                        mMayaCamUi.disable();
+                        mPickedNode->setTransform(mPickedTransform);
+                    }
+                    else
+                    {
+                        mMayaCamUi.enable();
+                    }
+                }
+            }
+            ui::End();
+
             });
 
         getWindow()->getSignalDraw().connect([&] {
@@ -237,28 +298,11 @@ struct MeloViewer : public App
                 texFont->drawString(mLoadingError, { 10, APP_HEIGHT - 150 });
             }
 
+            mSkyNode->setVisible(ENV_VISIBLE);
+#if 0
             if (mModel)
             {
                 gl::ScopedTextureBind scpTex(mModel->radianceTexture, 0);
-                if (ENV_VISIBLE)
-                {
-                    gl::ScopedDepthWrite depthWrite(false);
-                    if (mSkyBoxBatch == nullptr)
-                    {
-                        auto skyBoxShader = am::glslProg("SkyBox.vert", "SkyBox.frag");
-                        if (!skyBoxShader)
-                        {
-                            quit();
-                            return;
-                        }
-                        skyBoxShader->uniform("uCubeMapTex", 0);
-                        skyBoxShader->uniform("uExposure", 2.0f);
-                        skyBoxShader->uniform("uGamma", 2.0f);
-
-                        mSkyBoxBatch = gl::Batch::create(geom::Cube().size(vec3(400)), skyBoxShader);
-                    }
-                    mSkyBoxBatch->draw();
-                }
 
                 gl::pointSize(POINT_SIZE);
 
@@ -268,16 +312,10 @@ struct MeloViewer : public App
                 mModel->treeDraw();
                 gl::disableWireframe();
             }
+#endif
+            mGridNode->setVisible(XYZ_VISIBLE);
 
-            if (XYZ_VISIBLE)
-            {
-                gl::ScopedGlslProg glsl(am::glslProg("color"));
-                if (mGridNode == nullptr)
-                    mGridNode = Melo::createGrid();
-                mGridNode->treeDraw();
-                gl::ScopedDepthTest depthTest(false);
-                gl::drawCoordinateFrame(10, 0.5, 0.1);
-            }
+            mScene->treeDraw();
 
             if (mSnapshotMode)
             {

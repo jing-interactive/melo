@@ -233,6 +233,9 @@
     <ClInclude Include="..\..\..\..\Cinder-ImGui\include\CinderMarkdown.h">
       <Filter>Blocks\Cinder-Imgui</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\include\SkyNode.h">
+      <Filter>Blocks\melo</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources.rc">
