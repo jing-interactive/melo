@@ -5,40 +5,20 @@
 #include "cinder/gl/gl.h"
 #include "cinder/ObjLoader.h"
 #include "cinder/params/Params.h"
-#include "cinder/ip/Flip.h"
 #include "AssetManager.h"
 #include "MiniConfig.h"
 #include "FontHelper.h"
+#include "GLHelper.h"
 
 #include "melo.h"
 #include "FirstPersonCamera.h"
 
+#include "MiniConfigImgui.h"
+#include "CinderGuizmo.h"
+
 using namespace ci;
 using namespace ci::app;
 using namespace std;
-
-#if defined( CINDER_GL_ES )
-namespace cinder {
-    namespace gl {
-        void enableWireframe() {}
-        void disableWireframe() {}
-        void setWireframeEnabled(bool enable = true) { if (enable) enableWireframe(); else disableWireframe(); }
-    }
-}
-#endif
-
-Surface copyWindowSurfaceWithAlpha() {
-    Area area = getWindowBounds();
-    Surface s(area.getWidth(), area.getHeight(), true);
-    glFlush();
-    GLint oldPackAlignment;
-    glGetIntegerv(GL_PACK_ALIGNMENT, &oldPackAlignment);
-    glPixelStorei(GL_PACK_ALIGNMENT, 1);
-    glReadPixels(area.x1, getWindowHeight() - area.y2, area.getWidth(), area.getHeight(), GL_RGBA, GL_UNSIGNED_BYTE, s.getData());
-    glPixelStorei(GL_PACK_ALIGNMENT, oldPackAlignment);
-    ip::flipVertical(&s);
-    return s;
-}
 
 struct MeloViewer : public App
 {
@@ -57,7 +37,6 @@ struct MeloViewer : public App
     int mMeshFileId = -1;
     vector<string> mMeshFilenames;
 
-    // 1 of 3
     nodes::Node3DRef mModel;
 
     nodes::Node3DRef mGridNode;
@@ -66,7 +45,7 @@ struct MeloViewer : public App
 
     string mLoadingError;
     gl::TextureFontRef texFont;
-    params::InterfaceGlRef mParams;
+    //params::InterfaceGlRef mParams;
 
     vector<string> listGlTFFiles()
     {
@@ -111,12 +90,11 @@ struct MeloViewer : public App
         mMeshFilenames = listGlTFFiles();
         parseArgs();
 
-#ifndef CINDER_COCOA_TOUCH
-        mParams = createConfigUI({ 400, 500 });
-        ADD_ENUM_TO_INT(mParams.get(), MESH_FILE_ID, mMeshFilenames);
-        mParams->addParam("MESH_ROTATION", &mMeshRotation);
-#endif
+        createConfigImgui();
+        //ADD_ENUM_TO_INT(mParams.get(), MESH_FILE_ID, mMeshFilenames);
+        //mParams->addParam("MESH_ROTATION", &mMeshRotation);
         gl::enableDepth();
+        gl::context()->depthFunc(GL_LEQUAL);
 
         getSignalCleanup().connect([&] { writeConfig(); });
 
@@ -183,7 +161,6 @@ struct MeloViewer : public App
                 {
                     path = getAssetPath(mMeshFilenames[mMeshFileId]);
                 }
-                mModel.reset();
 
                 if (nodes::Node3D::radianceTexture == nullptr)
                 {
@@ -192,19 +169,12 @@ struct MeloViewer : public App
                     nodes::Node3D::brdfLUTTexture = am::texture2d(BRDF_LUT_TEX);
                 }
 
+                auto newModel = Melo::createFromFile(path);
+                if (newModel)
                 {
-                    mModel = Melo::createFromFile(path);
-                    auto box = ci::AxisAlignedBox(mModel->mBoundBoxMin, mModel->mBoundBoxMax);
-                    if (true || mSnapshotMode)
-                        // TODO: ugly*2
-                        mMayaCam.lookAt(box.getMax() * vec3(CAM_NEW_MESH_DISTANCE_X, CAM_NEW_MESH_DISTANCE_Y, CAM_NEW_MESH_DISTANCE_Z), box.getCenter());
-                    else
-                        mMayaCam.lookAt(box.getMax() * vec3(0, 0, 1), box.getCenter());
-                }
-
-                if (mModel)
-                {
-                    //mModel = am::vboMesh("Teapot");
+                    auto box = ci::AxisAlignedBox(newModel->mBoundBoxMin, newModel->mBoundBoxMax);
+                    mMayaCam.lookAt(box.getMax(), box.getCenter());
+                    mModel = newModel;
                 }
             }
 
@@ -260,8 +230,7 @@ struct MeloViewer : public App
             else
                 gl::clear(ColorA::gray(0.2f, 1.0f));
 
-
-            mParams->show(GUI_VISIBLE);
+            //mParams->show(GUI_VISIBLE);
 
             if (!mLoadingError.empty())
             {

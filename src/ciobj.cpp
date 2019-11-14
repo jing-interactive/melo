@@ -75,6 +75,8 @@ MeshObj::Ref MeshObj::create(ModelObjRef modelObj, const tinyobj::shape_t& prope
     {
         auto& submesh = kv.second;
         submesh.setup();
+        ref->mBoundBoxMin = glm::min(submesh.boundBoxMin, ref->mBoundBoxMin);
+        ref->mBoundBoxMax = glm::max(submesh.boundBoxMax, ref->mBoundBoxMax);
     }
 
     return ref;
@@ -343,8 +345,9 @@ ModelObjRef ModelObj::create(const fs::path& meshPath, std::string* loadingError
     for (auto& item : shapes)
     {
         auto mesh = MeshObj::create(ref, item);
-        ref->mBoundBoxMin = mesh->mBoundBoxMin; // TODO: support union of allboxes
-        ref->mBoundBoxMax = mesh->mBoundBoxMax; // TODO: support union of allboxes
+
+        ref->mBoundBoxMin = glm::min(mesh->mBoundBoxMin, ref->mBoundBoxMin);
+        ref->mBoundBoxMax = glm::max(mesh->mBoundBoxMax, ref->mBoundBoxMax);
         ref->addChild(mesh);
     }
 
