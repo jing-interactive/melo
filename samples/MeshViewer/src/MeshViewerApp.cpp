@@ -11,7 +11,6 @@
 #include "GLHelper.h"
 
 #include "melo.h"
-#include "SkyNode.h"
 #include "FirstPersonCamera.h"
 
 #include "MiniConfigImgui.h"
@@ -23,9 +22,10 @@ using namespace std;
 
 struct MeloViewer : public App
 {
-    CameraPersp mMayaCam;
+    CameraPersp2 mMayaCam;
     CameraUi mMayaCamUi;
-    Camera* mCurrentCam = nullptr;
+    FirstPersonCamera mFpsCam;
+    CameraPersp2* mCurrentCam = nullptr;
     bool mIsFpsCamera = false;
     quat mMeshRotation;
 
@@ -45,7 +45,6 @@ struct MeloViewer : public App
     nodes::Node3DRef mPickedNode;
     mat4 mPickedTransform;
 
-    FirstPersonCamera mFpsCam;
 
     string mLoadingError;
     gl::TextureFontRef texFont;
@@ -92,13 +91,12 @@ struct MeloViewer : public App
         texFont = FontHelper::createTextureFont("Helvetica", 24);
 
         {
-            mScene = nodes::Node3D::create();
-            mScene->setName("SceneRoot");
+            mScene = melo::createSceneRoot();
 
-            mSkyNode = make_shared<SkyNode>();
+            mSkyNode = melo::createSky();
             mScene->addChild(mSkyNode);
 
-            mGridNode = Melo::createGrid(100.0f);
+            mGridNode = melo::createGrid(100.0f);
             mScene->addChild(mGridNode);
         }
 
@@ -184,7 +182,7 @@ struct MeloViewer : public App
                     nodes::Node3D::brdfLUTTexture = am::texture2d(BRDF_LUT_TEX);
                 }
 
-                auto newModel = Melo::createFromFile(path);
+                auto newModel = melo::createFromFile(path);
                 if (newModel)
                 {
                     auto box = ci::AxisAlignedBox(newModel->mBoundBoxMin, newModel->mBoundBoxMax);
@@ -279,6 +277,7 @@ struct MeloViewer : public App
             }
             ui::End();
 
+            ui::ViewManipulate(mCurrentCam->getViewMatrixReference(), 8, { getWindowWidth() - 128, 0 }, { 128, 128 });
             });
 
         getWindow()->getSignalDraw().connect([&] {

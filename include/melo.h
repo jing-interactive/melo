@@ -3,9 +3,10 @@
 #include "../include/Node3D.h"
 #include <cinder/Filesystem.h>
 
-struct Melo
+namespace melo
 {
-    static nodes::Node3DRef createSceneRoot();
-    static nodes::Node3DRef createFromFile(const cinder::fs::path& meshPath);
-    static nodes::Node3DRef createGrid(float meters = 100.0f);
+    nodes::Node3DRef createSceneRoot();
+    nodes::Node3DRef createFromFile(const cinder::fs::path& meshPath);
+    nodes::Node3DRef createGrid(float meters = 100.0f);
+    nodes::Node3DRef createSky();
 };

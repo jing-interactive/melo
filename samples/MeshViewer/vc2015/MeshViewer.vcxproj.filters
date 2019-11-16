@@ -150,6 +150,9 @@
     <ClCompile Include="..\..\..\..\Cinder-ImGui\lib\ImGuizmo\ImGuizmo.cpp">
       <Filter>Blocks\Cinder-Imgui</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\SkyNode.cpp">
+      <Filter>Blocks\melo</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Resources.h">

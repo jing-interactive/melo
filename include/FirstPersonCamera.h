@@ -8,7 +8,16 @@
 using namespace ci;
 using namespace ci::app;
 
-struct FirstPersonCamera : public CameraPersp
+struct CameraPersp2 : CameraPersp
+{
+    mat4& getViewMatrixReference()
+    {
+        mModelViewCached = true;
+        return mViewMatrix;
+    }
+};
+
+struct FirstPersonCamera : public CameraPersp2
 {
     double mElapsedSeconds;
     ivec2 mMousePos, mPrevMousePos;

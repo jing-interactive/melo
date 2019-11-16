@@ -175,6 +175,7 @@
     <ClCompile Include="..\..\..\src\cigltf.cpp" />
     <ClCompile Include="..\..\..\src\ciobj.cpp" />
     <ClCompile Include="..\..\..\src\NodeExt.cpp" />
+    <ClCompile Include="..\..\..\src\SkyNode.cpp" />
     <ClCompile Include="..\src\MeshViewerApp.cpp" />
     <ClCompile Include="..\..\..\..\Cinder-VNM\src\AssetManager.cpp" />
     <ClCompile Include="..\..\..\..\Cinder-VNM\src\MiniConfig.cpp" />
