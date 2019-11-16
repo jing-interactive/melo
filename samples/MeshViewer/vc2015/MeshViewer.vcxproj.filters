@@ -147,11 +147,11 @@
     <ClCompile Include="..\..\..\..\Cinder-ImGui\src\CinderImGui.cpp">
       <Filter>Blocks\Cinder-Imgui</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Cinder-ImGui\lib\ImGuizmo\ImGuizmo.cpp">
-      <Filter>Blocks\Cinder-Imgui</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\SkyNode.cpp">
       <Filter>Blocks\melo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Cinder-ImGui\lib\ImGuizmo\ImGuizmo.cpp">
+      <Filter>Blocks\imgui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -277,7 +277,20 @@ struct MeloViewer : public App
             }
             ui::End();
 
-            ui::ViewManipulate(mCurrentCam->getViewMatrixReference(), 8, { getWindowWidth() - 128, 0 }, { 128, 128 });
+            if (!mIsFpsCamera)
+            {
+                auto k = 128;
+                auto pos = ivec2(getWindowWidth() - k, 0);
+                auto size = ivec2(k, k);
+                if (ui::ViewManipulate(mCurrentCam->getViewMatrixReference(), 8, pos, size))
+                {
+                    mMayaCamUi.disable();
+                }
+                else
+                {
+                    mMayaCamUi.enable();
+                }
+            }
             });
 
         getWindow()->getSignalDraw().connect([&] {
