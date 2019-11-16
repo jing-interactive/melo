@@ -53,7 +53,7 @@ struct MeloViewer : public App
     vector<string> listGlTFFiles()
     {
         vector<string> files;
-        auto assetModel = getAppPath() / "../assets";
+        auto assetModel = (getAppPath() / "../assets").generic_string();
         for (auto& p :
             fs::recursive_directory_iterator(assetModel
 #ifdef CINDER_MSW_DESKTOP
@@ -66,8 +66,8 @@ struct MeloViewer : public App
             if (ext == ".gltf" || ext == ".glb" || ext == ".obj")
             {
                 auto filename = p.path().generic_string();
-                filename.replace(filename.find(assetModel.generic_string()),
-                    assetModel.generic_string().size(),
+                filename.replace(filename.find(assetModel),
+                    assetModel.size() + 1,
                     ""); // Left trim the assets prefix
 
                 files.push_back(filename);
@@ -172,7 +172,7 @@ struct MeloViewer : public App
                 fs::path path = mMeshFilenames[mMeshFileId];
                 if (!fs::exists(path))
                 {
-                    path = getAssetPath(mMeshFilenames[mMeshFileId]);
+                    path = getAssetPath(path);
                 }
 
                 if (nodes::Node3D::radianceTexture == nullptr)
@@ -277,7 +277,7 @@ struct MeloViewer : public App
             }
             ui::End();
 
-            if (!mIsFpsCamera)
+            if (!mIsFpsCamera && mPickedNode != nullptr)
             {
                 auto k = 128;
                 auto pos = ivec2(getWindowWidth() - k, 0);
