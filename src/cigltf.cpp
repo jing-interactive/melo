@@ -211,6 +211,7 @@ ModelGLTFRef ModelGLTF::create(const fs2::path& meshPath, std::string* loadingEr
         ref->fallbackMaterial = MaterialGLTF::create(ref, mtrl);
     }
 
+#if 0
     if (model.scenes.size() == 1 && model.scenes[0].name == "OSG_Scene")
     {
         // sanitize gltf from sketchfab
@@ -224,6 +225,7 @@ ModelGLTFRef ModelGLTF::create(const fs2::path& meshPath, std::string* loadingEr
         if (!model.nodes[1].matrix.empty()) model.nodes[1].matrix = { 1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1 };
         if (!model.nodes[2].matrix.empty()) model.nodes[2].matrix = { 1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1 };
     }
+#endif
 
     for (auto& item : model.buffers)
         ref->buffers.emplace_back(BufferGLTF::create(ref, item));

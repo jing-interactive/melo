@@ -221,9 +221,9 @@ struct MeloViewer : public App
             {
                 mCurrentCam = &mMayaCam;
             }
-            CAM_POS_X = mMayaCam.getEyePoint().x;
-            CAM_POS_Y = mMayaCam.getEyePoint().y;
-            CAM_POS_Z = mMayaCam.getEyePoint().z;
+            CAM_POS_X = mCurrentCam->getEyePoint().x;
+            CAM_POS_Y = mCurrentCam->getEyePoint().y;
+            CAM_POS_Z = mCurrentCam->getEyePoint().z;
             mCurrentCam->setNearClip(CAM_Z_NEAR);
             mCurrentCam->setFarClip(CAM_Z_FAR);
 

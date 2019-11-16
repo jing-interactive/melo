@@ -7,9 +7,9 @@ SkyNode::Ref SkyNode::create()
 {
     auto ref = std::make_shared<SkyNode>();
     ref->setName("SkyNode");
-    ref->mSkyTex = am::textureCubeMap("skybox.dds");
+    ref->mSkyTex = am::textureCubeMap("CathedralRadiance.dds");
     auto skyBoxShader = am::glslProg("SkyBox.vert", "SkyBox.frag");
-    if (!ref->skyBoxShader)
+    if (!skyBoxShader)
     {
         return {};
     }
