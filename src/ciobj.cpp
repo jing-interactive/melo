@@ -5,7 +5,7 @@
 #include "cinder/app/App.h"
 
 using namespace std;
-using namespace nodes;
+using namespace melo;
 
 MeshObj::Ref MeshObj::create(ModelObjRef modelObj, const tinyobj::shape_t& property)
 {

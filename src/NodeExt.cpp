@@ -4,7 +4,7 @@
 #include "cinder/TriMesh.h"
 
 using namespace std;
-using namespace nodes;
+using namespace melo;
 
 GridNode::Ref GridNode::create(float meters)
 {

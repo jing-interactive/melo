@@ -3,7 +3,7 @@
 #include "Node3D.h"
 #include <Cinder/gl/gl.h>
 
-struct SkyNode : nodes::Node3D
+struct SkyNode : melo::Node3D
 {
     typedef std::shared_ptr<SkyNode> Ref;
 

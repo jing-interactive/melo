@@ -1,16 +1,24 @@
 #include "SceneIO.h"
 #include "../include/cigltf.h"
+#include "../include/melo.h"
 
 using namespace std;
-using namespace nodes;
+using namespace melo;
 
-Node3DRef nodes::loadSceneFromGLTF(const std::string& filename)
+Node3DRef melo::loadSceneFromGLTF(const std::string& filename)
 {
-    auto ref = ModelGLTF::create(filename);
-    if (ref)
-        return ref->currentScene->getChildren<nodes::Node3D>()[0];
+    Node3DRef root;
+    auto tree = ModelGLTF::create(filename);
+    if (tree)
+    {
+        root = tree->currentScene->getChildren<melo::Node3D>()[0];
+        for (auto& child : root->getChildren<melo::Node3D>())
+        {
+            child = melo::create(child->getName());
+        }
+    }
 
-    return {};
+    return root;
 }
 
 void addNode(Node3DRef node, int& nodeidx, tinygltf::Model& gltfmodel, tinygltf::Scene& gltfscene) {
@@ -37,7 +45,7 @@ void addNode(Node3DRef node, int& nodeidx, tinygltf::Model& gltfmodel, tinygltf:
     nodeidx++;
 };
 
-bool nodes::writeSceneToGLTF(Node3DRef scene, const std::string& filename)
+bool melo::writeSceneToGLTF(Node3DRef scene, const std::string& filename)
 {
     tinygltf::Model gltfmodel;
     gltfmodel.asset.generator = "melo runtime";

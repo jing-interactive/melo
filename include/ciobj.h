@@ -34,14 +34,14 @@ struct MaterialObj
 
     gl::GlslProgRef ciShader;
 
-    nodes::MaterialType materialType;
+    melo::MaterialType materialType;
 
     static Ref create(ModelObjRef modelObj, const tinyobj::material_t& property);
     void predraw();
     void postdraw();
 };
 
-struct MeshObj : public nodes::Node3D
+struct MeshObj : public melo::Node3D
 {
     typedef std::shared_ptr<MeshObj> Ref;
     tinyobj::shape_t property;

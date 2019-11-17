@@ -31,7 +31,7 @@
 
 using namespace std;
 
-namespace nodes
+namespace melo
 {
 #ifndef CINDER_LESS
     ci::gl::TextureCubeMapRef Node3D::radianceTexture;
@@ -88,4 +88,4 @@ namespace nodes
         mIsConstantTransform = true;
         mConstantTransform = transform;
     }
-} // namespace nodes
+} // namespace melo

@@ -5,19 +5,32 @@
 #include "SkyNode.h"
 #include <cinder/app/App.h>
 
-using namespace nodes;
+using namespace melo;
 using namespace ci;
 using namespace ci::app;
 
-Node3DRef melo::createSceneRoot()
+Node3DRef melo::create(const std::string& typeName)
+{
+    if (typeName == "RootNode") return melo::createRootNode();
+    if (typeName.find(".gltf") != std::string::npos) return melo::createGltfNode(typeName);
+    if (typeName == "GridNode") return melo::createGridNode();
+    if (typeName == "SkyNode") return melo::createSkyNode();
+
+    auto ref = melo::Node3D::create();
+    ref->setName(typeName);
+
+    return ref;
+}
+
+Node3DRef melo::createRootNode()
 {
     auto root = Node3D::create();
-    root->setName("SceneRoot");
+    root->setName("RootNode");
 
     return root;
 }
 
-Node3DRef melo::createFromFile(const fs::path& meshPath)
+Node3DRef melo::createGltfNode(const fs::path& meshPath)
 {
     fs::path realPath = meshPath;
     if (!fs::exists(realPath))
@@ -35,12 +48,12 @@ Node3DRef melo::createFromFile(const fs::path& meshPath)
     return {};
 }
 
-Node3DRef melo::createGrid(float meters)
+Node3DRef melo::createGridNode(float meters)
 {
     return GridNode::create(meters);
 }
 
-Node3DRef melo::createSky()
+Node3DRef melo::createSkyNode()
 {
     return SkyNode::create();
 }

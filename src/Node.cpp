@@ -32,7 +32,7 @@ using namespace ci::app;
 #endif
 using namespace std;
 
-namespace nodes
+namespace melo
 {
 
     int Node::nodeCount = 0;
@@ -237,4 +237,4 @@ namespace nodes
             child->invalidateTransform();
     }
 
-} // namespace nodes
+} // namespace melo

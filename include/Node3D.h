@@ -35,7 +35,7 @@ namespace cinder {
 }
 #endif
 
-namespace nodes {
+namespace melo {
 
     // Basic support for 3D nodes
     typedef std::shared_ptr<class Node3D> Node3DRef;
@@ -114,4 +114,4 @@ namespace nodes {
         glm::mat4 mConstantTransform;
         bool mIsConstantTransform;
     };
-} // namespace nodes
+} // namespace melo

@@ -18,7 +18,7 @@ using namespace ci;
 #include <glm/gtc/type_ptr.hpp>
 
 using namespace std;
-using namespace nodes;
+using namespace melo;
 
 AnimationGLTF::Ref AnimationGLTF::create(ModelGLTFRef modelGLTF,
                                          const tinygltf::Animation& property)

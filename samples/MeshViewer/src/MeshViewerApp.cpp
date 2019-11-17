@@ -37,12 +37,12 @@ struct MeloViewer : public App
     int mMeshFileId = -1;
     vector<string> mMeshFilenames;
 
-    nodes::Node3DRef mScene;
-    nodes::Node3DRef mModel;
-    nodes::Node3DRef mSkyNode;
-    nodes::Node3DRef mGridNode;
+    melo::Node3DRef mScene;
+    vector<melo::Node3DRef> mModels;
+    melo::Node3DRef mSkyNode;
+    melo::Node3DRef mGridNode;
 
-    nodes::Node3DRef mPickedNode;
+    melo::Node3DRef mPickedNode;
     mat4 mPickedTransform;
 
     string mLoadingError;
@@ -86,12 +86,12 @@ struct MeloViewer : public App
         mFpsCam.setup();
 
         {
-            mScene = melo::createSceneRoot();
+            mScene = melo::createRootNode();
 
-            mSkyNode = melo::createSky();
+            mSkyNode = melo::createSkyNode();
             mScene->addChild(mSkyNode);
 
-            mGridNode = melo::createGrid(100.0f);
+            mGridNode = melo::createGridNode(100.0f);
             mScene->addChild(mGridNode);
         }
 
@@ -171,25 +171,24 @@ struct MeloViewer : public App
                     path = getAssetPath(path);
                 }
 
-                if (nodes::Node3D::radianceTexture == nullptr)
+                if (melo::Node3D::radianceTexture == nullptr)
                 {
-                    nodes::Node3D::radianceTexture = am::textureCubeMap(RADIANCE_TEX);
-                    nodes::Node3D::irradianceTexture = am::textureCubeMap(IRRADIANCE_TEX);
-                    nodes::Node3D::brdfLUTTexture = am::texture2d(BRDF_LUT_TEX);
+                    melo::Node3D::radianceTexture = am::textureCubeMap(RADIANCE_TEX);
+                    melo::Node3D::irradianceTexture = am::textureCubeMap(IRRADIANCE_TEX);
+                    melo::Node3D::brdfLUTTexture = am::texture2d(BRDF_LUT_TEX);
                 }
 
-                auto newModel = melo::createFromFile(path);
+                auto newModel = melo::createGltfNode(path);
                 if (newModel)
                 {
-                    if (mModel == nullptr)
+                    if (mModels.empty())
                     {
                         auto box = ci::AxisAlignedBox(newModel->mBoundBoxMin, newModel->mBoundBoxMax);
                         mMayaCam.lookAt(box.getMax(), box.getCenter());
                     }
-                    mScene->removeChild(mModel);
-                    mModel = newModel;
-                    mScene->addChild(mModel);
-                    mPickedNode = mModel;
+                    mModels.emplace_back(newModel);
+                    mScene->addChild(newModel);
+                    mPickedNode = newModel;
                 }
             }
 
@@ -226,10 +225,10 @@ struct MeloViewer : public App
             mCurrentCam->setNearClip(CAM_Z_NEAR);
             mCurrentCam->setFarClip(CAM_Z_FAR);
 
-            if (mModel)
+            for (auto& model : mModels)
             {
                 //mModel->flipV = FLIP_V;
-                mModel->cameraPosition = mCurrentCam->getEyePoint();
+                model->cameraPosition = mCurrentCam->getEyePoint();
             }
 
             if (ui::Begin("Scene Inspector"))
@@ -237,30 +236,22 @@ struct MeloViewer : public App
                 if (ui::Button("Load the scene"))
                 {
                     auto path = getAppPath() / "melo.gltf";
-                    auto scene = nodes::loadSceneFromGLTF(path.generic_string());
-                    if (scene)
-                    {
-                        for (auto node : scene->getChildren<nodes::Node3D>())
-                        {
-                            auto name = node->getName();
-                            //if (name == "Near") mNearNode->setTransform(node->getTransform());
-                            //if (name == "Far") mFarNode->setTransform(node->getTransform());
-                            //if (name.find(".gltf") != string::npos && mModel) mModel->setTransform(node->getTransform());
-                        }
-                    }
+                    auto newScene = melo::loadSceneFromGLTF(path.generic_string());
+                    if (newScene)
+                        mScene = newScene;
                 }
 
                 if (ui::Button("Save the scene"))
                 {
                     auto path = getAppPath() / "melo.gltf";
-                    nodes::writeSceneToGLTF(mScene, path.generic_string());
+                    melo::writeSceneToGLTF(mScene, path.generic_string());
                 }
 
                 // selectable list
                 if (ui::ListBoxHeader("Nodes"))
                 {
                     static bool selected = false;
-                    for (auto node : mScene->getChildren<nodes::Node3D>())
+                    for (auto node : mScene->getChildren<melo::Node3D>())
                     {
                         if (ui::Selectable(node->getName().c_str(), mPickedNode == node))
                         {

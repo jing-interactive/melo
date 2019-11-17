@@ -33,7 +33,7 @@ namespace cinder {
     typedef std::shared_ptr<class TriMesh>		TriMeshRef;
 }
 
-namespace nodes
+namespace melo
 {
     using namespace ci;
 

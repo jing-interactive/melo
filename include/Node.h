@@ -47,7 +47,7 @@ namespace cinder
 #include "cinder/Signals.h"
 #endif
 
-namespace nodes
+namespace melo
 {
     typedef std::shared_ptr<class Node> NodeRef;
     typedef std::shared_ptr<const class Node> NodeConstRef;
@@ -163,4 +163,4 @@ namespace nodes
         mutable glm::mat4 mWorldTransform;
     };
 
-} // namespace nodes
+} // namespace melo

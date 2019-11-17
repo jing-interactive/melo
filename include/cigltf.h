@@ -239,7 +239,7 @@ struct MaterialGLTF
     glm::vec3 specularFactor = {1, 1, 1};
     float glossinessFactor = 1;
 
-    nodes::MaterialType materialType;
+    melo::MaterialType materialType;
 
     static Ref create(ModelGLTFRef modelGLTF, const tinygltf::Material& property);
 
@@ -296,7 +296,7 @@ struct SkinGLTF
     static Ref create(ModelGLTFRef modelGLTF, const tinygltf::Skin& property);
 };
 
-struct NodeGLTF : public nodes::Node3D
+struct NodeGLTF : public melo::Node3D
 {
     typedef std::shared_ptr<NodeGLTF> Ref;
     tinygltf::Node property;
@@ -326,7 +326,7 @@ struct SceneGLTF : public NodeGLTF
     static Ref create(ModelGLTFRef modelGLTF, const tinygltf::Scene& property);
 };
 
-struct ModelGLTF : public nodes::Node3D
+struct ModelGLTF : public melo::Node3D
 {
     tinygltf::Model property;
 

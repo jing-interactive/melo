@@ -5,8 +5,10 @@
 
 namespace melo
 {
-    nodes::Node3DRef createSceneRoot();
-    nodes::Node3DRef createFromFile(const cinder::fs::path& meshPath);
-    nodes::Node3DRef createGrid(float meters = 100.0f);
-    nodes::Node3DRef createSky();
+    Node3DRef create(const std::string& typeName);
+
+    Node3DRef createRootNode();
+    Node3DRef createGltfNode(const cinder::fs::path& meshPath);
+    Node3DRef createGridNode(float meters = 100.0f);
+    Node3DRef createSkyNode();
 };
