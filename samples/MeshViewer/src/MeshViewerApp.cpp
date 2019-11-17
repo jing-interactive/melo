@@ -11,6 +11,7 @@
 #include "GLHelper.h"
 
 #include "melo.h"
+#include "SceneIO.h"
 #include "FirstPersonCamera.h"
 
 #include "MiniConfigImgui.h"
@@ -27,7 +28,6 @@ struct MeloViewer : public App
     FirstPersonCamera mFpsCam;
     CameraPersp2* mCurrentCam = nullptr;
     bool mIsFpsCamera = false;
-    quat mMeshRotation;
 
     // args
     bool mSnapshotMode = false;
@@ -45,10 +45,7 @@ struct MeloViewer : public App
     nodes::Node3DRef mPickedNode;
     mat4 mPickedTransform;
 
-
     string mLoadingError;
-    gl::TextureFontRef texFont;
-    //params::InterfaceGlRef mParams;
 
     vector<string> listGlTFFiles()
     {
@@ -88,8 +85,6 @@ struct MeloViewer : public App
         mMayaCamUi = CameraUi(&mMayaCam, getWindow(), -1);
         mFpsCam.setup();
 
-        texFont = FontHelper::createTextureFont("Helvetica", 24);
-
         {
             mScene = melo::createSceneRoot();
 
@@ -117,23 +112,24 @@ struct MeloViewer : public App
             mMayaCam.setAspectRatio(getWindowAspectRatio());
             });
 
-        getWindow()->getSignalKeyUp().connect([&](KeyEvent& event) {
-            if (mSnapshotMode) return;
-
-            auto code = event.getCode();
-            if (code == KeyEvent::KEY_ESCAPE)
-                quit();
-            if (code == KeyEvent::KEY_SPACE)
-                WIRE_FRAME = !WIRE_FRAME;
-            if (code == KeyEvent::KEY_e)
-                ENV_VISIBLE = !ENV_VISIBLE;
-            if (code == KeyEvent::KEY_x)
-                XYZ_VISIBLE = !XYZ_VISIBLE;
-            if (code == KeyEvent::KEY_g)
-                GUI_VISIBLE = !GUI_VISIBLE;
-            if (code == KeyEvent::KEY_f)
-                FPS_CAMERA = !FPS_CAMERA;
-            });
+        if (!mSnapshotMode)
+        {
+            getWindow()->getSignalKeyUp().connect([&](KeyEvent& event) {
+                auto code = event.getCode();
+                if (code == KeyEvent::KEY_ESCAPE)
+                    quit();
+                if (code == KeyEvent::KEY_SPACE)
+                    WIRE_FRAME = !WIRE_FRAME;
+                if (code == KeyEvent::KEY_e)
+                    ENV_VISIBLE = !ENV_VISIBLE;
+                if (code == KeyEvent::KEY_x)
+                    XYZ_VISIBLE = !XYZ_VISIBLE;
+                if (code == KeyEvent::KEY_g)
+                    GUI_VISIBLE = !GUI_VISIBLE;
+                if (code == KeyEvent::KEY_f)
+                    FPS_CAMERA = !FPS_CAMERA;
+                });
+        }
 
         getWindow()->getSignalFileDrop().connect([&](FileDropEvent& event) {
 
@@ -185,8 +181,11 @@ struct MeloViewer : public App
                 auto newModel = melo::createFromFile(path);
                 if (newModel)
                 {
-                    auto box = ci::AxisAlignedBox(newModel->mBoundBoxMin, newModel->mBoundBoxMax);
-                    mMayaCam.lookAt(box.getMax(), box.getCenter());
+                    if (mModel == nullptr)
+                    {
+                        auto box = ci::AxisAlignedBox(newModel->mBoundBoxMin, newModel->mBoundBoxMax);
+                        mMayaCam.lookAt(box.getMax(), box.getCenter());
+                    }
                     mScene->removeChild(mModel);
                     mModel = newModel;
                     mScene->addChild(mModel);
@@ -231,11 +230,32 @@ struct MeloViewer : public App
             {
                 //mModel->flipV = FLIP_V;
                 mModel->cameraPosition = mCurrentCam->getEyePoint();
-                mModel->treeUpdate();
             }
 
             if (ui::Begin("Scene Inspector"))
             {
+                if (ui::Button("Load the scene"))
+                {
+                    auto path = getAppPath() / "melo.gltf";
+                    auto scene = nodes::loadSceneFromGLTF(path.generic_string());
+                    if (scene)
+                    {
+                        for (auto node : scene->getChildren<nodes::Node3D>())
+                        {
+                            auto name = node->getName();
+                            //if (name == "Near") mNearNode->setTransform(node->getTransform());
+                            //if (name == "Far") mFarNode->setTransform(node->getTransform());
+                            //if (name.find(".gltf") != string::npos && mModel) mModel->setTransform(node->getTransform());
+                        }
+                    }
+                }
+
+                if (ui::Button("Save the scene"))
+                {
+                    auto path = getAppPath() / "melo.gltf";
+                    nodes::writeSceneToGLTF(mScene, path.generic_string());
+                }
+
                 // selectable list
                 if (ui::ListBoxHeader("Nodes"))
                 {
@@ -291,6 +311,8 @@ struct MeloViewer : public App
                     mMayaCamUi.enable();
                 }
             }
+
+            mScene->treeUpdate();
             });
 
         getWindow()->getSignalDraw().connect([&] {
@@ -303,11 +325,9 @@ struct MeloViewer : public App
             else
                 gl::clear(ColorA::gray(0.2f, 1.0f));
 
-            //mParams->show(GUI_VISIBLE);
-
             if (!mLoadingError.empty())
             {
-                texFont->drawString(mLoadingError, { 10, APP_HEIGHT - 150 });
+                //texFont->drawString(mLoadingError, { 10, APP_HEIGHT - 150 });
             }
 
             mSkyNode->setVisible(ENV_VISIBLE);
@@ -319,8 +339,6 @@ struct MeloViewer : public App
                 gl::pointSize(POINT_SIZE);
 
                 gl::setWireframeEnabled(WIRE_FRAME);
-                mModel->setScale({ MESH_SCALE,MESH_SCALE,MESH_SCALE });
-                mModel->setRotation(mMeshRotation);
                 mModel->treeDraw();
                 gl::disableWireframe();
             }

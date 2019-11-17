@@ -81,12 +81,6 @@ namespace nodes
         void removeChild(NodeRef node);
         //! removes all children of this node
         void removeChildren();
-        //! puts a specific child on top of all other children of this node
-        void putOnTop(NodeRef node);
-        //! returns wether a specific child is on top of all other children
-        bool isOnTop(NodeConstRef node) const;
-        //! puts a specific child below all other children of this node
-        void moveToBottom(NodeRef node);
 
         //! returns a list of all children of the specified type
         template <class T> std::vector<std::shared_ptr<T>> getChildren()
@@ -103,24 +97,12 @@ namespace nodes
         // child functions
         //! removes this node from its parent
         void removeFromParent();
-        //! puts this node on top of all its siblings
-        void putOnTop();
-        //! returns wether this node is on top of all its siblings
-        bool isOnTop() const;
-        //! puts this node below all its siblings
-        void moveToBottom();
 
         //! enables or disables visibility of this node (invisible nodes are not drawn and can not
         //! receive events, but they still receive updates)
         virtual void setVisible(bool visible = true) { mIsVisible = visible; }
         //! returns wether this node is visible
         virtual bool isVisible() const { return mIsVisible; }
-        //!
-        virtual bool toggleVisible()
-        {
-            setVisible(!mIsVisible);
-            return mIsVisible;
-        }
 
         //! returns the transformation matrix of this node
         const glm::mat4& getTransform() const;

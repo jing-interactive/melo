@@ -139,6 +139,7 @@
     <ClInclude Include="..\..\..\include\cigltf.h" />
     <ClInclude Include="..\..\..\include\CinderMeshViewer.h" />
     <ClInclude Include="..\..\..\include\ciobj.h" />
+    <ClInclude Include="..\..\..\include\SceneIO.h" />
     <ClInclude Include="..\..\..\include\SkyNode.h" />
     <ClInclude Include="..\include\Resources.h" />
     <ClInclude Include="..\include\item.def" />
@@ -175,6 +176,7 @@
     <ClCompile Include="..\..\..\src\cigltf.cpp" />
     <ClCompile Include="..\..\..\src\ciobj.cpp" />
     <ClCompile Include="..\..\..\src\NodeExt.cpp" />
+    <ClCompile Include="..\..\..\src\SceneIO.cpp" />
     <ClCompile Include="..\..\..\src\SkyNode.cpp" />
     <ClCompile Include="..\src\MeshViewerApp.cpp" />
     <ClCompile Include="..\..\..\..\Cinder-VNM\src\AssetManager.cpp" />

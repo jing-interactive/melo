@@ -36,10 +36,10 @@ GridNode::GridNode(float meters) : mMeters(meters)
 
 void GridNode::draw()
 {
-    gl::ScopedDepthWrite depthWrite(false);
+    gl::ScopedDepthTest depthTest(false);
     gl::ScopedGlslProg glsl(shader);
     vertBatch->draw();
-    gl::drawCoordinateFrame(mMeters * 0.1f, mMeters * 0.01f, mMeters * 0.001f);
+    gl::drawCoordinateFrame(mMeters * 0.5f, mMeters * 0.05f, mMeters * 0.005f);
 }
 
 BuiltinMeshNode::Ref BuiltinMeshNode::create(TriMeshRef triMesh)

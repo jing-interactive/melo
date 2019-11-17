@@ -109,51 +109,6 @@ namespace nodes
         return (itr != mChildren.end());
     }
 
-    void Node::putOnTop()
-    {
-        NodeRef parent = getParent();
-        if (parent)
-            parent->putOnTop(shared_from_this());
-    }
-
-    void Node::putOnTop(NodeRef node)
-    {
-        // remove from list
-        auto itr = std::find(mChildren.begin(), mChildren.end(), node);
-        if (itr == mChildren.end())
-            return;
-
-        mChildren.erase(itr);
-
-        // add to end of list
-        mChildren.push_back(node);
-    }
-
-    bool Node::isOnTop() const
-    {
-        NodeRef parent = getParent();
-        if (parent)
-            return parent->isOnTop(shared_from_this());
-        else
-            return false;
-    }
-
-    bool Node::isOnTop(NodeConstRef node) const
-    {
-        if (mChildren.empty())
-            return false;
-        if (mChildren.back() == node)
-            return true;
-        return false;
-    }
-
-    void Node::moveToBottom()
-    {
-        NodeRef parent = getParent();
-        if (parent)
-            parent->moveToBottom(shared_from_this());
-    }
-
     //! sets the transformation matrix of this node
 
     void Node::setTransform(const glm::mat4& transform) const
@@ -170,19 +125,6 @@ namespace nodes
 
         for (auto& child : mChildren)
             child->invalidateTransform();
-    }
-
-    void Node::moveToBottom(NodeRef node)
-    {
-        // remove from list
-        auto itr = std::find(mChildren.begin(), mChildren.end(), node);
-        if (itr == mChildren.end())
-            return;
-
-        mChildren.erase(itr);
-
-        // add to start of list
-        mChildren.insert(mChildren.begin(), node);
     }
 
     void Node::treeVisitor(std::function<void(NodeRef)> visitor)
