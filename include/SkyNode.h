@@ -9,6 +9,7 @@ struct SkyNode : nodes::Node3D
 
     static Ref create();
 
+    void predraw() override;
     void draw() override;
 
     ci::gl::TextureCubeMapRef mSkyTex;

@@ -331,27 +331,17 @@ struct MeloViewer : public App
             }
 
             mSkyNode->setVisible(ENV_VISIBLE);
-#if 0
-            if (mModel)
-            {
-                gl::ScopedTextureBind scpTex(mModel->radianceTexture, 0);
 
-                gl::pointSize(POINT_SIZE);
-
-                gl::setWireframeEnabled(WIRE_FRAME);
-                mModel->treeDraw();
-                gl::disableWireframe();
-            }
-#endif
             mGridNode->setVisible(XYZ_VISIBLE);
 
+            gl::setWireframeEnabled(WIRE_FRAME);
             mScene->treeDraw();
+            gl::disableWireframe();
 
             if (mSnapshotMode)
             {
                 auto windowSurf = copyWindowSurfaceWithAlpha();
-                fs::path writePath = mOutputFilename;
-                writeImage(writePath, windowSurf);
+                writeImage(mOutputFilename, windowSurf);
                 quit();
             }
             });
