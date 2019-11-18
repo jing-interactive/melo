@@ -11,7 +11,6 @@
 #include "GLHelper.h"
 
 #include "melo.h"
-#include "SceneIO.h"
 #include "FirstPersonCamera.h"
 
 #include "MiniConfigImgui.h"
@@ -178,7 +177,7 @@ struct MeloViewer : public App
                     melo::Node3D::brdfLUTTexture = am::texture2d(BRDF_LUT_TEX);
                 }
 
-                auto newModel = melo::createGltfNode(path);
+                auto newModel = melo::createMeshNode(path);
                 if (newModel)
                 {
                     if (mModels.empty())
@@ -235,16 +234,16 @@ struct MeloViewer : public App
             {
                 if (ui::Button("Load the scene"))
                 {
-                    auto path = getAppPath() / "melo.gltf";
-                    auto newScene = melo::loadSceneFromGLTF(path.generic_string());
+                    auto path = getAppPath() / "melo.scene";
+                    auto newScene = melo::loadScene(path.generic_string());
                     if (newScene)
                         mScene = newScene;
                 }
 
                 if (ui::Button("Save the scene"))
                 {
-                    auto path = getAppPath() / "melo.gltf";
-                    melo::writeSceneToGLTF(mScene, path.generic_string());
+                    auto path = getAppPath() / "melo.scene";
+                    melo::writeScene(mScene, path.generic_string());
                 }
 
                 // selectable list

@@ -11,8 +11,10 @@ using namespace ci::app;
 
 Node3DRef melo::create(const std::string& typeName)
 {
+    if (typeName.find(".gltf") != std::string::npos) return melo::createMeshNode(typeName);
+    if (typeName.find(".glb") != std::string::npos) return melo::createMeshNode(typeName);
+    if (typeName.find(".obj") != std::string::npos) return melo::createMeshNode(typeName);
     if (typeName == "RootNode") return melo::createRootNode();
-    if (typeName.find(".gltf") != std::string::npos) return melo::createGltfNode(typeName);
     if (typeName == "GridNode") return melo::createGridNode();
     if (typeName == "SkyNode") return melo::createSkyNode();
 
@@ -30,7 +32,7 @@ Node3DRef melo::createRootNode()
     return root;
 }
 
-Node3DRef melo::createGltfNode(const fs::path& meshPath)
+Node3DRef melo::createMeshNode(const fs::path& meshPath)
 {
     fs::path realPath = meshPath;
     if (!fs::exists(realPath))

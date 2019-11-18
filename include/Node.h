@@ -82,6 +82,11 @@ namespace melo
         //! removes all children of this node
         void removeChildren();
 
+        NodeList& getChildren()
+        {
+            return mChildren;
+        }
+
         //! returns a list of all children of the specified type
         template <class T> std::vector<std::shared_ptr<T>> getChildren()
         {

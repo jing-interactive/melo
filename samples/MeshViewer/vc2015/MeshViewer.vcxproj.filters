@@ -242,9 +242,6 @@
     <ClInclude Include="..\..\..\include\SkyNode.h">
       <Filter>Blocks\melo</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\SceneIO.h">
-      <Filter>Blocks\melo</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources.rc">
