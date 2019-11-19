@@ -138,9 +138,9 @@ struct MeloViewer : public App
             {
                 if (fs::is_directory(filePath)) continue;
                 if (!filePath.has_extension()) continue;
-                auto ext = filePath.extension();
+                auto ext = filePath.extension().string().substr(1);
 
-                if (ext == ".obj" || ext == ".gltf" || ext == ".glb")
+                if (ext == "obj" || ext == "gltf" || ext == "glb")
                 {
                     mMeshFilenames.emplace_back(filePath.string());
                     MESH_FILE_ID = mMeshFilenames.size() - 1;
@@ -252,11 +252,6 @@ struct MeloViewer : public App
                     static bool selected = false;
                     for (auto node : mScene->getChildren())
                     {
-                        if (ui::Button("DEL"))
-                        {
-                            mScene->removeChild(node);
-                        }
-                        ui::SameLine();
                         if (ui::Selectable(node->getName().c_str(), mPickedNode == node))
                         {
                             mPickedNode = node;
@@ -279,6 +274,13 @@ struct MeloViewer : public App
                         mPickedTransform = {};
                         mPickedNode->setTransform(mPickedTransform);
                     }
+                    ui::SameLine();
+                    if (ui::Button("DEL"))
+                    {
+                        dispatchAsync([&] {
+                            mScene->removeChild(mPickedNode);
+                            });
+                    }
                     if (ui::EditGizmo(mCurrentCam->getViewMatrix(), mCurrentCam->getProjectionMatrix(), &mPickedTransform))
                     {
                         mMayaCamUi.disable();
@@ -291,6 +293,7 @@ struct MeloViewer : public App
                 }
             }
             ui::End();
+
 
             if (!mIsFpsCamera && mPickedNode != nullptr)
             {
