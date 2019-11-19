@@ -73,9 +73,6 @@ namespace melo
             // add to children
             mChildren.push_back(node);
 
-            mBoundBoxMin = glm::min(mBoundBoxMin, node->mBoundBoxMin);
-            mBoundBoxMax = glm::max(mBoundBoxMax, node->mBoundBoxMax);
-
             // set parent
             node->setParent(shared_from_this());
         }

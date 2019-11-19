@@ -37,7 +37,6 @@ struct MeloViewer : public App
     vector<string> mMeshFilenames;
 
     melo::NodeRef mScene;
-    vector<melo::NodeRef> mModels;
     melo::NodeRef mSkyNode;
     melo::NodeRef mGridNode;
 
@@ -208,10 +207,10 @@ struct MeloViewer : public App
             mCurrentCam->setNearClip(CAM_Z_NEAR);
             mCurrentCam->setFarClip(CAM_Z_FAR);
 
-            for (auto& model : mModels)
+            for (auto& child : mScene->getChildren())
             {
                 //mModel->flipV = FLIP_V;
-                model->cameraPosition = mCurrentCam->getEyePoint();
+                child->cameraPosition = mCurrentCam->getEyePoint();
             }
 
             if (ui::Begin("Scene Inspector"))
@@ -346,12 +345,6 @@ struct MeloViewer : public App
         auto newModel = melo::createMeshNode(path);
         if (newModel)
         {
-            if (mModels.empty())
-            {
-                auto box = ci::AxisAlignedBox(newModel->mBoundBoxMin, newModel->mBoundBoxMax);
-                //mMayaCam.lookAt(box.getMax(), box.getCenter());
-            }
-            mModels.emplace_back(newModel);
             mScene->addChild(newModel);
         }
     }

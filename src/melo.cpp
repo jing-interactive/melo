@@ -98,8 +98,11 @@ namespace melo
         // Draw the approximated bounding box in cyan.
 
         // Perform fast detection first - test against the bounding box itself.
-        if (!worldBoundsApprox.intersects(ray))
-            return {};
+        if (localBounds.getSize().x == 0)
+        {
+            if (!worldBoundsApprox.intersects(ray))
+                return {};
+        }
 
         drawBoundingBox(parentNode, Color(0, 1, 1));
 
