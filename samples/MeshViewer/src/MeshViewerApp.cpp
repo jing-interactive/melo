@@ -41,7 +41,7 @@ struct MeloViewer : public App
     melo::NodeRef mSkyNode;
     melo::NodeRef mGridNode;
 
-    melo::NodeRef mPickedNode;
+    melo::NodeRef mPickedNode, mMouseHitNode;
     mat4 mPickedTransform;
 
     string mLoadingError;
@@ -111,6 +111,22 @@ struct MeloViewer : public App
             mMayaCam.setAspectRatio(getWindowAspectRatio());
             });
 
+        getWindow()->getSignalMouseMove().connect([&](MouseEvent& event) {
+            mMouseHitNode = pick(mScene, *mCurrentCam, event.getPos());
+        });
+
+        getWindow()->getSignalMouseUp().connect([&](MouseEvent& event){
+            if (mMouseHitNode)
+            {
+                if (event.isLeft()) {
+                    auto hit = mMouseHitNode;
+                    dispatchAsync([&, hit] {
+                        mPickedNode = hit;
+                        mPickedTransform = mPickedNode->getTransform();
+                        });
+                }
+            }
+        });
         if (!mSnapshotMode)
         {
             getWindow()->getSignalKeyUp().connect([&](KeyEvent& event) {
@@ -142,8 +158,9 @@ struct MeloViewer : public App
 
                 if (ext == "obj" || ext == "gltf" || ext == "glb")
                 {
-                    mMeshFilenames.emplace_back(filePath.string());
-                    MESH_FILE_ID = mMeshFilenames.size() - 1;
+                    dispatchAsync([&, filePath] {
+                        loadMeshFromFile(filePath);
+                        });
                     break;
                 }
 
@@ -157,39 +174,6 @@ struct MeloViewer : public App
             });
 
         getSignalUpdate().connect([&] {
-            if (MESH_FILE_ID > mMeshFilenames.size() - 1)
-                MESH_FILE_ID = 0;
-
-            if (mMeshFileId != MESH_FILE_ID)
-            {
-                mMeshFileId = MESH_FILE_ID;
-
-                fs::path path = mMeshFilenames[mMeshFileId];
-                if (!fs::exists(path))
-                {
-                    path = getAssetPath(path);
-                }
-
-                if (melo::Node::radianceTexture == nullptr)
-                {
-                    melo::Node::radianceTexture = am::textureCubeMap(RADIANCE_TEX);
-                    melo::Node::irradianceTexture = am::textureCubeMap(IRRADIANCE_TEX);
-                    melo::Node::brdfLUTTexture = am::texture2d(BRDF_LUT_TEX);
-                }
-
-                auto newModel = melo::createMeshNode(path);
-                if (newModel)
-                {
-                    if (mModels.empty())
-                    {
-                        auto box = ci::AxisAlignedBox(newModel->mBoundBoxMin, newModel->mBoundBoxMax);
-                        mMayaCam.lookAt(box.getMax(), box.getCenter());
-                    }
-                    mModels.emplace_back(newModel);
-                    mScene->addChild(newModel);
-                    mPickedNode = newModel;
-                }
-            }
 
             if (mIsFpsCamera != FPS_CAMERA)
             {
@@ -344,6 +328,34 @@ struct MeloViewer : public App
             }
             });
     }
+
+    void loadMeshFromFile(fs::path path)
+    {
+        if (!fs::exists(path))
+        {
+            path = getAssetPath(path);
+        }
+
+        if (melo::Node::radianceTexture == nullptr)
+        {
+            melo::Node::radianceTexture = am::textureCubeMap(RADIANCE_TEX);
+            melo::Node::irradianceTexture = am::textureCubeMap(IRRADIANCE_TEX);
+            melo::Node::brdfLUTTexture = am::texture2d(BRDF_LUT_TEX);
+        }
+
+        auto newModel = melo::createMeshNode(path);
+        if (newModel)
+        {
+            if (mModels.empty())
+            {
+                auto box = ci::AxisAlignedBox(newModel->mBoundBoxMin, newModel->mBoundBoxMax);
+                //mMayaCam.lookAt(box.getMax(), box.getCenter());
+            }
+            mModels.emplace_back(newModel);
+            mScene->addChild(newModel);
+        }
+    }
+
     void parseArgs()
     {
         auto& args = getCommandLineArgs();
@@ -351,7 +363,6 @@ struct MeloViewer : public App
         if (args.size() > 1)
         {
             // MeloViewer.exe file.obj
-            MESH_FILE_ID = mMeshFilenames.size();
             mMeshFilenames.push_back(args[1]);
 
             if (args.size() > 2)

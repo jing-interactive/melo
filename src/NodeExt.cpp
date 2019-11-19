@@ -13,6 +13,11 @@ GridNode::Ref GridNode::create(float meters)
 
 GridNode::GridNode(float meters) : mMeters(meters)
 {
+    shader = gl::getStockShader(gl::ShaderDef().color());
+
+#if 0
+    vertBatch = gl::Batch::create(geom::WirePlane().size(vec2(meters)).subdivisions(ivec2(meters/3)), shader);
+#else
     vertBatch = gl::VertBatch::create(GL_LINES);
     vertBatch->begin(GL_LINES);
     for (int i = -meters; i <= meters; ++i)
@@ -28,8 +33,7 @@ GridNode::GridNode(float meters) : mMeters(meters)
         vertBatch->vertex(+meters, 0.0f, float(i));
     }
     vertBatch->end();
-
-    shader = gl::getStockShader(gl::ShaderDef().color());
+#endif
 
     setName("GridNode");
 }
