@@ -126,11 +126,11 @@ void MeshObj::SubMesh::draw()
 void MeshObj::predraw()
 {
 #ifndef CINDER_LESS
-    if (Node3D::irradianceTexture && Node3D::radianceTexture && Node3D::brdfLUTTexture)
+    if (Node::irradianceTexture && Node::radianceTexture && Node::brdfLUTTexture)
     {
-        Node3D::irradianceTexture->bind(5);
-        Node3D::radianceTexture->bind(6);
-        Node3D::brdfLUTTexture->bind(7);
+        Node::irradianceTexture->bind(5);
+        Node::radianceTexture->bind(6);
+        Node::brdfLUTTexture->bind(7);
     }
 #endif
 }
@@ -138,11 +138,11 @@ void MeshObj::predraw()
 void MeshObj::postdraw()
 {
 #ifndef CINDER_LESS
-    if (Node3D::irradianceTexture && Node3D::radianceTexture && Node3D::brdfLUTTexture)
+    if (Node::irradianceTexture && Node::radianceTexture && Node::brdfLUTTexture)
     {
-        Node3D::irradianceTexture->unbind(5);
-        Node3D::radianceTexture->unbind(6);
-        Node3D::brdfLUTTexture->unbind(7);
+        Node::irradianceTexture->unbind(5);
+        Node::radianceTexture->unbind(6);
+        Node::brdfLUTTexture->unbind(7);
     }
 #endif
 }
@@ -226,7 +226,7 @@ MaterialObj::Ref MaterialObj::create(ModelObjRef modelObj, const tinyobj::materi
     ref->emissiveFactor = { property.emission[0], property.emission[1], property.emission[2] };
     ref->glossinessFactor = property.shininess;
 
-    if (Node3D::radianceTexture && Node3D::irradianceTexture && Node3D::brdfLUTTexture)
+    if (Node::radianceTexture && Node::irradianceTexture && Node::brdfLUTTexture)
     {
         fmt.define("HAS_IBL");
         fmt.define("HAS_TEX_LOD");
@@ -267,7 +267,7 @@ MaterialObj::Ref MaterialObj::create(ModelObjRef modelObj, const tinyobj::materi
         ciShader->uniform("u_NormalScale", 1.0f);
     }
 
-    if (Node3D::radianceTexture && Node3D::irradianceTexture && Node3D::brdfLUTTexture)
+    if (Node::radianceTexture && Node::irradianceTexture && Node::brdfLUTTexture)
     {
         ciShader->uniform("u_DiffuseEnvSampler", 5);
         ciShader->uniform("u_SpecularEnvSampler", 6);

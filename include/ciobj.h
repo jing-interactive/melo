@@ -2,7 +2,7 @@
 
 #include "../3rdparty/tinyobjloader/tiny_obj_loader.h"
 
-#include "Node3D.h"
+#include "Node.h"
 
 #include <cinder/gl/gl.h>
 #include <memory>
@@ -41,7 +41,7 @@ struct MaterialObj
     void postdraw();
 };
 
-struct MeshObj : public melo::Node3D
+struct MeshObj : public melo::Node
 {
     typedef std::shared_ptr<MeshObj> Ref;
     tinyobj::shape_t property;

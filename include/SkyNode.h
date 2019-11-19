@@ -1,18 +1,21 @@
 #pragma once
 
-#include "Node3D.h"
+#include "Node.h"
 #include <Cinder/gl/gl.h>
 
-struct SkyNode : melo::Node3D
+namespace melo
 {
-    typedef std::shared_ptr<SkyNode> Ref;
+    struct SkyNode : Node
+    {
+        typedef std::shared_ptr<SkyNode> Ref;
 
-    static Ref create();
+        static Ref create();
 
-    void predraw() override;
-    void draw() override;
+        void predraw() override;
+        void draw() override;
 
-    ci::gl::TextureCubeMapRef mSkyTex;
-    ci::gl::BatchRef mSkyBoxBatch;
-    ci::gl::GlslProgRef skyBoxShader;
-};
+        ci::gl::TextureCubeMapRef mSkyTex;
+        ci::gl::BatchRef mSkyBoxBatch;
+        ci::gl::GlslProgRef skyBoxShader;
+    };
+}

@@ -36,12 +36,12 @@ struct MeloViewer : public App
     int mMeshFileId = -1;
     vector<string> mMeshFilenames;
 
-    melo::Node3DRef mScene;
-    vector<melo::Node3DRef> mModels;
-    melo::Node3DRef mSkyNode;
-    melo::Node3DRef mGridNode;
+    melo::NodeRef mScene;
+    vector<melo::NodeRef> mModels;
+    melo::NodeRef mSkyNode;
+    melo::NodeRef mGridNode;
 
-    melo::Node3DRef mPickedNode;
+    melo::NodeRef mPickedNode;
     mat4 mPickedTransform;
 
     string mLoadingError;
@@ -170,11 +170,11 @@ struct MeloViewer : public App
                     path = getAssetPath(path);
                 }
 
-                if (melo::Node3D::radianceTexture == nullptr)
+                if (melo::Node::radianceTexture == nullptr)
                 {
-                    melo::Node3D::radianceTexture = am::textureCubeMap(RADIANCE_TEX);
-                    melo::Node3D::irradianceTexture = am::textureCubeMap(IRRADIANCE_TEX);
-                    melo::Node3D::brdfLUTTexture = am::texture2d(BRDF_LUT_TEX);
+                    melo::Node::radianceTexture = am::textureCubeMap(RADIANCE_TEX);
+                    melo::Node::irradianceTexture = am::textureCubeMap(IRRADIANCE_TEX);
+                    melo::Node::brdfLUTTexture = am::texture2d(BRDF_LUT_TEX);
                 }
 
                 auto newModel = melo::createMeshNode(path);
@@ -250,8 +250,13 @@ struct MeloViewer : public App
                 if (ui::ListBoxHeader("Nodes"))
                 {
                     static bool selected = false;
-                    for (auto node : mScene->getChildren<melo::Node3D>())
+                    for (auto node : mScene->getChildren())
                     {
+                        if (ui::Button("DEL"))
+                        {
+                            mScene->removeChild(node);
+                        }
+                        ui::SameLine();
                         if (ui::Selectable(node->getName().c_str(), mPickedNode == node))
                         {
                             mPickedNode = node;

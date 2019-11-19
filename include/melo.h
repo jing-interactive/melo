@@ -1,17 +1,17 @@
 #pragma once
 
-#include "../include/Node3D.h"
+#include "../include/Node.h"
 #include <cinder/Filesystem.h>
 
 namespace melo
 {
-    Node3DRef create(const std::string& typeName);
+    NodeRef create(const std::string& typeName);
 
-    Node3DRef createRootNode();
-    Node3DRef createMeshNode(const cinder::fs::path& meshPath);
-    Node3DRef createGridNode(float meters = 100.0f);
-    Node3DRef createSkyNode();
+    NodeRef createRootNode();
+    NodeRef createMeshNode(const cinder::fs::path& meshPath);
+    NodeRef createGridNode(float meters = 100.0f);
+    NodeRef createSkyNode();
 
-    Node3DRef loadScene(const std::string& filename);
-    bool writeScene(Node3DRef scene, const std::string& filename);
+    NodeRef loadScene(const std::string& filename);
+    bool writeScene(NodeRef scene, const std::string& filename);
 };

@@ -5,57 +5,59 @@
 #include "SkyNode.h"
 #include <cinder/app/App.h>
 
-using namespace melo;
 using namespace ci;
 using namespace ci::app;
 
-Node3DRef melo::create(const std::string& typeName)
+namespace melo
 {
-    if (typeName.find(".gltf") != std::string::npos) return melo::createMeshNode(typeName);
-    if (typeName.find(".glb") != std::string::npos) return melo::createMeshNode(typeName);
-    if (typeName.find(".obj") != std::string::npos) return melo::createMeshNode(typeName);
-    if (typeName == "RootNode") return melo::createRootNode();
-    if (typeName == "GridNode") return melo::createGridNode();
-    if (typeName == "SkyNode") return melo::createSkyNode();
-
-    auto ref = melo::Node3D::create();
-    ref->setName(typeName);
-
-    return ref;
-}
-
-Node3DRef melo::createRootNode()
-{
-    auto root = Node3D::create();
-    root->setName("RootNode");
-
-    return root;
-}
-
-Node3DRef melo::createMeshNode(const fs::path& meshPath)
-{
-    fs::path realPath = meshPath;
-    if (!fs::exists(realPath))
+    NodeRef create(const std::string& typeName)
     {
-        realPath = getAssetPath(realPath);
-        if (!fs::exists(realPath)) return {};
+        if (typeName.find(".gltf") != std::string::npos) return createMeshNode(typeName);
+        if (typeName.find(".glb") != std::string::npos) return createMeshNode(typeName);
+        if (typeName.find(".obj") != std::string::npos) return createMeshNode(typeName);
+        if (typeName == "RootNode") return createRootNode();
+        if (typeName == "GridNode") return createGridNode();
+        if (typeName == "SkyNode") return createSkyNode();
+
+        auto ref = Node::create();
+        ref->setName(typeName);
+
+        return ref;
     }
 
-    if (realPath.extension() == ".obj")
-        return ModelObj::create(realPath);
+    NodeRef createRootNode()
+    {
+        auto root = Node::create();
+        root->setName("RootNode");
 
-    if (realPath.extension() == ".gltf" || realPath.extension() == ".glb")
-        return ModelGLTF::create(realPath);
+        return root;
+    }
 
-    return {};
-}
+    NodeRef createMeshNode(const fs::path& meshPath)
+    {
+        fs::path realPath = meshPath;
+        if (!fs::exists(realPath))
+        {
+            realPath = getAssetPath(realPath);
+            if (!fs::exists(realPath)) return {};
+        }
 
-Node3DRef melo::createGridNode(float meters)
-{
-    return GridNode::create(meters);
-}
+        if (realPath.extension() == ".obj")
+            return ModelObj::create(realPath);
 
-Node3DRef melo::createSkyNode()
-{
-    return SkyNode::create();
+        if (realPath.extension() == ".gltf" || realPath.extension() == ".glb")
+            return ModelGLTF::create(realPath);
+
+        return {};
+    }
+
+    NodeRef createGridNode(float meters)
+    {
+        return GridNode::create(meters);
+    }
+
+    NodeRef createSkyNode()
+    {
+        return SkyNode::create();
+    }
 }

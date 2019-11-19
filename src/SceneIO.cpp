@@ -5,13 +5,13 @@ using namespace std;
 
 namespace melo
 {
-    Node3DRef loadScene(const std::string& filename)
+    NodeRef loadScene(const std::string& filename)
     {
-        Node3DRef root;
+        NodeRef root;
         auto tree = ModelGLTF::create(filename);
         if (tree)
         {
-            root = tree->currentScene->getChildren<melo::Node3D>()[0];
+            root = tree->currentScene->getChildren()[0];
             auto& children = root->getChildren();
             for (int i = 0; i < children.size(); i++)
             {
@@ -22,7 +22,7 @@ namespace melo
         return root;
     }
 
-    static void addNode(Node3DRef node, int& nodeidx, tinygltf::Model& gltfmodel, tinygltf::Scene& gltfscene) {
+    static void addNode(NodeRef node, int& nodeidx, tinygltf::Model& gltfmodel, tinygltf::Scene& gltfscene) {
         tinygltf::Node gltfnode;
         gltfnode.name = node->getName();
         auto ptr = glm::value_ptr(node->getTransform());
@@ -37,7 +37,7 @@ namespace melo
         auto key = node->getName().find(".gltf");
         if (key == string::npos)
         {
-            for (auto& child : node->getChildren<Node3D>())
+            for (auto& child : node->getChildren())
             {
                 addNode(child, nodeidx, gltfmodel, gltfscene);
                 gltfmodel.nodes[idx].children.push_back(nodeidx);
@@ -46,7 +46,7 @@ namespace melo
         nodeidx++;
     };
 
-    bool writeScene(Node3DRef scene, const std::string& filename)
+    bool writeScene(NodeRef scene, const std::string& filename)
     {
         tinygltf::Model gltfmodel;
         gltfmodel.asset.generator = "melo runtime";

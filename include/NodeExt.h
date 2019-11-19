@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "Node3D.h"
+#include "Node.h"
 #include "cinder/gl/gl.h"
 
 namespace cinder {
@@ -37,7 +37,7 @@ namespace melo
 {
     using namespace ci;
 
-    struct GridNode : public Node3D
+    struct GridNode : public Node
     {
         typedef std::shared_ptr<GridNode> Ref;
 
@@ -50,11 +50,9 @@ namespace melo
         GridNode(float meters = 10.0f);
 
         void draw();
-
-        virtual inline std::string toString() const { return "GridNode"; }
     };
 
-    struct BuiltinMeshNode : public Node3D
+    struct BuiltinMeshNode : public Node
     {
         typedef std::shared_ptr<BuiltinMeshNode> Ref;
 
@@ -67,7 +65,5 @@ namespace melo
         BuiltinMeshNode(TriMeshRef triMesh);
 
         void draw();
-
-        virtual inline std::string toString() const { return "TriMeshNode"; }
     };
 } // namespace nodes

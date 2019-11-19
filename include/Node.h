@@ -29,9 +29,6 @@
 #include <functional>
 #include <string>
 
-#include <glm/mat4x4.hpp>
-#include <glm/vec3.hpp>
-
 #ifndef CINDER_LESS
  // forward declarations
 namespace cinder
@@ -42,10 +39,22 @@ namespace cinder
         class MouseEvent;
         class KeyEvent;
     } // namespace app
+    namespace gl {
+
+        typedef std::shared_ptr<class Texture2d>		Texture2dRef;
+        typedef std::shared_ptr<class TextureCubeMap>	TextureCubeMapRef;
+    }
 } // namespace cinder
 #include "cinder/gl/GlslProg.h"
 #include "cinder/Signals.h"
+#else
+#define GLM_FORCE_CTOR_INIT
 #endif
+
+
+#include <glm/mat4x4.hpp>
+#include <glm/vec3.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 namespace melo
 {
@@ -54,11 +63,20 @@ namespace melo
     typedef std::weak_ptr<class Node> NodeWeakRef;
     typedef std::vector<NodeRef> NodeList;
 
+    enum MaterialType
+    {
+        MATERIAL_PBR_METAL_ROUGHNESS,
+        MATERIAL_PBR_SPEC_GLOSSINESS,
+        MATERIAL_UNLIT,
+
+        MATERIAL_COUNT,
+    };
+
     class Node : public std::enable_shared_from_this<Node>
     {
     public:
-        Node(void);
-        virtual ~Node(void);
+        Node();
+        virtual ~Node();
 
         //! sets the node's parent node (using weak reference to avoid objects not getting
         //! destroyed)
@@ -85,18 +103,6 @@ namespace melo
         NodeList& getChildren()
         {
             return mChildren;
-        }
-
-        //! returns a list of all children of the specified type
-        template <class T> std::vector<std::shared_ptr<T>> getChildren()
-        {
-            std::vector<std::shared_ptr<T>> result;
-            for (auto& child : mChildren)
-            {
-                std::shared_ptr<T> node = std::dynamic_pointer_cast<T>(child);
-                if (node) result.push_back(node);
-            }
-            return result;
         }
 
         // child functions
@@ -129,9 +135,6 @@ namespace melo
         //! calls the draw() function of this node and all its decendants
         void treeDraw();
 
-        // stream support
-        virtual inline std::string toString() const { return "Node"; }
-
         void setName(const std::string& name);
         const std::string& getName() const;
 
@@ -142,6 +145,15 @@ namespace melo
 
         NodeWeakRef mParent;
         NodeList mChildren;
+
+        glm::vec3 mPosition;
+        glm::quat mRotation;
+        glm::vec3 mScale;
+        glm::vec3 mAnchor;
+
+        // whether to ingore values of mPosition, mRotation, mScale, mAnchor
+        glm::mat4 mConstantTransform;
+        bool mIsConstantTransform;
 
     protected:
         virtual void setup() {}
@@ -154,18 +166,60 @@ namespace melo
         //! function that is called right after drawing this node
         virtual void postdraw() {}
 
-        //! required transform() function to populate the transform matrix
-        virtual void transform() const = 0;
-
+        // required function (see: class Node)
+        virtual void transform() const;
     private:
         bool mIsSetup;
-
-        //! nodeCount is used to count the number of Node instances for debugging purposes
-        static int nodeCount;
 
         mutable bool mIsTransformInvalidated;
         mutable glm::mat4 mTransform;
         mutable glm::mat4 mWorldTransform;
+
+    public:
+        static NodeRef create();
+
+        // getters and setters
+        virtual glm::vec3 getPosition() const { return mPosition; }
+
+        virtual void setPosition(const glm::vec3& pt)
+        {
+            mPosition = pt;
+            invalidateTransform();
+        }
+
+        virtual glm::quat getRotation() const { return mRotation; }
+        virtual void setRotation(float radians);
+        virtual void setRotation(const glm::vec3& radians);
+        virtual void setRotation(const glm::vec3& axis, float radians);
+        virtual void setRotation(const glm::quat& rot);
+
+        virtual glm::vec3 getScale() const { return mScale; }
+
+        virtual void setScale(const glm::vec3& scale)
+        {
+            mScale = scale;
+            invalidateTransform();
+        }
+
+        virtual glm::vec3 getAnchor() const { return mAnchor; }
+
+        virtual void setAnchor(const glm::vec3& pt)
+        {
+            mAnchor = pt;
+            invalidateTransform();
+        }
+
+        void setConstantTransform(const glm::mat4& transform);
+
+        glm::vec3 mBoundBoxMin, mBoundBoxMax;
+        glm::vec3 cameraPosition = { 1,1,1 };
+
+#ifndef CINDER_LESS
+        static ci::gl::TextureCubeMapRef radianceTexture;
+        static ci::gl::TextureCubeMapRef irradianceTexture;
+        static ci::gl::Texture2dRef brdfLUTTexture;
+#endif
+
     };
 
 } // namespace melo

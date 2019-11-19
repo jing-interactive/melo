@@ -108,9 +108,6 @@
     <ClCompile Include="..\..\..\src\Node.cpp">
       <Filter>Blocks\melo</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\Node3D.cpp">
-      <Filter>Blocks\melo</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\3rdparty\tinygltf\tiny_gltf.cc">
       <Filter>Blocks\3rdparty</Filter>
     </ClCompile>
@@ -176,9 +173,6 @@
     <ClInclude Include="..\..\..\include\Node.h">
       <Filter>Blocks\melo</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\Node3D.h">
-      <Filter>Blocks\melo</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\3rdparty\flythrough_camera\flythrough_camera.h">
       <Filter>Blocks\3rdparty</Filter>
     </ClInclude>
@@ -240,6 +234,9 @@
       <Filter>Blocks\Cinder-Imgui</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\include\SkyNode.h">
+      <Filter>Blocks\melo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\NodeExt.h">
       <Filter>Blocks\melo</Filter>
     </ClInclude>
   </ItemGroup>

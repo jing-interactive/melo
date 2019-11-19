@@ -294,11 +294,11 @@ ModelGLTFRef ModelGLTF::create(const fs2::path& meshPath, std::string* loadingEr
 void ModelGLTF::predraw()
 {
 #ifndef CINDER_LESS
-    if (Node3D::irradianceTexture && Node3D::radianceTexture && Node3D::brdfLUTTexture)
+    if (Node::irradianceTexture && Node::radianceTexture && Node::brdfLUTTexture)
     {
-        Node3D::irradianceTexture->bind(5);
-        Node3D::radianceTexture->bind(6);
-        Node3D::brdfLUTTexture->bind(7);
+        Node::irradianceTexture->bind(5);
+        Node::radianceTexture->bind(6);
+        Node::brdfLUTTexture->bind(7);
     }
 #endif
 }
@@ -306,11 +306,11 @@ void ModelGLTF::predraw()
 void ModelGLTF::postdraw()
 {
 #ifndef CINDER_LESS
-    if (Node3D::irradianceTexture && Node3D::radianceTexture && Node3D::brdfLUTTexture)
+    if (Node::irradianceTexture && Node::radianceTexture && Node::brdfLUTTexture)
     {
-        Node3D::irradianceTexture->unbind(5);
-        Node3D::radianceTexture->unbind(6);
-        Node3D::brdfLUTTexture->unbind(7);
+        Node::irradianceTexture->unbind(5);
+        Node::radianceTexture->unbind(6);
+        Node::brdfLUTTexture->unbind(7);
     }
 #endif
 }
@@ -588,7 +588,7 @@ MaterialGLTF::Ref MaterialGLTF::create(ModelGLTFRef modelGLTF, const tinygltf::M
     if (ref->occlusionTexture)
         fmt.define("HAS_OCCLUSIONMAP");
 
-    if (Node3D::radianceTexture && Node3D::irradianceTexture && Node3D::brdfLUTTexture)
+    if (Node::radianceTexture && Node::irradianceTexture && Node::brdfLUTTexture)
     {
         fmt.define("HAS_IBL");
         fmt.define("HAS_TEX_LOD");

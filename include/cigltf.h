@@ -14,7 +14,7 @@ namespace fs2 = ci::fs;
 
 #include "../3rdparty/tinygltf/tiny_gltf.h"
 
-#include "Node3D.h"
+#include "Node.h"
 
 typedef std::shared_ptr<struct ModelGLTF> ModelGLTFRef;
 typedef std::shared_ptr<struct WeakBuffer> WeakBufferRef;
@@ -296,7 +296,7 @@ struct SkinGLTF
     static Ref create(ModelGLTFRef modelGLTF, const tinygltf::Skin& property);
 };
 
-struct NodeGLTF : public melo::Node3D
+struct NodeGLTF : public melo::Node
 {
     typedef std::shared_ptr<NodeGLTF> Ref;
     tinygltf::Node property;
@@ -326,7 +326,7 @@ struct SceneGLTF : public NodeGLTF
     static Ref create(ModelGLTFRef modelGLTF, const tinygltf::Scene& property);
 };
 
-struct ModelGLTF : public melo::Node3D
+struct ModelGLTF : public melo::Node
 {
     tinygltf::Model property;
 

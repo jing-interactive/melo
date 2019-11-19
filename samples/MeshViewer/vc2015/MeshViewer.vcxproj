@@ -135,10 +135,10 @@
     <ClInclude Include="..\..\..\include\FirstPersonCamera.h" />
     <ClInclude Include="..\..\..\include\melo.h" />
     <ClInclude Include="..\..\..\include\Node.h" />
-    <ClInclude Include="..\..\..\include\Node3D.h" />
     <ClInclude Include="..\..\..\include\cigltf.h" />
     <ClInclude Include="..\..\..\include\CinderMeshViewer.h" />
     <ClInclude Include="..\..\..\include\ciobj.h" />
+    <ClInclude Include="..\..\..\include\NodeExt.h" />
     <ClInclude Include="..\..\..\include\SkyNode.h" />
     <ClInclude Include="..\include\Resources.h" />
     <ClInclude Include="..\include\item.def" />
@@ -171,7 +171,6 @@
     <ClCompile Include="..\..\..\3rdparty\vox\read_vox.cpp" />
     <ClCompile Include="..\..\..\src\melo.cpp" />
     <ClCompile Include="..\..\..\src\Node.cpp" />
-    <ClCompile Include="..\..\..\src\Node3D.cpp" />
     <ClCompile Include="..\..\..\src\cigltf.cpp" />
     <ClCompile Include="..\..\..\src\ciobj.cpp" />
     <ClCompile Include="..\..\..\src\NodeExt.cpp" />

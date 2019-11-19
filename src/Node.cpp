@@ -25,33 +25,33 @@
 
 #ifndef CINDER_LESS
 #include "cinder/app/App.h"
-
+#include <cinder/gl/Texture.h>
 using namespace ci;
 using namespace ci::app;
 
 #endif
+
+#include <glm/glm.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/transform.hpp>
+
 using namespace std;
 
 namespace melo
 {
-
-    int Node::nodeCount = 0;
-
-    Node::Node(void)
+    Node::Node()
         : mIsVisible(true),
         mIsSetup(false), mIsTransformInvalidated(true)
     {
-        // default constructor for [Node]
-        nodeCount++;
+        mScale = { 1,1,1 };
+        mIsConstantTransform = false;
+        setName("Node");
     }
 
-    Node::~Node(void)
+    Node::~Node()
     {
         // remove all children safely
         removeChildren();
-
-        //
-        nodeCount--;
     }
 
     void Node::removeFromParent()
@@ -237,4 +237,61 @@ namespace melo
             child->invalidateTransform();
     }
 
+#ifndef CINDER_LESS
+    ci::gl::TextureCubeMapRef Node::radianceTexture;
+    ci::gl::TextureCubeMapRef Node::irradianceTexture;
+    ci::gl::Texture2dRef Node::brdfLUTTexture;
+#endif
+
+    NodeRef Node::create()
+    {
+        return make_shared<Node>();
+    }
+
+    void Node::setRotation(float radians)
+    {
+        mRotation = glm::angleAxis(radians, glm::vec3(0, 1, 0));
+        invalidateTransform();
+    }
+
+    void Node::setRotation(const glm::vec3& radians)
+    {
+        mRotation = glm::rotation(glm::vec3(0), radians);
+        invalidateTransform();
+    }
+
+    void Node::setRotation(const glm::vec3& axis, float radians)
+    {
+        mRotation = glm::angleAxis(radians, axis);
+        invalidateTransform();
+    }
+
+    void Node::setRotation(const glm::quat& rot)
+    {
+        mRotation = rot;
+        invalidateTransform();
+    }
+
+    void Node::transform() const
+    {
+        if (mIsConstantTransform)
+        {
+            setTransform(mConstantTransform);
+        }
+        else
+        {
+            // construct transformation matrix
+            glm::mat4 transform = glm::translate(mPosition);
+            transform *= glm::toMat4(mRotation);
+            transform *= glm::scale(mScale);
+            transform *= glm::translate(-mAnchor);
+            setTransform(transform);
+        }
+    }
+
+    void Node::setConstantTransform(const glm::mat4& transform)
+    {
+        mIsConstantTransform = true;
+        mConstantTransform = transform;
+    }
 } // namespace melo
