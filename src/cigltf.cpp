@@ -202,6 +202,7 @@ ModelGLTFRef ModelGLTF::create(const fs2::path& meshPath, std::string* loadingEr
     ModelGLTFRef ref = make_shared<ModelGLTF>();
     ref->property = model;
     ref->meshPath = meshPath;
+    ref->rayCategory = 0xFF;
     ref->setName(meshPath.generic_string());
 
     {
@@ -327,6 +328,8 @@ NodeGLTF::Ref NodeGLTF::create(ModelGLTFRef modelGLTF, const tinygltf::Node& pro
 {
     NodeGLTF::Ref ref = make_shared<NodeGLTF>();
     ref->property = property;
+    ref->rayCategory = 0xFF;
+
     if (property.camera != -1)
         ref->camera = modelGLTF->cameras[property.camera];
     if (property.mesh != -1)

@@ -12,6 +12,7 @@ MeshObj::Ref MeshObj::create(ModelObjRef modelObj, const tinyobj::shape_t& prope
     auto ref = make_shared<MeshObj>();
     ref->property = property;
     ref->setName(property.name);
+    ref->rayCategory = 0xFF;
 
     const auto& attrib = modelObj->attrib;
 
@@ -350,6 +351,8 @@ ModelObjRef ModelObj::create(const fs::path& meshPath, std::string* loadingError
         ref->mBoundBoxMax = glm::max(mesh->mBoundBoxMax, ref->mBoundBoxMax);
         ref->addChild(mesh);
     }
+
+    ref->rayCategory = 0xFF;
 
     return ref;
 }

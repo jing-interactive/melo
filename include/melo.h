@@ -18,6 +18,6 @@ namespace melo
 
     void drawBoundingBox(NodeRef node, const ci::Color& color = { 1, 1, 0 });
 
-    NodeRef pick(NodeRef parentNode, const ci::CameraPersp& camera, const glm::ivec2& screenPos);
-    NodeRef pick(NodeRef parentNode, const ci::Ray& ray);
+    NodeRef pick(NodeRef parentNode, const ci::CameraPersp& camera, const glm::ivec2& screenPos, uint32_t rayMask = 0xFFFFFF);
+    NodeRef pick(NodeRef parentNode, const ci::Ray& ray, uint32_t rayMask = 0xFFFFFF);
 };

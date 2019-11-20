@@ -178,6 +178,8 @@ namespace melo
     public:
         static NodeRef create();
 
+        uint32_t rayCategory = 0;
+
         // getters and setters
         virtual glm::vec3 getPosition() const { return mPosition; }
 

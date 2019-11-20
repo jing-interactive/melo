@@ -12,10 +12,13 @@ namespace melo
         if (tree)
         {
             root = tree->currentScene->getChildren()[0];
+            root->rayCategory = 0;
             auto& children = root->getChildren();
             for (int i = 0; i < children.size(); i++)
             {
+                auto transform = children[i]->getTransform();
                 children[i] = melo::create(children[i]->getName());
+                children[i]->setConstantTransform(transform);
             }
         }
 

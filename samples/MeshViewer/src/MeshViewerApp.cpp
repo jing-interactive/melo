@@ -72,6 +72,15 @@ struct MeloViewer : public App
         return files;
     }
 
+    void setPickedNode(melo::NodeRef newNode)
+    {
+        mPickedNode = newNode;
+        if (newNode)
+        {
+            mPickedTransform = newNode->getTransform();
+        }
+    }
+
     void setup() override
     {
         log::makeLogger<log::LoggerFileRotating>(fs::path(), "IG.%Y.%m.%d.log");
@@ -115,15 +124,11 @@ struct MeloViewer : public App
         });
 
         getWindow()->getSignalMouseUp().connect([&](MouseEvent& event){
-            if (mMouseHitNode)
-            {
-                if (event.isLeft()) {
-                    auto hit = mMouseHitNode;
-                    dispatchAsync([&, hit] {
-                        mPickedNode = hit;
-                        mPickedTransform = mPickedNode->getTransform();
-                        });
-                }
+            if (event.isLeft()) {
+                auto hit = mMouseHitNode;
+                dispatchAsync([&, hit] {
+                    setPickedNode(hit);
+                    });
             }
         });
         if (!mSnapshotMode)
@@ -237,8 +242,7 @@ struct MeloViewer : public App
                     {
                         if (ui::Selectable(node->getName().c_str(), mPickedNode == node))
                         {
-                            mPickedNode = node;
-                            mPickedTransform = mPickedNode->getTransform();
+                            setPickedNode(node);
                         }
                     }
                     ui::ListBoxFooter();
@@ -262,6 +266,7 @@ struct MeloViewer : public App
                     {
                         dispatchAsync([&] {
                             mScene->removeChild(mPickedNode);
+                            setPickedNode(nullptr);
                             });
                     }
                     if (ui::EditGizmo(mCurrentCam->getViewMatrix(), mCurrentCam->getProjectionMatrix(), &mPickedTransform))
@@ -309,6 +314,11 @@ struct MeloViewer : public App
             if (!mLoadingError.empty())
             {
                 //texFont->drawString(mLoadingError, { 10, APP_HEIGHT - 150 });
+            }
+
+            if (mMouseHitNode)
+            {
+                melo::drawBoundingBox(mMouseHitNode);
             }
 
             mSkyNode->setVisible(ENV_VISIBLE);

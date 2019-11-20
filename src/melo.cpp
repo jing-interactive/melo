@@ -72,12 +72,14 @@ namespace melo
         }
         gl::ScopedColor clr(color);
         gl::ScopedModelMatrix model;
-        AxisAlignedBox bounds = { node->mBoundBoxMin, node->mBoundBoxMax };
-        gl::multModelMatrix(glm::translate(bounds.getCenter()) * glm::scale(bounds.getSize()));
+        AxisAlignedBox localBounds = { node->mBoundBoxMin, node->mBoundBoxMax };
+        AxisAlignedBox worldBounds = localBounds.transformed(node->getWorldTransform());
+
+        gl::multModelMatrix(glm::translate(worldBounds.getCenter()) * glm::scale(worldBounds.getSize()));
         mWireCube->draw();
     }
 
-    NodeRef pick(NodeRef parentNode, const ci::CameraPersp& camera, const glm::ivec2& screenPos)
+    NodeRef pick(NodeRef parentNode, const ci::CameraPersp& camera, const glm::ivec2& screenPos, uint32_t rayMask)
     {
         // Generate a ray from the camera into our world. Note that we have to
         // flip the vertical coordinate.
@@ -85,34 +87,34 @@ namespace melo
         float v = screenPos.y / (float)getWindowHeight();
         Ray ray = camera.generateRay(u, 1.0f - v, camera.getAspectRatio());
 
-        auto hit = pick(parentNode, ray);
+        auto hit = pick(parentNode, ray, rayMask);
 
         return hit;
     }
 
-    NodeRef pick(NodeRef parentNode, const ci::Ray& ray)
+    NodeRef pick(NodeRef parentNode, const ci::Ray& ray, uint32_t rayMask)
     {
         AxisAlignedBox localBounds = { parentNode->mBoundBoxMin, parentNode->mBoundBoxMax };
-        AxisAlignedBox worldBoundsApprox = localBounds.transformed(parentNode->getWorldTransform());
-
-        // Draw the approximated bounding box in cyan.
+        AxisAlignedBox worldBounds = localBounds.transformed(parentNode->getWorldTransform());
 
         // Perform fast detection first - test against the bounding box itself.
-        if (localBounds.getSize().x == 0)
+        if ((rayMask & parentNode->rayCategory) && !worldBounds.intersects(ray))
         {
-            if (!worldBoundsApprox.intersects(ray))
-                return {};
+            return {};
         }
 
-        drawBoundingBox(parentNode, Color(0, 1, 1));
+        //drawBoundingBox(parentNode, Color(0, 1, 1));
 
         for (const auto& child : parentNode->getChildren())
         {
-            if (pick(child, ray))
+            if (pick(child, ray, rayMask))
             {
                 return child;
             }
         }
+
+        if (rayMask & parentNode->rayCategory == 0)
+            return {};
 
         return parentNode;
     }
