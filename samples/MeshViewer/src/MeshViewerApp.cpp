@@ -83,7 +83,7 @@ struct MeloViewer : public App
 
     void applyTreeUI(const melo::NodeRef& node)
     {
-        ImGuiTreeNodeFlags flag = ImGuiTreeNodeFlags_OpenOnArrow;
+        ImGuiTreeNodeFlags flag = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
         flag |= node->getChildren().empty() ? ImGuiTreeNodeFlags_Leaf : ImGuiTreeNodeFlags_None;
         if (node == mPickedNode)
             flag |= ImGuiTreeNodeFlags_Selected;

@@ -212,7 +212,7 @@ ModelGLTFRef ModelGLTF::create(const fs2::path& meshPath, std::string* loadingEr
         ref->fallbackMaterial = MaterialGLTF::create(ref, mtrl);
     }
 
-#if 0
+#if 1
     if (model.scenes.size() == 1 && model.scenes[0].name == "OSG_Scene")
     {
         // sanitize gltf from sketchfab
@@ -355,13 +355,7 @@ NodeGLTF::Ref NodeGLTF::create(ModelGLTFRef modelGLTF, const tinygltf::Node& pro
     }
     if (!property.rotation.empty())
     {
-        // w,x,y,z
-        ref->setRotation({
-            (float)property.rotation[1],
-            (float)property.rotation[2],
-            (float)property.rotation[3],
-            (float)property.rotation[0],
-        });
+        ref->setRotation(glm::make_quat(property.rotation.data()));
     }
     ref->modelGLTF = modelGLTF;
 
