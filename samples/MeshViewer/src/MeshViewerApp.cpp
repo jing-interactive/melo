@@ -81,6 +81,28 @@ struct MeloViewer : public App
         }
     }
 
+    void applyTreeUI(const melo::NodeRef& node)
+    {
+        ImGuiTreeNodeFlags flag = ImGuiTreeNodeFlags_OpenOnArrow;
+        flag |= node->getChildren().empty() ? ImGuiTreeNodeFlags_Leaf : ImGuiTreeNodeFlags_None;
+        if (node == mPickedNode)
+            flag |= ImGuiTreeNodeFlags_Selected;
+
+        if (ui::TreeNodeEx(node->getName().c_str(), flag))
+        {
+            if (ui::IsItemClicked())
+                setPickedNode(node);
+            for (auto& child : node->getChildren())
+                applyTreeUI(child);
+            ui::TreePop();
+        }
+        else
+        {
+            if (ui::IsItemClicked())
+                setPickedNode(node);
+        }
+    };
+
     void setup() override
     {
         log::makeLogger<log::LoggerFileRotating>(fs::path(), "IG.%Y.%m.%d.log");
@@ -235,22 +257,13 @@ struct MeloViewer : public App
                 }
 
                 // selectable list
-                if (ui::ListBoxHeader("Nodes"))
-                {
-                    static bool selected = false;
-                    for (auto node : mScene->getChildren())
-                    {
-                        if (ui::Selectable(node->getName().c_str(), mPickedNode == node))
-                        {
-                            setPickedNode(node);
-                        }
-                    }
-                    ui::ListBoxFooter();
-                }
+                ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+                applyTreeUI(mScene);
 
                 ui::ScopedGroup group;
                 if (!mIsFpsCamera && mPickedNode != nullptr)
                 {
+                    ui::Text(mPickedNode->getName().c_str());
                     bool isVisible = mPickedNode->isVisible();
                     if (ui::Checkbox("Visible", &isVisible))
                     {
