@@ -622,6 +622,8 @@ void MaterialGLTF::predraw()
 {
     ciShader->uniform("u_flipV", modelGLTF->flipV);
     ciShader->uniform("u_Camera", modelGLTF->cameraPosition);
+    ciShader->uniform("u_LightDirection", modelGLTF->lightDirection);
+    ciShader->uniform("u_LightColor", modelGLTF->lightColor);
 
     auto ctx = gl::context();
     if (doubleSided)

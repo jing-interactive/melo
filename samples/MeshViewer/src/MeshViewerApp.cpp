@@ -11,6 +11,7 @@
 #include "GLHelper.h"
 
 #include "melo.h"
+#include "NodeExt.h"
 #include "FirstPersonCamera.h"
 
 #include "MiniConfigImgui.h"
@@ -38,6 +39,7 @@ struct MeloViewer : public App
 
     melo::NodeRef mScene;
     melo::NodeRef mSkyNode;
+    melo::DirectionalLightNode::Ref mLightNode;
     melo::NodeRef mGridNode;
 
     melo::NodeRef mPickedNode, mMouseHitNode;
@@ -122,12 +124,16 @@ struct MeloViewer : public App
 
             mGridNode = melo::createGridNode(100.0f);
             mScene->addChild(mGridNode);
+
+            mLightNode = melo::DirectionalLightNode::create(1, { 0.5, 0.5, 0.5 });
+            mLightNode->setPosition({ 10,10,10 });
+            mScene->addChild(mLightNode);
         }
 
         mMeshFilenames = listGlTFFiles();
         parseArgs();
 
-        createConfigImgui();
+        createConfigImgui(getWindow(), false);
         //ADD_ENUM_TO_INT(mParams.get(), MESH_FILE_ID, mMeshFilenames);
         //mParams->addParam("MESH_ROTATION", &mMeshRotation);
         gl::enableDepth();
@@ -238,67 +244,101 @@ struct MeloViewer : public App
             {
                 //mModel->flipV = FLIP_V;
                 child->cameraPosition = mCurrentCam->getEyePoint();
+                child->lightDirection = glm::normalize(mLightNode->getPosition());
+                child->lightColor = mLightNode->color;
             }
 
-            if (ui::Begin("Scene Inspector"))
+            if (ui::Begin("Scene"))
             {
-                if (ui::Button("Load the scene"))
+                ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
+                if (ui::BeginTabBar("SceneTab", tab_bar_flags))
                 {
-                    auto path = getAppPath() / "melo.scene";
-                    auto newScene = melo::loadScene(path.generic_string());
-                    if (newScene)
-                        mScene = newScene;
-                }
+                    if (ui::BeginTabItem("Hierachy"))
+                    {
+                        auto path = getAppPath() / "melo.scene";
+                        if (ui::Button("Load"))
+                        {
+                            auto newScene = melo::loadScene(path.generic_string());
+                            if (newScene)
+                            {
+                                mScene = newScene;
+                                setPickedNode(nullptr);
+                            }
+                        }
 
-                if (ui::Button("Save the scene"))
-                {
-                    auto path = getAppPath() / "melo.scene";
-                    melo::writeScene(mScene, path.generic_string());
-                }
+                        if (ui::Button("Save"))
+                        {
+                            melo::writeScene(mScene, path.generic_string());
+                        }
 
-                // selectable list
-                ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-                applyTreeUI(mScene);
-            }
-            ui::End();
+                        ui::Separator();
 
-            if (ui::Begin("Node Inspector"))
-            {
-                ui::ScopedGroup group;
-                if (!mIsFpsCamera && mPickedNode != nullptr)
-                {
-                    ui::Text(mPickedNode->getName().c_str());
-                    bool isVisible = mPickedNode->isVisible();
-                    if (ui::Checkbox("Visible", &isVisible))
-                    {
-                        mPickedNode->setVisible(isVisible);
+                        // selectable list
+                        ui::SetNextItemOpen(true, ImGuiCond_Once);
+                        applyTreeUI(mScene);
+                        ui::EndTabItem();
                     }
-                    if (ui::Button("Reset Transform"))
+
+                    if (ui::BeginTabItem("Settings"))
                     {
-                        mPickedTransform = {};
-                        mPickedNode->setTransform(mPickedTransform);
+                        vnm::drawMinicofigImgui();
+                        ui::EndTabItem();
                     }
-                    ui::SameLine();
-                    if (ui::Button("DEL"))
-                    {
-                        dispatchAsync([&] {
-                            mScene->removeChild(mPickedNode);
-                            setPickedNode(nullptr);
-                            });
-                    }
-                    if (ui::EditGizmo(mCurrentCam->getViewMatrix(), mCurrentCam->getProjectionMatrix(), &mPickedTransform))
-                    {
-                        mMayaCamUi.disable();
-                        mPickedNode->setTransform(mPickedTransform);
-                    }
-                    else
-                    {
-                        mMayaCamUi.enable();
-                    }
+
+                    ui::EndTabBar();
                 }
             }
             ui::End();
 
+            if (ui::Begin("Node"))
+            {
+                ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
+                if (ui::BeginTabBar("NodeTab", tab_bar_flags))
+                {
+                    if (ui::BeginTabItem("Property"))
+                    {
+                        //ui::ScopedGroup group;
+                        if (!mIsFpsCamera && mPickedNode != nullptr)
+                        {
+                            ui::Text(mPickedNode->getName().c_str());
+                            bool isVisible = mPickedNode->isVisible();
+                            if (ui::Checkbox("Visible", &isVisible))
+                            {
+                                mPickedNode->setVisible(isVisible);
+                            }
+                            if (ui::Button("Reset Transform"))
+                            {
+                                mPickedTransform = {};
+                                mPickedNode->setTransform({});
+                            }
+                            ui::SameLine();
+                            if (ui::Button("DEL"))
+                            {
+                                dispatchAsync([&] {
+                                    mScene->removeChild(mPickedNode);
+                                    setPickedNode(nullptr);
+                                    });
+                            }
+                            if (ui::EditGizmo(mCurrentCam->getViewMatrix(), mCurrentCam->getProjectionMatrix(), &mPickedTransform))
+                            {
+                                mMayaCamUi.disable();
+                                vec3 T, R, S;
+                                ui::DecomposeMatrixToComponents(mPickedTransform, T, R, S);
+                                mPickedNode->setPosition(T);
+                                mPickedNode->setRotation(R);
+                                mPickedNode->setScale(S);
+                            }
+                            else
+                            {
+                                mMayaCamUi.enable();
+                            }
+                        }
+                        ui::EndTabItem();
+                    }
+                    ui::EndTabBar();
+                }
+            }
+            ui::End();
 
             if (!mIsFpsCamera && mPickedNode != nullptr)
             {
@@ -333,18 +373,22 @@ struct MeloViewer : public App
                 //texFont->drawString(mLoadingError, { 10, APP_HEIGHT - 150 });
             }
 
-            if (mMouseHitNode)
-            {
-                melo::drawBoundingBox(mMouseHitNode);
-            }
-
             mSkyNode->setVisible(ENV_VISIBLE);
-
             mGridNode->setVisible(XYZ_VISIBLE);
 
             gl::setWireframeEnabled(WIRE_FRAME);
             mScene->treeDraw();
             gl::disableWireframe();
+
+            if (mMouseHitNode)
+            {
+                melo::drawBoundingBox(mMouseHitNode);
+            }
+
+            if (mPickedNode)
+            {
+                melo::drawBoundingBox(mPickedNode, Color(1, 0, 0));
+            }
 
             if (mSnapshotMode)
             {

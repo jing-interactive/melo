@@ -164,6 +164,8 @@ void MaterialObj::predraw()
 
     ciShader->uniform("u_flipV", modelObj->flipV);
     ciShader->uniform("u_Camera", modelObj->cameraPosition);
+    ciShader->uniform("u_LightDirection", modelObj->lightDirection);
+    ciShader->uniform("u_LightColor", modelObj->lightColor);
 }
 
 void MaterialObj::postdraw()

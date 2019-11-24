@@ -6,6 +6,24 @@
 using namespace std;
 using namespace melo;
 
+DirectionalLightNode::Ref DirectionalLightNode::create(float radius, Color color)
+{
+    auto ref = std::make_shared<DirectionalLightNode>();
+    ref->setName("DirectionalLightNode");
+    ref->radius = radius;
+    ref->color = color;
+
+    return ref;
+}
+
+void DirectionalLightNode::draw()
+{
+    static auto shader = gl::getStockShader(gl::ShaderDef().lambert());
+    shader->bind();
+    gl::color(color);
+    gl::drawSphere({}, radius);
+}
+
 GridNode::Ref GridNode::create(float meters)
 {
     return std::make_shared<GridNode>(meters);
