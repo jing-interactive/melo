@@ -83,7 +83,7 @@ struct MeloViewer : public App
 
     void applyTreeUI(const melo::NodeRef& node)
     {
-        ImGuiTreeNodeFlags flag = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+        ImGuiTreeNodeFlags flag = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
         flag |= node->getChildren().empty() ? ImGuiTreeNodeFlags_Leaf : ImGuiTreeNodeFlags_None;
         if (node == mPickedNode)
             flag |= ImGuiTreeNodeFlags_Selected;
@@ -259,7 +259,11 @@ struct MeloViewer : public App
                 // selectable list
                 ImGui::SetNextItemOpen(true, ImGuiCond_Once);
                 applyTreeUI(mScene);
+            }
+            ui::End();
 
+            if (ui::Begin("Node Inspector"))
+            {
                 ui::ScopedGroup group;
                 if (!mIsFpsCamera && mPickedNode != nullptr)
                 {
@@ -378,9 +382,11 @@ struct MeloViewer : public App
 
         if (args.size() > 1)
         {
-            // MeloViewer.exe file.obj
-            mMeshFilenames.push_back(args[1]);
-
+            // /path/to/MeloViewer.exe file.obj
+            auto filePath = args[1];
+            dispatchAsync([&, filePath] {
+                loadMeshFromFile(filePath);
+                });
             if (args.size() > 2)
             {
                 // MeloViewer.exe file.obj snapshot.png

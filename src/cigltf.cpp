@@ -212,7 +212,7 @@ ModelGLTFRef ModelGLTF::create(const fs2::path& meshPath, std::string* loadingEr
         ref->fallbackMaterial = MaterialGLTF::create(ref, mtrl);
     }
 
-#if 1
+#if 0
     if (model.scenes.size() == 1 && model.scenes[0].name == "OSG_Scene")
     {
         // sanitize gltf from sketchfab
