@@ -327,6 +327,7 @@ struct MeloViewer : public App
                                 mPickedNode->setPosition(T);
                                 mPickedNode->setRotation(R);
                                 mPickedNode->setScale(S);
+                                mPickedNode->setTransform(mPickedTransform);
                             }
                             else
                             {

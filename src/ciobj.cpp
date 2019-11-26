@@ -219,7 +219,7 @@ MaterialObj::Ref MaterialObj::create(ModelObjRef modelObj, const tinyobj::materi
     if (ref->normalTexture)
         fmt.define("HAS_NORMALMAP");
 
-#if 1
+#if 0
     ref->diffuseFactor = glm::vec4(0.5, 0.5, 0.5, 1);
 #else
     ref->diffuseFactor = { property.diffuse[0], property.diffuse[1], property.diffuse[2], 1 };
@@ -240,7 +240,7 @@ MaterialObj::Ref MaterialObj::create(ModelObjRef modelObj, const tinyobj::materi
     fmt.label("pbr.vert/pbr.frag");
 
     // use stock shader for the moment
-#if 0
+#if 1
     auto ciShader = gl::GlslProg::create(fmt);
 #else
     auto ciShader = am::glslProg("lambert texture");
