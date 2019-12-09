@@ -267,21 +267,18 @@ ModelGLTFRef ModelGLTF::create(const fs2::path& meshPath, std::string* loadingEr
 
     ref->addChild(ref->currentScene);
 
-    glm::vec3 boxMin = { +FLT_MAX, +FLT_MAX, +FLT_MAX };
-    glm::vec3 boxMax = {-FLT_MIN, -FLT_MIN, -FLT_MIN};
+    ref->mBoundBoxMin = { +FLT_MAX, +FLT_MAX, +FLT_MAX };
+    ref->mBoundBoxMax = {-FLT_MIN, -FLT_MIN, -FLT_MIN};
     for (auto& item : model.accessors)
     {
         if (item.type == TINYGLTF_TYPE_VEC3 && !item.minValues.empty())
         {
-            for (int i = 0; i < 3; i++)
-            {
-                if (item.minValues[i] < boxMin[i]) boxMin[i] = item.minValues[i];
-                if (item.maxValues[i] > boxMax[i]) boxMax[i] = item.maxValues[i];
-            }
+            glm::vec3 newMin = { item.minValues[0], item.minValues[1], item.minValues[2] };
+            glm::vec3 newMax = { item.maxValues[0], item.maxValues[1], item.maxValues[2] };
+            ref->mBoundBoxMax = glm::min(ref->mBoundBoxMax, newMin);
+            ref->mBoundBoxMax = glm::max(ref->mBoundBoxMax, newMax);
         }
     }
-    ref->mBoundBoxMin = boxMin;
-    ref->mBoundBoxMax = boxMax;
     ref->treeUpdate();
 
     return ref;

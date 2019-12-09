@@ -72,6 +72,8 @@ MeshObj::Ref MeshObj::create(ModelObjRef modelObj, const tinyobj::shape_t& prope
         i++;
     }
 
+    ref->mBoundBoxMin = { +FLT_MAX, +FLT_MAX, +FLT_MAX };
+    ref->mBoundBoxMax = { -FLT_MIN, -FLT_MIN, -FLT_MIN };
     for (auto& kv : ref->submeshes)
     {
         auto& submesh = kv.second;
