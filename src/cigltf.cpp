@@ -88,20 +88,18 @@ MeshGLTF::Ref MeshGLTF::create(ModelGLTFRef modelGLTF, const tinygltf::Mesh& pro
         ref->primitives.emplace_back(primitive);
 #ifndef CINDER_LESS
         // Setting labels for vbos and ibo
-        int vboId = 0;
-        char info[100];
+        char info[256];
         for (auto& kv : primitive->ciVboMesh->getVertexArrayLayoutVbos())
         {
             auto attribInfo = kv.first.getAttribs()[0];
             auto attribName = attribToString(attribInfo.getAttrib());
-            sprintf(info, "%s #%d %s", property.name.c_str(), primId, attribName.c_str());
+            snprintf(info, 256, "%s #%d %s", property.name.c_str(), primId, attribName.c_str());
             kv.second->setLabel(info);
-            vboId++;
         }
         auto ibo = primitive->ciVboMesh->getIndexVbo();
         if (ibo)
         {
-            sprintf(info, "%s #%d indices", property.name.c_str(), primId);
+            snprintf(info, 256, "%s #%d indices", property.name.c_str(), primId);
             ibo->setLabel(info);
         }
 #endif
