@@ -5,17 +5,22 @@
 #include "cinder/gl/gl.h"
 #include "cinder/ObjLoader.h"
 #include "cinder/params/Params.h"
+
+// vnm
 #include "AssetManager.h"
 #include "MiniConfig.h"
 #include "FontHelper.h"
 #include "GLHelper.h"
 
+// melo
 #include "melo.h"
 #include "NodeExt.h"
 #include "FirstPersonCamera.h"
 
+// imgui
 #include "MiniConfigImgui.h"
 #include "CinderGuizmo.h"
+#include "DearLogger.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -46,6 +51,8 @@ struct MeloViewer : public App
     mat4 mPickedTransform;
 
     string mLoadingError;
+
+    shared_ptr<DearLogger>  mUiLogger;
 
     vector<string> listGlTFFiles()
     {
@@ -108,6 +115,8 @@ struct MeloViewer : public App
     void setup() override
     {
         log::makeLogger<log::LoggerFileRotating>(fs::path(), "IG.%Y.%m.%d.log");
+        mUiLogger = log::makeLogger<DearLogger>();
+
         am::addAssetDirectory(getAppPath() / "../assets");
         am::addAssetDirectory(getAppPath() / "../../assets");
         am::addAssetDirectory(getAppPath() / "../../../assets");
@@ -247,6 +256,8 @@ struct MeloViewer : public App
                 child->lightDirection = glm::normalize(mLightNode->getPosition());
                 child->lightColor = mLightNode->color;
             }
+
+            mUiLogger->Draw("Log");
 
             if (ui::Begin("Scene"))
             {
