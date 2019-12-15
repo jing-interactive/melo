@@ -11,7 +11,7 @@ namespace melo
     NodeRef createRootNode();
     NodeRef createMeshNode(const cinder::fs::path& meshPath);
     NodeRef createGridNode(float meters = 100.0f);
-    NodeRef createSkyNode();
+    NodeRef createSkyNode(const std::string& skyTexturePath);
 
     NodeRef loadScene(const std::string& filename);
     bool writeScene(NodeRef scene, const std::string& filename);

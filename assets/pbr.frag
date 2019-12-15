@@ -324,6 +324,9 @@ void main()
 #endif
     color += emissive;
 
-    // oColor = vec4(ao, v_UV,1);
+#if 0
+    oColor = vec4(reflection / 2 + 0.5,1);
+#else
     oColor = vec4(pow(color,vec3(1.0/2.2)), baseColor.a);
+#endif
 }

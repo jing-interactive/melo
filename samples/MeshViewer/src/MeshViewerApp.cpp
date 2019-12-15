@@ -4,7 +4,7 @@
 #include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
 #include "cinder/ObjLoader.h"
-#include "cinder/params/Params.h"
+#include "cinder/FileWatcher.h"
 
 // vnm
 #include "AssetManager.h"
@@ -50,9 +50,9 @@ struct MeloViewer : public App
     melo::NodeRef mPickedNode, mMouseHitNode;
     mat4 mPickedTransform;
 
-    string mLoadingError;
+    FileWatcher mFileWatcher;
 
-    shared_ptr<DearLogger>  mUiLogger;
+    shared_ptr<ui::DearLogger>  mUiLogger;
 
     vector<string> listGlTFFiles()
     {
@@ -115,7 +115,7 @@ struct MeloViewer : public App
     void setup() override
     {
         log::makeLogger<log::LoggerFileRotating>(fs::path(), "IG.%Y.%m.%d.log");
-        mUiLogger = log::makeLogger<DearLogger>();
+        mUiLogger = log::makeLogger<ui::DearLogger>();
 
         am::addAssetDirectory(getAppPath() / "../assets");
         am::addAssetDirectory(getAppPath() / "../../assets");
@@ -128,7 +128,7 @@ struct MeloViewer : public App
         {
             mScene = melo::createRootNode();
 
-            mSkyNode = melo::createSkyNode();
+            mSkyNode = melo::createSkyNode(RADIANCE_TEX);
             mScene->addChild(mSkyNode);
 
             mGridNode = melo::createGridNode(100.0f);
@@ -380,11 +380,6 @@ struct MeloViewer : public App
             else
                 gl::clear(ColorA::gray(0.2f, 1.0f));
 
-            if (!mLoadingError.empty())
-            {
-                //texFont->drawString(mLoadingError, { 10, APP_HEIGHT - 150 });
-            }
-
             mSkyNode->setVisible(ENV_VISIBLE);
             mGridNode->setVisible(XYZ_VISIBLE);
 
@@ -413,11 +408,6 @@ struct MeloViewer : public App
 
     void loadMeshFromFile(fs::path path)
     {
-        if (!fs::exists(path))
-        {
-            path = getAssetPath(path);
-        }
-
         if (melo::Node::radianceTexture == nullptr)
         {
             melo::Node::radianceTexture = am::textureCubeMap(RADIANCE_TEX);
