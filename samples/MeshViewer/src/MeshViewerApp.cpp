@@ -393,7 +393,9 @@ auto gfxOption = RendererGl::Options().msaa(4);
 #endif
 CINDER_APP(MeloViewer, RendererGl(gfxOption), [](App::Settings* settings) {
     readConfig();
+#if defined( CINDER_MSW_DESKTOP )
     settings->setConsoleWindowEnabled(CONSOLE_ENABLED);
+#endif
     settings->setWindowSize(APP_WIDTH, APP_HEIGHT);
     settings->setMultiTouchEnabled(false);
     })
