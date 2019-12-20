@@ -85,7 +85,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "85"
             endingLineNumber = "85"
-            landmarkName = "setup()"
+            landmarkName = "setPickedNode(newNode)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
