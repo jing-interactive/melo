@@ -153,6 +153,9 @@
     <ClCompile Include="..\..\..\src\SceneIO.cpp">
       <Filter>Blocks\melo</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\Cinder-ImGui\src\DearLogger.cpp">
+      <Filter>Blocks\Cinder-Imgui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Resources.h">
@@ -200,9 +203,6 @@
     <ClInclude Include="..\..\..\include\melo.h">
       <Filter>Blocks\melo</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\Cinder-ImGui\include\DearLogger.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\Cinder-ImGui\lib\imgui\imconfig.h">
       <Filter>Blocks\imgui</Filter>
     </ClInclude>
@@ -238,6 +238,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\include\NodeExt.h">
       <Filter>Blocks\melo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Cinder-ImGui\include\DearLogger.h">
+      <Filter>Blocks\Cinder-Imgui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

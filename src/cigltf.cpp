@@ -88,20 +88,18 @@ MeshGLTF::Ref MeshGLTF::create(ModelGLTFRef modelGLTF, const tinygltf::Mesh& pro
         ref->primitives.emplace_back(primitive);
 #ifndef CINDER_LESS
         // Setting labels for vbos and ibo
-        int vboId = 0;
-        char info[100];
+        char info[256];
         for (auto& kv : primitive->ciVboMesh->getVertexArrayLayoutVbos())
         {
             auto attribInfo = kv.first.getAttribs()[0];
             auto attribName = attribToString(attribInfo.getAttrib());
-            sprintf(info, "%s #%d %s", property.name.c_str(), primId, attribName.c_str());
+            snprintf(info, 256, "%s #%d %s", property.name.c_str(), primId, attribName.c_str());
             kv.second->setLabel(info);
-            vboId++;
         }
         auto ibo = primitive->ciVboMesh->getIndexVbo();
         if (ibo)
         {
-            sprintf(info, "%s #%d indices", property.name.c_str(), primId);
+            snprintf(info, 256, "%s #%d indices", property.name.c_str(), primId);
             ibo->setLabel(info);
         }
 #endif
@@ -267,21 +265,18 @@ ModelGLTFRef ModelGLTF::create(const fs2::path& meshPath, std::string* loadingEr
 
     ref->addChild(ref->currentScene);
 
-    glm::vec3 boxMin = { +FLT_MAX, +FLT_MAX, +FLT_MAX };
-    glm::vec3 boxMax = {-FLT_MIN, -FLT_MIN, -FLT_MIN};
+    ref->mBoundBoxMin = { +FLT_MAX, +FLT_MAX, +FLT_MAX };
+    ref->mBoundBoxMax = {-FLT_MIN, -FLT_MIN, -FLT_MIN};
     for (auto& item : model.accessors)
     {
         if (item.type == TINYGLTF_TYPE_VEC3 && !item.minValues.empty())
         {
-            for (int i = 0; i < 3; i++)
-            {
-                if (item.minValues[i] < boxMin[i]) boxMin[i] = item.minValues[i];
-                if (item.maxValues[i] > boxMax[i]) boxMax[i] = item.maxValues[i];
-            }
+            glm::vec3 newMin = { item.minValues[0], item.minValues[1], item.minValues[2] };
+            glm::vec3 newMax = { item.maxValues[0], item.maxValues[1], item.maxValues[2] };
+            ref->mBoundBoxMax = glm::min(ref->mBoundBoxMax, newMin);
+            ref->mBoundBoxMax = glm::max(ref->mBoundBoxMax, newMax);
         }
     }
-    ref->mBoundBoxMin = boxMin;
-    ref->mBoundBoxMax = boxMax;
     ref->treeUpdate();
 
     return ref;
@@ -355,13 +350,7 @@ NodeGLTF::Ref NodeGLTF::create(ModelGLTFRef modelGLTF, const tinygltf::Node& pro
     }
     if (!property.rotation.empty())
     {
-        // w,x,y,z
-        ref->setRotation({
-            (float)property.rotation[1],
-            (float)property.rotation[2],
-            (float)property.rotation[3],
-            (float)property.rotation[0],
-        });
+        ref->setRotation(glm::make_quat(property.rotation.data()));
     }
     ref->modelGLTF = modelGLTF;
 
@@ -628,6 +617,8 @@ void MaterialGLTF::predraw()
 {
     ciShader->uniform("u_flipV", modelGLTF->flipV);
     ciShader->uniform("u_Camera", modelGLTF->cameraPosition);
+    ciShader->uniform("u_LightDirection", modelGLTF->lightDirection);
+    ciShader->uniform("u_LightColor", modelGLTF->lightColor);
 
     auto ctx = gl::context();
     if (doubleSided)

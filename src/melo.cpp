@@ -18,7 +18,7 @@ namespace melo
         if (typeName.find(".obj") != std::string::npos) return createMeshNode(typeName);
         if (typeName == "RootNode") return createRootNode();
         if (typeName == "GridNode") return createGridNode();
-        if (typeName == "SkyNode") return createSkyNode();
+        if (typeName == "SkyNode") return createSkyNode("CathedralRadiance.dds");
 
         auto ref = Node::create();
         ref->setName(typeName);
@@ -57,9 +57,9 @@ namespace melo
         return GridNode::create(meters);
     }
 
-    NodeRef createSkyNode()
+    NodeRef createSkyNode(const std::string& skyTexturePath)
     {
-        return SkyNode::create();
+        return SkyNode::create(skyTexturePath);
     }
 
     void drawBoundingBox(NodeRef node, const ci::Color& color)
@@ -113,7 +113,7 @@ namespace melo
             }
         }
 
-        if (rayMask & parentNode->rayCategory == 0)
+        if ((rayMask & parentNode->rayCategory) == 0)
             return {};
 
         return parentNode;

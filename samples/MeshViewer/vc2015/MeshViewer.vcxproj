@@ -165,6 +165,7 @@
     <ClCompile Include="..\..\..\..\Cinder-ImGui\lib\imgui\imgui_widgets.cpp" />
     <ClCompile Include="..\..\..\..\Cinder-ImGui\src\CinderGuizmo.cpp" />
     <ClCompile Include="..\..\..\..\Cinder-ImGui\src\CinderImGui.cpp" />
+    <ClCompile Include="..\..\..\..\Cinder-ImGui\src\DearLogger.cpp" />
     <ClCompile Include="..\..\..\3rdparty\tinygltf\tiny_gltf.cc" />
     <ClCompile Include="..\..\..\3rdparty\tinyobjloader\tiny_obj_loader.cc" />
     <ClCompile Include="..\..\..\3rdparty\tinyply\tinyply.cpp" />

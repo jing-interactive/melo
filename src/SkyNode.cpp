@@ -5,11 +5,11 @@ using namespace ci;
 
 namespace melo
 {
-    SkyNode::Ref SkyNode::create()
+    SkyNode::Ref SkyNode::create(const std::string& skyTexturePath)
     {
         auto ref = std::make_shared<SkyNode>();
         ref->setName("SkyNode");
-        ref->mSkyTex = am::textureCubeMap("CathedralRadiance.dds");
+        ref->mSkyTex = am::textureCubeMap(skyTexturePath);
         auto skyBoxShader = am::glslProg("SkyBox.vert", "SkyBox.frag");
         if (!skyBoxShader)
         {

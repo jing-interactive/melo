@@ -37,6 +37,17 @@ namespace melo
 {
     using namespace ci;
 
+    struct DirectionalLightNode : public Node
+    {
+        typedef std::shared_ptr<DirectionalLightNode> Ref;
+        static Ref create(float radius = 5, Color color = { 1,1,1 });
+
+        void draw() override;
+
+        float radius;
+        Color color;
+    };
+
     struct GridNode : public Node
     {
         typedef std::shared_ptr<GridNode> Ref;
@@ -64,6 +75,6 @@ namespace melo
         static Ref create(const geom::Source& source);
         BuiltinMeshNode(TriMeshRef triMesh);
 
-        void draw();
+        void draw() override;
     };
 } // namespace nodes

@@ -9,7 +9,7 @@ namespace melo
     {
         typedef std::shared_ptr<SkyNode> Ref;
 
-        static Ref create();
+        static Ref create(const std::string& skyTexturePath);
 
         void predraw() override;
         void draw() override;
