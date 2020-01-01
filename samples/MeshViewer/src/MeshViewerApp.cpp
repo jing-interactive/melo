@@ -158,16 +158,16 @@ struct MeloViewer : public App
 
         getWindow()->getSignalMouseMove().connect([&](MouseEvent& event) {
             mMouseHitNode = pick(mScene, *mCurrentCam, event.getPos());
-        });
+            });
 
-        getWindow()->getSignalMouseUp().connect([&](MouseEvent& event){
+        getWindow()->getSignalMouseUp().connect([&](MouseEvent& event) {
             if (event.isLeft()) {
                 auto hit = mMouseHitNode;
                 dispatchAsync([&, hit] {
                     setPickedNode(hit);
                     });
             }
-        });
+            });
         if (!mSnapshotMode)
         {
             getWindow()->getSignalKeyUp().connect([&](KeyEvent& event) {
@@ -451,16 +451,19 @@ struct MeloViewer : public App
     }
 };
 
-#if !defined(NDEBUG) && defined(CINDER_MSW)
-auto gfxOption = RendererGl::Options().msaa(4).debug().debugLog(GL_DEBUG_SEVERITY_MEDIUM);
-#else
-auto gfxOption = RendererGl::Options().msaa(4);
-#endif
-CINDER_APP(MeloViewer, RendererGl(gfxOption), [](App::Settings* settings) {
+void preSettings(App::Settings* settings)
+{
     readConfig();
 #if defined( CINDER_MSW_DESKTOP )
     settings->setConsoleWindowEnabled(CONSOLE_ENABLED);
 #endif
     settings->setWindowSize(APP_WIDTH, APP_HEIGHT);
     settings->setMultiTouchEnabled(false);
-    })
+}
+
+#if !defined(NDEBUG) && defined(CINDER_MSW)
+auto gfxOption = RendererGl::Options().msaa(4).debug().debugLog(GL_DEBUG_SEVERITY_MEDIUM);
+#else
+auto gfxOption = RendererGl::Options().msaa(4);
+#endif
+CINDER_APP(MeloViewer, RendererGl(gfxOption), preSettings)
