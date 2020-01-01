@@ -3,6 +3,7 @@
 #include "ciobj.h"
 #include "NodeExt.h"
 #include "SkyNode.h"
+#include <cinder/GeomIo.h>
 #include <cinder/app/App.h>
 #include <glm/gtx/transform.hpp>
 
@@ -48,6 +49,33 @@ namespace melo
 
         if (realPath.extension() == ".gltf" || realPath.extension() == ".glb")
             return ModelGLTF::create(realPath);
+
+#define ENTRY(name)  if (meshPath == #name) { auto node = BuiltinMeshNode::create(geom::name()); node->setName(#name); return node;}
+        ENTRY(Rect);
+        ENTRY(RoundedRect);
+        ENTRY(Cube);
+        ENTRY(Icosahedron);
+        ENTRY(Icosphere);
+        ENTRY(Teapot);
+        ENTRY(Circle);
+        ENTRY(Ring);
+        ENTRY(Sphere);
+        ENTRY(Capsule);
+        ENTRY(Torus);
+        ENTRY(TorusKnot);
+        ENTRY(Cylinder);
+        ENTRY(Plane);
+        ENTRY(WireCapsule);
+        ENTRY(WireCircle);
+        ENTRY(WireRoundedRect);
+        ENTRY(WireCube);
+        ENTRY(WireCylinder);
+        ENTRY(WireCone);
+        ENTRY(WireIcosahedron);
+        ENTRY(WirePlane);
+        ENTRY(WireSphere);
+        ENTRY(WireTorus);
+#undef ENTRY
 
         return {};
     }

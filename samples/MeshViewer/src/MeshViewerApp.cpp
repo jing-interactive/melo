@@ -54,6 +54,23 @@ struct MeloViewer : public App
 
     shared_ptr<ui::DearLogger>  mUiLogger;
 
+    void createDefaultScene()
+    {
+        mScene = melo::createRootNode();
+
+        mSkyNode = melo::createSkyNode(RADIANCE_TEX);
+        mScene->addChild(mSkyNode);
+
+        mGridNode = melo::createGridNode(100.0f);
+        mScene->addChild(mGridNode);
+
+        mScene->addChild(melo::createMeshNode("Cube"));
+
+        mLightNode = melo::DirectionalLightNode::create(1, { 0.5, 0.5, 0.5 });
+        mLightNode->setPosition({ 10,10,10 });
+        mScene->addChild(mLightNode);
+    }
+
     vector<string> listGlTFFiles()
     {
         vector<string> files;
@@ -125,19 +142,7 @@ struct MeloViewer : public App
         mMayaCamUi = CameraUi(&mMayaCam, getWindow(), -1);
         mFpsCam.setup();
 
-        {
-            mScene = melo::createRootNode();
-
-            mSkyNode = melo::createSkyNode(RADIANCE_TEX);
-            mScene->addChild(mSkyNode);
-
-            mGridNode = melo::createGridNode(100.0f);
-            mScene->addChild(mGridNode);
-
-            mLightNode = melo::DirectionalLightNode::create(1, { 0.5, 0.5, 0.5 });
-            mLightNode->setPosition({ 10,10,10 });
-            mScene->addChild(mLightNode);
-        }
+        createDefaultScene();
 
         mMeshFilenames = listGlTFFiles();
         parseArgs();
@@ -267,6 +272,12 @@ struct MeloViewer : public App
                     if (ui::BeginTabItem("Hierachy"))
                     {
                         auto path = getAppPath() / "melo.scene";
+                        if (ui::Button("New"))
+                        {
+                            createDefaultScene();
+                            setPickedNode(nullptr);
+                        }
+
                         if (ui::Button("Load"))
                         {
                             auto newScene = melo::loadScene(path.generic_string());

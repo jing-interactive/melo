@@ -72,7 +72,7 @@ BuiltinMeshNode::Ref BuiltinMeshNode::create(TriMeshRef triMesh)
 BuiltinMeshNode::BuiltinMeshNode(TriMeshRef triMesh)
 {
     vboMesh = gl::VboMesh::create(*triMesh);
-    shader = gl::getStockShader(gl::ShaderDef().color());
+    shader = gl::getStockShader(gl::ShaderDef().lambert());
     setName("BuiltinMeshNode");
 }
 
