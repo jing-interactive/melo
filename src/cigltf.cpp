@@ -433,47 +433,46 @@ MaterialGLTF::Ref MaterialGLTF::create(ModelGLTFRef modelGLTF, const tinygltf::M
     else if (property.alphaMode == "MASK")
         ref->alphaMode = ALPHA_MASK;
 
-    for (auto& kv : property.values)
+    // pbr
+    const auto& pbr = property.pbrMetallicRoughness;
+    if (pbr.baseColorTexture.index >= 0)
     {
-        if (kv.first == "baseColorTexture")
-            ref->baseColorTexture = modelGLTF->textures[kv.second.TextureIndex()];
-        else if (kv.first == "baseColorFactor")
-        {
-            CI_ASSERT(kv.second.number_array.size() == 4);
-            ref->baseColorFacor = glm::make_vec4(kv.second.number_array.data());
-        }
-        else if (kv.first == "metallicRoughnessTexture")
-            ref->metallicRoughnessTexture = modelGLTF->textures[kv.second.TextureIndex()];
-        else if (kv.first == "metallicFactor")
-            ref->metallicFactor = kv.second.Factor();
-        else if (kv.first == "roughnessFactor")
-            ref->roughnessFactor = kv.second.Factor();
+        ref->baseColorTexture = modelGLTF->textures[pbr.baseColorTexture.index];
+        // TODO: texcoord
     }
+    if (pbr.baseColorFactor.size() == 4)
+        ref->baseColorFacor = glm::make_vec4(pbr.baseColorFactor.data());
+    
+    const auto& metallicRoughnessTexture = pbr.metallicRoughnessTexture;
+    if (metallicRoughnessTexture.index >= 0)
+    {
+        ref->metallicRoughnessTexture = modelGLTF->textures[metallicRoughnessTexture.index];
+        // TODO: texcoord
+    }
+    ref->metallicFactor = pbr.metallicFactor;
+    ref->roughnessFactor = pbr.roughnessFactor;
 
-    for (auto& kv : property.additionalValues)
+    // emissive
+    if (property.emissiveTexture.index >= 0)
+        ref->emissiveTexture = modelGLTF->textures[property.emissiveTexture.index];
+    if (property.emissiveFactor.size() == 3)
+        ref->emissiveFactor = glm::make_vec3(property.emissiveFactor.data());
+
+    // normal
+    if (property.normalTexture.index >= 0)
     {
-        if (kv.first == "emissiveTexture")
-            ref->emissiveTexture = modelGLTF->textures[kv.second.TextureIndex()];
-        else if (kv.first == "emissiveFactor")
-        {
-            CI_ASSERT(kv.second.number_array.size() == 3);
-            ref->emissiveFactor = glm::make_vec3(kv.second.number_array.data());
-        }
-        else if (kv.first == "normalTexture")
-        {
-            ref->normalTexture = modelGLTF->textures[kv.second.TextureIndex()];
-            auto& jsonValues = kv.second.json_double_value;
-            auto it = jsonValues.find("scale");
-            if (it != jsonValues.end())
-            {
-                ref->normalTextureScale = it->second;
-            }
-        }
-        else if (kv.first == "occlusionTexture")
-            ref->occlusionTexture = modelGLTF->textures[kv.second.TextureIndex()];
+        ref->normalTextureCoord = property.normalTexture.texCoord;
+        ref->normalTexture = modelGLTF->textures[property.normalTexture.index];
     }
+    ref->normalTextureScale = property.normalTexture.scale;
+
+    // occlussion
+    if (property.occlusionTexture.index >= 0)
+        ref->occlusionTexture = modelGLTF->textures[property.occlusionTexture.index];
+    ref->occlusionStrength = property.occlusionTexture.strength;
 
     ref->materialType = MATERIAL_PBR_METAL_ROUGHNESS;
+
     for (auto& ext : property.extensions)
     {
         if (ext.first == "KHR_materials_unlit")

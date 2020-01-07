@@ -136,7 +136,6 @@
     <ClInclude Include="..\..\..\include\melo.h" />
     <ClInclude Include="..\..\..\include\Node.h" />
     <ClInclude Include="..\..\..\include\cigltf.h" />
-    <ClInclude Include="..\..\..\include\CinderMeshViewer.h" />
     <ClInclude Include="..\..\..\include\ciobj.h" />
     <ClInclude Include="..\..\..\include\NodeExt.h" />
     <ClInclude Include="..\..\..\include\SkyNode.h" />

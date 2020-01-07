@@ -164,9 +164,6 @@
     <ClInclude Include="..\..\..\include\cigltf.h">
       <Filter>Blocks\melo</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\CinderMeshViewer.h">
-      <Filter>Blocks\melo</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\include\ciobj.h">
       <Filter>Blocks\melo</Filter>
     </ClInclude>
