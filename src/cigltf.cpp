@@ -273,7 +273,7 @@ ModelGLTFRef ModelGLTF::create(const fs2::path& meshPath, std::string* loadingEr
         {
             glm::vec3 newMin = { item.minValues[0], item.minValues[1], item.minValues[2] };
             glm::vec3 newMax = { item.maxValues[0], item.maxValues[1], item.maxValues[2] };
-            ref->mBoundBoxMax = glm::min(ref->mBoundBoxMax, newMin);
+            ref->mBoundBoxMin = glm::min(ref->mBoundBoxMin, newMin);
             ref->mBoundBoxMax = glm::max(ref->mBoundBoxMax, newMax);
         }
     }
