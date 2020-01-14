@@ -71,6 +71,24 @@ struct MeloViewer : public App
         mScene->addChild(mLightNode);
     }
 
+    void deletePickedNode()
+    {
+        if (!mPickedNode) return;
+
+        dispatchAsync([&] {
+            mScene->removeChild(mPickedNode);
+            setPickedNode(nullptr);
+            });
+    }
+
+    void lookAtPickedNode()
+    {
+        if (!mPickedNode) return;
+        AxisAlignedBox localBounds = { mPickedNode->mBoundBoxMin, mPickedNode->mBoundBoxMax };
+        AxisAlignedBox worldBounds = localBounds.transformed(mPickedNode->getWorldTransform());
+        mCurrentCam->lookAt(worldBounds.getCenter());
+    }
+
     void drawGUI()
     {
         mUiLogger->Draw("Log");
@@ -147,10 +165,7 @@ struct MeloViewer : public App
                         ui::SameLine();
                         if (ui::Button("DEL"))
                         {
-                            dispatchAsync([&] {
-                                mScene->removeChild(mPickedNode);
-                                setPickedNode(nullptr);
-                                });
+                            deletePickedNode();
                         }
                         if (ui::Button("CLONE"))
                         {
@@ -312,18 +327,27 @@ struct MeloViewer : public App
         {
             getWindow()->getSignalKeyUp().connect([&](KeyEvent& event) {
                 auto code = event.getCode();
-                if (code == KeyEvent::KEY_ESCAPE)
-                    quit();
-                if (code == KeyEvent::KEY_SPACE)
-                    WIRE_FRAME = !WIRE_FRAME;
-                if (code == KeyEvent::KEY_e)
-                    ENV_VISIBLE = !ENV_VISIBLE;
-                if (code == KeyEvent::KEY_x)
-                    XYZ_VISIBLE = !XYZ_VISIBLE;
-                if (code == KeyEvent::KEY_g)
-                    GUI_VISIBLE = !GUI_VISIBLE;
-                if (code == KeyEvent::KEY_f)
-                    FPS_CAMERA = !FPS_CAMERA;
+                switch (code)
+                {
+                    case KeyEvent::KEY_ESCAPE:
+                        quit(); break;
+                    case KeyEvent::KEY_w:
+                        WIRE_FRAME = !WIRE_FRAME; break;
+                    case KeyEvent::KEY_e:
+                        ENV_VISIBLE = !ENV_VISIBLE; break;
+                    case KeyEvent::KEY_x:
+                        XYZ_VISIBLE = !XYZ_VISIBLE; break;
+                    case KeyEvent::KEY_g:
+                        GUI_VISIBLE = !GUI_VISIBLE; break;
+                    case KeyEvent::KEY_f:
+                        FPS_CAMERA = !FPS_CAMERA; break;
+                    case KeyEvent::KEY_DELETE:
+                        deletePickedNode(); break;
+                    case KeyEvent::KEY_SPACE:
+                        lookAtPickedNode(); break;
+                    default:
+                        break;
+                }
                 });
         }
 
