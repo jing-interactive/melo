@@ -167,6 +167,8 @@ struct MeloViewer : public App
                                 setPickedNode(cloned);
                                 });
                         }
+
+                        ui::EnableGizmo(!mMouseBeingDragged);
                         if (ui::EditGizmo(mCurrentCam->getViewMatrix(), mCurrentCam->getProjectionMatrix(), &mPickedTransform))
                         {
                             mMayaCamUi.disable();
@@ -248,6 +250,8 @@ struct MeloViewer : public App
         }
     };
 
+    bool mMouseBeingDragged = false;
+
     void setup() override
     {
         log::makeLogger<log::LoggerFileRotating>(fs::path(), "IG.%Y.%m.%d.log");
@@ -283,17 +287,26 @@ struct MeloViewer : public App
             mMayaCam.setAspectRatio(getWindowAspectRatio());
             });
 
+        getWindow()->getSignalMouseDown().connect([&](MouseEvent& event) {
+            mMouseBeingDragged = false;
+            });
+
+        getWindow()->getSignalMouseDrag().connect([&](MouseEvent& event) {
+            mMouseBeingDragged = true;
+            });
+
         getWindow()->getSignalMouseMove().connect([&](MouseEvent& event) {
             mMouseHitNode = pick(mScene, *mCurrentCam, event.getPos());
             });
 
         getWindow()->getSignalMouseUp().connect([&](MouseEvent& event) {
-            if (event.isLeft()) {
+            if (event.isLeft() && !mMouseBeingDragged) {
                 auto hit = mMouseHitNode;
                 dispatchAsync([&, hit] {
                     setPickedNode(hit);
                     });
             }
+            mMouseBeingDragged = false;
             });
         if (!mSnapshotMode)
         {
