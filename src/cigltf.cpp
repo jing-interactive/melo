@@ -2,6 +2,7 @@
 #ifndef CINDER_LESS
 #include "AssetManager.h"
 #include "cinder/Log.h"
+#include "cinder/Utilities.h"
 #include "cinder/app/App.h"
 //#include "cinder/ip/Checkerboard.h"
 //#include "../../Remotery/lib/Remotery.h"
@@ -251,8 +252,18 @@ ModelGLTFRef ModelGLTF::create(const fs2::path& meshPath, std::string* loadingEr
     for (auto& item : model.cameras)
         ref->cameras.emplace_back(CameraGLTF::create(ref, item));
 
+    int nodeId = 0;
     for (auto& item : model.nodes)
-        ref->nodes.emplace_back(NodeGLTF::create(ref, item));
+    {
+        auto& node = NodeGLTF::create(ref, item);
+        if (item.name.empty())
+        {
+            auto name = "node_" + toString(nodeId);
+            node->setName(name);
+        }
+        ref->nodes.emplace_back(node);
+        nodeId++;
+    }
     for (auto& item : model.scenes)
     {
         auto scene = SceneGLTF::create(ref, item);
