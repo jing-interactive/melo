@@ -526,10 +526,12 @@ struct AnimationChannel {
                             // "weights"]
   Value extras;
   ExtensionMap extensions;
+  ExtensionMap target_extensions;
 
   // Filled when SetStoreOriginalJSONForExtrasAndExtensions is enabled.
   std::string extras_json_string;
   std::string extensions_json_string;
+  std::string target_extensions_json_string;
 
   AnimationChannel() : sampler(-1), target_node(-1) {}
   DEFAULT_METHODS(AnimationChannel)
@@ -812,7 +814,7 @@ struct BufferView {
 
   bool dracoDecoded{false};  // Flag indicating this has been draco decoded
 
-  BufferView() : buffer(-1), target(0), byteOffset(0), byteLength(0), byteStride(0), dracoDecoded(false) {}
+  BufferView() : buffer(-1), byteOffset(0), byteLength(0), byteStride(0), target(0), dracoDecoded(false) {}
   DEFAULT_METHODS(BufferView)
   bool operator==(const BufferView &) const;
 };
@@ -1141,7 +1143,7 @@ class Model {
   std::vector<Scene> scenes;
   std::vector<Light> lights;
 
-  int defaultScene;
+  int defaultScene = -1;
   std::vector<std::string> extensionsUsed;
   std::vector<std::string> extensionsRequired;
 
@@ -2458,8 +2460,10 @@ std::string ExpandFilePath(const std::string &filepath, void *) {
     return "";
   }
 
+  // Quote the string to keep any spaces in filepath intact.
+  std::string quoted_path = "\"" + filepath + "\"";
   // char** w;
-  int ret = wordexp(filepath.c_str(), &p, 0);
+  int ret = wordexp(quoted_path.c_str(), &p, 0);
   if (ret) {
     // err
     s = filepath;
@@ -4752,6 +4756,13 @@ static bool ParseAnimationChannel(
       }
       return false;
     }
+	ParseExtensionsProperty(&channel->target_extensions, err, target_object);
+	if (store_original_json_for_extras_and_extensions) {
+      json_const_iterator it;
+      if (FindMember(target_object, "extensions", it)) {
+        channel->target_extensions_json_string = JsonToString(GetValue(it));
+      }
+	}
   }
 
   channel->sampler = samplerIndex;
@@ -5556,8 +5567,15 @@ bool TinyGLTF::LoadFromString(Model *model, std::string *err, std::string *warn,
       }
 
       for (auto &attribute : primitive.attributes) {
-        model->bufferViews[model->accessors[attribute.second].bufferView]
+        model->bufferViews[size_t(model->accessors[size_t(attribute.second)].bufferView)]
             .target = TINYGLTF_TARGET_ARRAY_BUFFER;
+      }
+
+      for(auto &target : primitive.targets) {
+        for(auto &attribute : target) {
+          model->bufferViews[size_t(model->accessors[size_t(attribute.second)].bufferView)]
+              .target = TINYGLTF_TARGET_ARRAY_BUFFER;
+        }
       }
     }
   }
@@ -6426,6 +6444,8 @@ static void SerializeGltfAnimationChannel(AnimationChannel &channel, json &o) {
     SerializeNumberProperty("node", channel.target_node, target);
     SerializeStringProperty("path", channel.target_path, target);
 
+	SerializeExtensionMap(channel.target_extensions, target);
+
     JsonAddMember(o, "target", std::move(target));
   }
 
@@ -6465,6 +6485,7 @@ static void SerializeGltfAnimation(Animation &animation, json &o) {
 
   {
     json samplers;
+    JsonReserveArray(samplers, animation.samplers.size());
     for (unsigned int i = 0; i < animation.samplers.size(); ++i) {
       json sampler;
       AnimationSampler gltfSampler = animation.samplers[i];
@@ -6989,14 +7010,16 @@ static void SerializeGltfTexture(Texture &texture, json &o) {
 ///
 static void SerializeGltfModel(Model *model, json &o) {
   // ACCESSORS
-  json accessors;
-  JsonReserveArray(accessors, model->accessors.size());
-  for (unsigned int i = 0; i < model->accessors.size(); ++i) {
-    json accessor;
-    SerializeGltfAccessor(model->accessors[i], accessor);
-    JsonPushBack(accessors, std::move(accessor));
+  if (model->accessors.size()) {
+    json accessors;
+    JsonReserveArray(accessors, model->accessors.size());
+    for (unsigned int i = 0; i < model->accessors.size(); ++i) {
+      json accessor;
+      SerializeGltfAccessor(model->accessors[i], accessor);
+      JsonPushBack(accessors, std::move(accessor));
+    }
+    JsonAddMember(o, "accessors", std::move(accessors));
   }
-  JsonAddMember(o, "accessors", std::move(accessors));
 
   // ANIMATIONS
   if (model->animations.size()) {
@@ -7019,14 +7042,16 @@ static void SerializeGltfModel(Model *model, json &o) {
   JsonAddMember(o, "asset", std::move(asset));
 
   // BUFFERVIEWS
-  json bufferViews;
-  JsonReserveArray(bufferViews, model->bufferViews.size());
-  for (unsigned int i = 0; i < model->bufferViews.size(); ++i) {
-    json bufferView;
-    SerializeGltfBufferView(model->bufferViews[i], bufferView);
-    JsonPushBack(bufferViews, std::move(bufferView));
+  if(model->bufferViews.size()) {
+    json bufferViews;
+    JsonReserveArray(bufferViews, model->bufferViews.size());
+    for (unsigned int i = 0; i < model->bufferViews.size(); ++i) {
+      json bufferView;
+      SerializeGltfBufferView(model->bufferViews[i], bufferView);
+      JsonPushBack(bufferViews, std::move(bufferView));
+    }
+    JsonAddMember(o, "bufferViews", std::move(bufferViews));
   }
-  JsonAddMember(o, "bufferViews", std::move(bufferViews));
 
   // Extensions used
   if (model->extensionsUsed.size()) {
@@ -7219,20 +7244,20 @@ static void WriteBinaryGltfStream(std::ostream &stream,
       return numToRound + multiple - remainder;
   };
 
-  const uint32_t padding_size = roundUp(content.size(), 4) - content.size();
+  const uint32_t padding_size = roundUp(uint32_t(content.size()), 4) - uint32_t(content.size());
 
   // 12 bytes for header, JSON content length, 8 bytes for JSON chunk info.
   // Chunk data must be located at 4-byte boundary.
-  const int length = 12 + 8 + roundUp(content.size(), 4)+
-      (binBuffer.size()?(8+roundUp(binBuffer.size(),4)) : 0);
+  const uint32_t length = 12 + 8 + roundUp(uint32_t(content.size()), 4)+
+      (binBuffer.size()?(8+roundUp(uint32_t(binBuffer.size()),4)) : 0);
 
   stream.write(header.c_str(), std::streamsize(header.size()));
   stream.write(reinterpret_cast<const char *>(&version), sizeof(version));
   stream.write(reinterpret_cast<const char *>(&length), sizeof(length));
 
   // JSON chunk info, then JSON data
-  const int model_length = int(content.size()) + padding_size;
-  const int model_format = 0x4E4F534A;
+  const uint32_t model_length = uint32_t(content.size()) + padding_size;
+  const uint32_t model_format = 0x4E4F534A;
   stream.write(reinterpret_cast<const char *>(&model_length),
                sizeof(model_length));
   stream.write(reinterpret_cast<const char *>(&model_format),
@@ -7245,19 +7270,19 @@ static void WriteBinaryGltfStream(std::ostream &stream,
     stream.write(padding.c_str(), std::streamsize(padding.size()));
   }
   if (binBuffer.size() > 0){
-    const uint32_t bin_padding_size = roundUp(binBuffer.size(), 4) - binBuffer.size();
+    const uint32_t bin_padding_size = roundUp(uint32_t(binBuffer.size()), 4) - uint32_t(binBuffer.size());
     // BIN chunk info, then BIN data
-    const int bin_length = int(binBuffer.size()) + bin_padding_size;
-    const int bin_format = 0x004e4942;
+    const uint32_t bin_length = uint32_t(binBuffer.size()) + bin_padding_size;
+    const uint32_t bin_format = 0x004e4942;
     stream.write(reinterpret_cast<const char *>(&bin_length),
 		 sizeof(bin_length));
     stream.write(reinterpret_cast<const char *>(&bin_format),
 		 sizeof(bin_format));
-    stream.write((const char *)binBuffer.data(), std::streamsize(binBuffer.size()));
+    stream.write(reinterpret_cast<const char *>(binBuffer.data()), std::streamsize(binBuffer.size()));
     // Chunksize must be multiplies of 4, so pad with zeroes
     if (bin_padding_size > 0) {
       const std::vector<unsigned char> padding = std::vector<unsigned char>(size_t(bin_padding_size), 0);
-      stream.write((const char *)padding.data(), std::streamsize(padding.size()));
+      stream.write(reinterpret_cast<const char *>(padding.data()), std::streamsize(padding.size()));
     }
   }
 }
@@ -7290,20 +7315,21 @@ bool TinyGLTF::WriteGltfSceneToStream(Model *model, std::ostream &stream,
   SerializeGltfModel(model, output);
 
   // BUFFERS
-  std::vector<std::string> usedUris;
   std::vector<unsigned char> binBuffer;
-  json buffers;
-  JsonReserveArray(buffers, model->buffers.size());
-  for (unsigned int i = 0; i < model->buffers.size(); ++i) {
-    json buffer;
-    if (writeBinary && i==0 && model->buffers[i].uri.empty()){
-      SerializeGltfBufferBin(model->buffers[i], buffer,binBuffer);
-    } else {
-      SerializeGltfBuffer(model->buffers[i], buffer);
+  if(model->buffers.size()) {
+    json buffers;
+    JsonReserveArray(buffers, model->buffers.size());
+    for (unsigned int i = 0; i < model->buffers.size(); ++i) {
+      json buffer;
+      if (writeBinary && i==0 && model->buffers[i].uri.empty()){
+        SerializeGltfBufferBin(model->buffers[i], buffer,binBuffer);
+      } else {
+        SerializeGltfBuffer(model->buffers[i], buffer);
+      }
+      JsonPushBack(buffers, std::move(buffer));
     }
-    JsonPushBack(buffers, std::move(buffer));
+    JsonAddMember(output, "buffers", std::move(buffers));
   }
-  JsonAddMember(output, "buffers", std::move(buffers));
 
   // IMAGES
   if (model->images.size()) {
@@ -7357,44 +7383,46 @@ bool TinyGLTF::WriteGltfSceneToFile(Model *model, const std::string &filename,
   // BUFFERS
   std::vector<std::string> usedUris;
   std::vector<unsigned char> binBuffer;
-  json buffers;
-  JsonReserveArray(buffers, model->buffers.size());
-  for (unsigned int i = 0; i < model->buffers.size(); ++i) {
-    json buffer;
-    if (writeBinary && i==0 && model->buffers[i].uri.empty()){
-      SerializeGltfBufferBin(model->buffers[i], buffer,binBuffer);
-    } else if (embedBuffers) {
-      SerializeGltfBuffer(model->buffers[i], buffer);
-    } else {
-      std::string binSavePath;
-      std::string binUri;
-      if (!model->buffers[i].uri.empty() && !IsDataURI(model->buffers[i].uri)) {
-        binUri = model->buffers[i].uri;
+  if (model->buffers.size()) {
+    json buffers;
+    JsonReserveArray(buffers, model->buffers.size());
+    for (unsigned int i = 0; i < model->buffers.size(); ++i) {
+      json buffer;
+      if (writeBinary && i==0 && model->buffers[i].uri.empty()){
+        SerializeGltfBufferBin(model->buffers[i], buffer,binBuffer);
+      } else if (embedBuffers) {
+        SerializeGltfBuffer(model->buffers[i], buffer);
       } else {
-        binUri = defaultBinFilename + defaultBinFileExt;
-        bool inUse = true;
-        int numUsed = 0;
-        while (inUse) {
-          inUse = false;
-          for (const std::string &usedName : usedUris) {
-            if (binUri.compare(usedName) != 0) continue;
-            inUse = true;
-            binUri = defaultBinFilename + std::to_string(numUsed++) +
-                     defaultBinFileExt;
-            break;
+        std::string binSavePath;
+        std::string binUri;
+        if (!model->buffers[i].uri.empty() && !IsDataURI(model->buffers[i].uri)) {
+          binUri = model->buffers[i].uri;
+        } else {
+          binUri = defaultBinFilename + defaultBinFileExt;
+          bool inUse = true;
+          int numUsed = 0;
+          while (inUse) {
+            inUse = false;
+            for (const std::string &usedName : usedUris) {
+              if (binUri.compare(usedName) != 0) continue;
+              inUse = true;
+              binUri = defaultBinFilename + std::to_string(numUsed++) +
+                       defaultBinFileExt;
+              break;
+            }
           }
         }
+        usedUris.push_back(binUri);
+        binSavePath = JoinPath(baseDir, binUri);
+        if (!SerializeGltfBuffer(model->buffers[i], buffer, binSavePath,
+                                 binUri)) {
+          return false;
+        }
       }
-      usedUris.push_back(binUri);
-      binSavePath = JoinPath(baseDir, binUri);
-      if (!SerializeGltfBuffer(model->buffers[i], buffer, binSavePath,
-                               binUri)) {
-        return false;
-      }
+      JsonPushBack(buffers, std::move(buffer));
     }
-    JsonPushBack(buffers, std::move(buffer));
-  }
   JsonAddMember(output, "buffers", std::move(buffers));
+  }
 
   // IMAGES
   if (model->images.size()) {

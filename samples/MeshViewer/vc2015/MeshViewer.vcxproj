@@ -55,7 +55,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\..\include;;..\include;"..\..\..\..\..\include";..\..\..\..\Cinder-Imgui\include;..\..\..\..\Cinder-Imgui\lib;..\..\..\..\Cinder-Imgui\lib\imgui;..\..\..\..\Cinder-VNM\include;..\..\..\..</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\include;;..\include;..\..\..\..\..\include;..\..\..\..\..\include\imgui;..\..\..\..\Cinder-Imgui\include;..\..\..\..\Cinder-Imgui\lib;..\..\..\..\Cinder-VNM\include;..\..\..\..</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WIN32_WINNT=0x0601;_WINDOWS;NOMINMAX;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -80,7 +80,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\..\..\include;;..\include;"..\..\..\..\..\include";..\..\..\..\Cinder-Imgui\include;..\..\..\..\Cinder-Imgui\lib;..\..\..\..\Cinder-Imgui\lib\imgui;..\..\..\..\Cinder-VNM\include;..\..\..\..</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\include;;..\include;..\..\..\..\..\include;..\..\..\..\..\include\imgui;..\..\..\..\Cinder-Imgui\include;..\..\..\..\Cinder-Imgui\lib;..\..\..\..\Cinder-VNM\include;..\..\..\..</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WIN32_WINNT=0x0601;_WINDOWS;NOMINMAX;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader />
@@ -114,16 +114,8 @@
   <ItemGroup />
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Cinder-ImGui\include\CinderGuizmo.h" />
-    <ClInclude Include="..\..\..\..\Cinder-ImGui\include\CinderImGui.h" />
-    <ClInclude Include="..\..\..\..\Cinder-ImGui\include\CinderImGuiExports.h" />
     <ClInclude Include="..\..\..\..\Cinder-ImGui\include\CinderMarkdown.h" />
     <ClInclude Include="..\..\..\..\Cinder-ImGui\include\DearLogger.h" />
-    <ClInclude Include="..\..\..\..\Cinder-ImGui\lib\imgui\imconfig.h" />
-    <ClInclude Include="..\..\..\..\Cinder-ImGui\lib\imgui\imgui.h" />
-    <ClInclude Include="..\..\..\..\Cinder-ImGui\lib\imgui\imgui_internal.h" />
-    <ClInclude Include="..\..\..\..\Cinder-ImGui\lib\imgui\imstb_rectpack.h" />
-    <ClInclude Include="..\..\..\..\Cinder-ImGui\lib\imgui\imstb_textedit.h" />
-    <ClInclude Include="..\..\..\..\Cinder-ImGui\lib\imgui\imstb_truetype.h" />
     <ClInclude Include="..\..\..\3rdparty\flythrough_camera\flythrough_camera.h" />
     <ClInclude Include="..\..\..\3rdparty\tinygltf\json.hpp" />
     <ClInclude Include="..\..\..\3rdparty\tinygltf\stb_image.h" />
@@ -158,12 +150,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\Cinder-ImGui\lib\ImGuizmo\ImGuizmo.cpp" />
-    <ClCompile Include="..\..\..\..\Cinder-ImGui\lib\imgui\imgui.cpp" />
-    <ClCompile Include="..\..\..\..\Cinder-ImGui\lib\imgui\imgui_demo.cpp" />
-    <ClCompile Include="..\..\..\..\Cinder-ImGui\lib\imgui\imgui_draw.cpp" />
-    <ClCompile Include="..\..\..\..\Cinder-ImGui\lib\imgui\imgui_widgets.cpp" />
     <ClCompile Include="..\..\..\..\Cinder-ImGui\src\CinderGuizmo.cpp" />
-    <ClCompile Include="..\..\..\..\Cinder-ImGui\src\CinderImGui.cpp" />
     <ClCompile Include="..\..\..\..\Cinder-ImGui\src\DearLogger.cpp" />
     <ClCompile Include="..\..\..\3rdparty\tinygltf\tiny_gltf.cc" />
     <ClCompile Include="..\..\..\3rdparty\tinyobjloader\tiny_obj_loader.cc" />

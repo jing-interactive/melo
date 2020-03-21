@@ -52,7 +52,7 @@ struct MeloViewer : public App
 
     FileWatcher mFileWatcher;
 
-    shared_ptr<ui::DearLogger>  mUiLogger;
+    shared_ptr<ImGui::DearLogger>  mUiLogger;
 
     void createDefaultScene()
     {
@@ -93,21 +93,21 @@ struct MeloViewer : public App
     {
         mUiLogger->Draw("Log");
 
-        if (ui::Begin("Scene"))
+        if (ImGui::Begin("Scene"))
         {
             ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
-            if (ui::BeginTabBar("SceneTab", tab_bar_flags))
+            if (ImGui::BeginTabBar("SceneTab", tab_bar_flags))
             {
-                if (ui::BeginTabItem("Hierachy"))
+                if (ImGui::BeginTabItem("Hierachy"))
                 {
                     auto path = getAppPath() / "melo.scene";
-                    if (ui::Button("New"))
+                    if (ImGui::Button("New"))
                     {
                         createDefaultScene();
                         setPickedNode(nullptr);
                     }
 
-                    if (ui::Button("Load"))
+                    if (ImGui::Button("Load"))
                     {
                         auto newScene = melo::loadScene(path.generic_string());
                         if (newScene)
@@ -117,63 +117,63 @@ struct MeloViewer : public App
                         }
                     }
 
-                    if (ui::Button("Save"))
+                    if (ImGui::Button("Save"))
                     {
                         melo::writeScene(mScene, path.generic_string());
                     }
 
-                    ui::Separator();
+                    ImGui::Separator();
 
                     // selectable list
-                    ui::SetNextItemOpen(true, ImGuiCond_Once);
+                    ImGui::SetNextItemOpen(true, ImGuiCond_Once);
                     applyTreeUI(mScene);
-                    ui::EndTabItem();
+                    ImGui::EndTabItem();
                 }
 
-                if (ui::BeginTabItem("Settings"))
+                if (ImGui::BeginTabItem("Settings"))
                 {
                     vnm::drawMinicofigImgui();
-                    ui::EndTabItem();
+                    ImGui::EndTabItem();
                 }
 
-                ui::EndTabBar();
+                ImGui::EndTabBar();
             }
         }
-        ui::End();
+        ImGui::End();
 
-        if (ui::Begin("Node"))
+        if (ImGui::Begin("Node"))
         {
             ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
-            if (ui::BeginTabBar("NodeTab", tab_bar_flags))
+            if (ImGui::BeginTabBar("NodeTab", tab_bar_flags))
             {
-                if (ui::BeginTabItem("Property"))
+                if (ImGui::BeginTabItem("Property"))
                 {
-                    //ui::ScopedGroup group;
+                    //ImGui::ScopedGroup group;
                     if (!mIsFpsCamera && mPickedNode != nullptr)
                     {
-                        ui::Text(mPickedNode->getName().c_str());
+                        ImGui::Text(mPickedNode->getName().c_str());
                         bool isVisible = mPickedNode->isVisible();
-                        if (ui::Checkbox("Visible", &isVisible))
+                        if (ImGui::Checkbox("Visible", &isVisible))
                         {
                             mPickedNode->setVisible(isVisible);
                         }
-                        if (ui::Button("Reset Transform"))
+                        if (ImGui::Button("Reset Transform"))
                         {
                             mPickedTransform = {};
                             mPickedNode->setTransform({});
                         }
-                        ui::SameLine();
-                        if (ui::Button("DEL"))
+                        ImGui::SameLine();
+                        if (ImGui::Button("DEL"))
                         {
                             deletePickedNode();
                         }
-                        if (ui::Button("CLONE"))
+                        if (ImGui::Button("CLONE"))
                         {
                             dispatchAsync([&] {
                                 // TODO: 
                                 auto cloned = melo::create(mPickedNode->getName());
                                 vec3 T, R, S;
-                                ui::DecomposeMatrixToComponents(mPickedTransform, T, R, S);
+                                ImGui::DecomposeMatrixToComponents(mPickedTransform, T, R, S);
                                 cloned->setPosition(T);
                                 cloned->setRotation(R);
                                 cloned->setScale(S);
@@ -183,12 +183,12 @@ struct MeloViewer : public App
                                 });
                         }
 
-                        ui::EnableGizmo(!mMouseBeingDragged);
-                        if (ui::EditGizmo(mCurrentCam->getViewMatrix(), mCurrentCam->getProjectionMatrix(), &mPickedTransform))
+                        ImGui::EnableGizmo(!mMouseBeingDragged);
+                        if (ImGui::EditGizmo(mCurrentCam->getViewMatrix(), mCurrentCam->getProjectionMatrix(), &mPickedTransform))
                         {
                             mMayaCamUi.disable();
                             vec3 T, R, S;
-                            ui::DecomposeMatrixToComponents(mPickedTransform, T, R, S);
+                            ImGui::DecomposeMatrixToComponents(mPickedTransform, T, R, S);
                             mPickedNode->setPosition(T);
                             mPickedNode->setRotation(R);
                             mPickedNode->setScale(S);
@@ -199,12 +199,12 @@ struct MeloViewer : public App
                             mMayaCamUi.enable();
                         }
                     }
-                    ui::EndTabItem();
+                    ImGui::EndTabItem();
                 }
-                ui::EndTabBar();
+                ImGui::EndTabBar();
             }
         }
-        ui::End();
+        ImGui::End();
     }
 
     vector<string> listGlTFFiles()
@@ -245,22 +245,24 @@ struct MeloViewer : public App
 
     void applyTreeUI(const melo::NodeRef& node)
     {
+        if (!node) return;
+
         ImGuiTreeNodeFlags flag = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
         flag |= node->getChildren().empty() ? ImGuiTreeNodeFlags_Leaf : ImGuiTreeNodeFlags_None;
         if (node == mPickedNode)
             flag |= ImGuiTreeNodeFlags_Selected;
 
-        if (ui::TreeNodeEx(node->getName().c_str(), flag))
+        if (ImGui::TreeNodeEx(node->getName().c_str(), flag))
         {
-            if (ui::IsItemClicked())
+            if (ImGui::IsItemClicked())
                 setPickedNode(node);
             for (auto& child : node->getChildren())
                 applyTreeUI(child);
-            ui::TreePop();
+            ImGui::TreePop();
         }
         else
         {
-            if (ui::IsItemClicked())
+            if (ImGui::IsItemClicked())
                 setPickedNode(node);
         }
     };
@@ -270,7 +272,7 @@ struct MeloViewer : public App
     void setup() override
     {
         log::makeLogger<log::LoggerFileRotating>(fs::path(), "IG.%Y.%m.%d.log");
-        mUiLogger = log::makeLogger<ui::DearLogger>();
+        mUiLogger = log::makeLogger<ImGui::DearLogger>();
 
         am::addAssetDirectory(getAppPath() / "../assets");
         am::addAssetDirectory(getAppPath() / "../../assets");
@@ -434,7 +436,7 @@ struct MeloViewer : public App
                 auto k = 128;
                 auto pos = ivec2(getWindowWidth() - k, 0);
                 auto size = ivec2(k, k);
-                if (ui::ViewManipulate(mCurrentCam->getViewMatrixReference(), 8, pos, size))
+                if (ImGui::ViewManipulate(mCurrentCam->getViewMatrixReference(), 8, pos, size))
                 {
                     mMayaCamUi.disable();
                 }

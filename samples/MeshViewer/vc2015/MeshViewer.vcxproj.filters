@@ -31,9 +31,6 @@
     <Filter Include="Blocks\melo">
       <UniqueIdentifier>{6aa2cfb5-7479-4425-87bb-56104f08facb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Blocks\imgui">
-      <UniqueIdentifier>{4a7f9a7c-37f4-4b7f-86de-6bc4fbf8a6b0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Blocks\Cinder-Imgui">
       <UniqueIdentifier>{0ecd5139-7ca6-4192-99b2-b13e27073369}</UniqueIdentifier>
     </Filter>
@@ -126,34 +123,19 @@
     <ClCompile Include="..\..\..\src\melo.cpp">
       <Filter>Blocks\melo</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Cinder-ImGui\lib\imgui\imgui.cpp">
-      <Filter>Blocks\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Cinder-ImGui\lib\imgui\imgui_demo.cpp">
-      <Filter>Blocks\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Cinder-ImGui\lib\imgui\imgui_draw.cpp">
-      <Filter>Blocks\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Cinder-ImGui\lib\imgui\imgui_widgets.cpp">
-      <Filter>Blocks\imgui</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\Cinder-ImGui\src\CinderGuizmo.cpp">
-      <Filter>Blocks\Cinder-Imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Cinder-ImGui\src\CinderImGui.cpp">
       <Filter>Blocks\Cinder-Imgui</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\SkyNode.cpp">
       <Filter>Blocks\melo</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Cinder-ImGui\lib\ImGuizmo\ImGuizmo.cpp">
-      <Filter>Blocks\imgui</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\SceneIO.cpp">
       <Filter>Blocks\melo</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\Cinder-ImGui\src\DearLogger.cpp">
+      <Filter>Blocks\Cinder-Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Cinder-ImGui\lib\ImGuizmo\ImGuizmo.cpp">
       <Filter>Blocks\Cinder-Imgui</Filter>
     </ClCompile>
   </ItemGroup>
@@ -200,31 +182,7 @@
     <ClInclude Include="..\..\..\include\melo.h">
       <Filter>Blocks\melo</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\Cinder-ImGui\lib\imgui\imconfig.h">
-      <Filter>Blocks\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Cinder-ImGui\lib\imgui\imgui.h">
-      <Filter>Blocks\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Cinder-ImGui\lib\imgui\imgui_internal.h">
-      <Filter>Blocks\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Cinder-ImGui\lib\imgui\imstb_rectpack.h">
-      <Filter>Blocks\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Cinder-ImGui\lib\imgui\imstb_textedit.h">
-      <Filter>Blocks\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Cinder-ImGui\lib\imgui\imstb_truetype.h">
-      <Filter>Blocks\imgui</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\Cinder-ImGui\include\CinderGuizmo.h">
-      <Filter>Blocks\Cinder-Imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Cinder-ImGui\include\CinderImGui.h">
-      <Filter>Blocks\Cinder-Imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Cinder-ImGui\include\CinderImGuiExports.h">
       <Filter>Blocks\Cinder-Imgui</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\Cinder-ImGui\include\CinderMarkdown.h">

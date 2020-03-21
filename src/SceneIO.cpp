@@ -17,8 +17,11 @@ namespace melo
             for (int i = 0; i < children.size(); i++)
             {
                 auto transform = children[i]->getTransform();
-                children[i] = melo::create(children[i]->getName());
-                children[i]->setConstantTransform(transform);
+                if (auto ptr = melo::create(children[i]->getName()))
+                {
+                    children[i] = ptr;
+                    children[i]->setConstantTransform(transform);
+                }
             }
         }
 
