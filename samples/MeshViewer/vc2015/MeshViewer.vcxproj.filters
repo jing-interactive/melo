@@ -31,8 +31,8 @@
     <Filter Include="Blocks\melo">
       <UniqueIdentifier>{6aa2cfb5-7479-4425-87bb-56104f08facb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Blocks\Cinder-Imgui">
-      <UniqueIdentifier>{0ecd5139-7ca6-4192-99b2-b13e27073369}</UniqueIdentifier>
+    <Filter Include="Blocks\vnm\ui">
+      <UniqueIdentifier>{0cc3464f-d296-4845-bac9-422e575a7c0c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -123,20 +123,20 @@
     <ClCompile Include="..\..\..\src\melo.cpp">
       <Filter>Blocks\melo</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Cinder-ImGui\src\CinderGuizmo.cpp">
-      <Filter>Blocks\Cinder-Imgui</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\SkyNode.cpp">
       <Filter>Blocks\melo</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\SceneIO.cpp">
       <Filter>Blocks\melo</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Cinder-ImGui\src\DearLogger.cpp">
-      <Filter>Blocks\Cinder-Imgui</Filter>
+    <ClCompile Include="..\..\..\..\Cinder-VNM\ui\DearLogger.cpp">
+      <Filter>Blocks\vnm\ui</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Cinder-ImGui\lib\ImGuizmo\ImGuizmo.cpp">
-      <Filter>Blocks\Cinder-Imgui</Filter>
+    <ClCompile Include="..\..\..\..\Cinder-VNM\ui\CinderGuizmo.cpp">
+      <Filter>Blocks\vnm\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Cinder-VNM\ui\ImGuizmo\ImGuizmo.cpp">
+      <Filter>Blocks\vnm\ui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -182,20 +182,14 @@
     <ClInclude Include="..\..\..\include\melo.h">
       <Filter>Blocks\melo</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\Cinder-ImGui\include\CinderGuizmo.h">
-      <Filter>Blocks\Cinder-Imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\Cinder-ImGui\include\CinderMarkdown.h">
-      <Filter>Blocks\Cinder-Imgui</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\include\SkyNode.h">
       <Filter>Blocks\melo</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\include\NodeExt.h">
       <Filter>Blocks\melo</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\Cinder-ImGui\include\DearLogger.h">
-      <Filter>Blocks\Cinder-Imgui</Filter>
+    <ClInclude Include="..\..\..\..\Cinder-VNM\ui\ImGuizmo\ImGuizmo.h">
+      <Filter>Blocks\vnm\ui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

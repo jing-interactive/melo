@@ -161,6 +161,7 @@ struct ImageGLTF
     // BufferViewGLTF::Ref bufferView;
 #ifndef CINDER_LESS
     ci::SurfaceRef surface;
+    ci::DataSourceRef compressedSurface;
 #endif
     static Ref create(ModelGLTFRef modelGLTF, const tinygltf::Image& property);
 };

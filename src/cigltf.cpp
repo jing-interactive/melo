@@ -414,12 +414,26 @@ ImageGLTF::Ref ImageGLTF::create(ModelGLTFRef modelGLTF, const tinygltf::Image& 
     ref->property = property;
 #ifndef CINDER_LESS
     if (property.image.empty())
-        ref->surface = am::surface((modelGLTF->meshPath.parent_path() / property.uri).string());
+    {
+        if (property.uri.find(".dds") != string::npos || property.uri.find(".DDS") != string::npos)
+        {
+            auto path = app::getAssetPath(modelGLTF->meshPath.parent_path() / property.uri);
+            ref->compressedSurface = DataSourcePath::create(path);
+        }
+        else
+        {
+            ref->surface = am::surface((modelGLTF->meshPath.parent_path() / property.uri).string());
+        }
+    }
     else
+    {
         ref->surface = Surface::create((uint8_t*)property.image.data(), property.width, property.height,
-                                   property.width * property.component,
-                                   (property.component == 4) ? SurfaceChannelOrder::RGBA
-                                                             : SurfaceChannelOrder::RGB);
+            property.width * property.component,
+            (property.component == 4) ? SurfaceChannelOrder::RGBA
+            : SurfaceChannelOrder::RGB);
+
+        // TODO: deal with dds
+    }
 #endif
     return ref;
 }
@@ -965,11 +979,27 @@ TextureGLTF::Ref TextureGLTF::create(ModelGLTFRef modelGLTF, const tinygltf::Tex
     ref->property = property;
     ref->imageSource = modelGLTF->images[property.source];
 #ifndef CINDER_LESS
-    if (!ref->imageSource->surface) return ref;
-    auto texFormat =
-        gl::Texture2d::Format().mipmap().minFilter(GL_LINEAR_MIPMAP_LINEAR).wrap(GL_REPEAT);
-    ref->ciTexture = gl::Texture2d::create(*ref->imageSource->surface, texFormat);
-    if (!ref->ciTexture) return ref;
+    if (ref->imageSource->surface)
+    {
+        auto texFormat =
+            gl::Texture2d::Format().mipmap().minFilter(GL_LINEAR_MIPMAP_LINEAR).wrap(GL_REPEAT);
+        ref->ciTexture = gl::Texture2d::create(*ref->imageSource->surface, texFormat);
+        if (!ref->ciTexture) return ref;
+    }
+    else if (ref->imageSource->compressedSurface)
+    {
+    #if 1
+        ref->ciTexture = gl::Texture2d::createFromDds(ref->imageSource->compressedSurface);
+    #else
+        ref->ciTexture = am::texture2d((modelGLTF->meshPath.parent_path() / ref->imageSource->property.uri).string());
+    #endif
+        if (!ref->ciTexture) return ref;
+    }
+    else
+    {
+        return ref;
+    }
+
     ref->ciTexture->setLabel(ref->imageSource->property.uri);
 
     if (property.sampler != -1)
