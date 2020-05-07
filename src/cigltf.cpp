@@ -983,7 +983,11 @@ TextureGLTF::Ref TextureGLTF::create(ModelGLTFRef modelGLTF, const tinygltf::Tex
     {
         auto texFormat =
             gl::Texture2d::Format().mipmap().minFilter(GL_LINEAR_MIPMAP_LINEAR).wrap(GL_REPEAT);
+    #if 0
+        ref->ciTexture = am::texture2d((modelGLTF->meshPath.parent_path() / ref->imageSource->property.uri).string(), texFormat, true);
+    #else
         ref->ciTexture = gl::Texture2d::create(*ref->imageSource->surface, texFormat);
+    #endif
         if (!ref->ciTexture) return ref;
     }
     else if (ref->imageSource->compressedSurface)
