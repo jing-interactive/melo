@@ -14,6 +14,7 @@
 // melo
 #include "melo.h"
 #include "NodeExt.h"
+#include "ciobj.h"
 
 // imgui
 #include "MiniConfigImgui.h"
@@ -57,10 +58,22 @@ struct XRoomApp : public App
         mScene->addChild(mLightNode);
 
         auto obj_3d = JsonTree(app::loadAsset(OBJ_3D_JSON));
-        for (const auto& sku : obj_3d.getChildren())
+        auto children = obj_3d.getChildren();
+        int count = std::min<int>(100, children.size());
+        float spacing = 15;
+        int idx = 0;
+        for (const auto& sku : children)
         {
             auto name = sku.getValueForKey("mesh");
-            CI_LOG_W(name);
+            //CI_LOG_W(name);
+
+            auto node = ModelObj::create(getAssetPath(name));
+            int x = idx / 10;
+            int y = idx % 10;
+            node->setPosition({0, x * spacing, y * spacing});
+            mScene->addChild(node);
+
+            if (++idx >= count) break;
         }
     }
 
@@ -96,8 +109,20 @@ struct XRoomApp : public App
 
         getWindow()->getSignalKeyUp().connect([&](KeyEvent& event) {
             auto code = event.getCode();
-            if (code == KeyEvent::KEY_ESCAPE)
-                quit();
+            switch (code)
+            {
+            case KeyEvent::KEY_ESCAPE:
+                quit(); break;
+            case KeyEvent::KEY_w:
+                WIRE_FRAME = !WIRE_FRAME; break;
+            case KeyEvent::KEY_e:
+                ENV_VISIBLE = !ENV_VISIBLE; break;
+            case KeyEvent::KEY_x:
+                XYZ_VISIBLE = !XYZ_VISIBLE; break;
+            case KeyEvent::KEY_g:
+                GUI_VISIBLE = !GUI_VISIBLE; break;
+            }
+
             });
         getSignalCleanup().connect([&] { writeConfig(); });
 

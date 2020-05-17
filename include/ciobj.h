@@ -37,6 +37,7 @@ struct MaterialObj
     melo::MaterialType materialType;
 
     static Ref create(ModelObjRef modelObj, const tinyobj::material_t& property);
+    void recreate(const tinyobj::material_t& property);
     void predraw();
     void postdraw();
 };

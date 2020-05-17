@@ -176,60 +176,54 @@ void MaterialObj::postdraw()
         diffuseTexture->unbind(0);
 }
 
-MaterialObj::Ref MaterialObj::create(ModelObjRef modelObj, const tinyobj::material_t& property)
+void MaterialObj::recreate(const tinyobj::material_t& property)
 {
-    auto ref = make_shared<MaterialObj>();
-    ref->property = property;
-    ref->modelObj = modelObj;
-    ref->name = property.name;
-    ref->materialType = MATERIAL_PBR_SPEC_GLOSSINESS;
-
     auto fmt = gl::GlslProg::Format();
 
-    if (ref->materialType == MATERIAL_PBR_SPEC_GLOSSINESS)
+    if (materialType == MATERIAL_PBR_SPEC_GLOSSINESS)
         fmt.define("PBR_SPECCULAR_GLOSSINESS_WORKFLOW");
 
     fmt.define("HAS_TANGENTS");
     fmt.define("HAS_NORMALS");
 
-    //if (ref->baseColorTexture)
+    //if (baseColorTexture)
     //    fmt.define("HAS_BASECOLORMAP");
-    //if (ref->metallicRoughnessTexture)
+    //if (metallicRoughnessTexture)
     //    fmt.define("HAS_METALROUGHNESSMAP");
-    //if (ref->emissiveTexture)
+    //if (emissiveTexture)
     //    fmt.define("HAS_EMISSIVEMAP");
-    //if (ref->occlusionTexture)
+    //if (occlusionTexture)
     //    fmt.define("HAS_OCCLUSIONMAP");
 
     if (!property.diffuse_texname.empty())
     {
         auto path = modelObj->baseDir / property.diffuse_texname;
-        ref->diffuseTexture = am::texture2d(path.string());
+        diffuseTexture = am::texture2d(path.string());
     }
 
     if (!property.bump_texname.empty())
     {
         auto path = modelObj->baseDir / property.bump_texname;
-        ref->normalTexture = am::texture2d(path.string());
+        normalTexture = am::texture2d(path.string());
     }
 
-    if (ref->diffuseTexture)
+    if (diffuseTexture)
     {
         fmt.define("HAS_UV");
         fmt.define("HAS_DIFFUSEMAP");
     }
-    if (ref->normalTexture)
+    if (normalTexture)
         fmt.define("HAS_NORMALMAP");
 
 #if 0
-    ref->diffuseFactor = glm::vec4(0.5, 0.5, 0.5, 1);
+    diffuseFactor = glm::vec4(0.5, 0.5, 0.5, 1);
 #else
-    ref->diffuseFactor = { property.diffuse[0], property.diffuse[1], property.diffuse[2], 1 };
+    diffuseFactor = { property.diffuse[0], property.diffuse[1], property.diffuse[2], 1 };
 #endif
-    //ref->ambientFactor = { property.ambient[0], property.ambient[1], property.ambient[2] };
-    ref->specularFactor = { property.specular[0], property.specular[1], property.diffuse[2] };
-    ref->emissiveFactor = { property.emission[0], property.emission[1], property.emission[2] };
-    ref->glossinessFactor = property.shininess;
+    //ambientFactor = { property.ambient[0], property.ambient[1], property.ambient[2] };
+    specularFactor = { property.specular[0], property.specular[1], property.diffuse[2] };
+    emissiveFactor = { property.emission[0], property.emission[1], property.emission[2] };
+    glossinessFactor = property.shininess;
 
     if (Node::radianceTexture && Node::irradianceTexture && Node::brdfLUTTexture)
     {
@@ -242,10 +236,10 @@ MaterialObj::Ref MaterialObj::create(ModelObjRef modelObj, const tinyobj::materi
     fmt.label("pbr.vert/pbr.frag");
 
     // use stock shader for the moment
-#if 1
-    auto ciShader = gl::GlslProg::create(fmt);
+#if 0
+    ciShader = gl::GlslProg::create(fmt);
 #else
-    auto ciShader = am::glslProg("lambert texture");
+    ciShader = am::glslProg("lambert texture");
 #endif
     CI_ASSERT_MSG(ciShader, "Shader compile fails");
 
@@ -255,18 +249,18 @@ MaterialObj::Ref MaterialObj::create(ModelObjRef modelObj, const tinyobj::materi
     auto attribs = ciShader->getActiveAttributes();
 #endif
 
-    if (ref->materialType == MATERIAL_PBR_METAL_ROUGHNESS)
+    if (materialType == MATERIAL_PBR_METAL_ROUGHNESS)
     {
         ciShader->uniform("u_BaseColorSampler", 0);
         ciShader->uniform("u_MetallicRoughnessSampler", 3);
     }
-    else if (ref->materialType == MATERIAL_PBR_SPEC_GLOSSINESS)
+    else if (materialType == MATERIAL_PBR_SPEC_GLOSSINESS)
     {
         ciShader->uniform("u_DiffuseSampler", 0);
         ciShader->uniform("u_SpecularGlossinessSampler", 3);
     }
 
-    if (ref->normalTexture)
+    if (normalTexture)
     {
         ciShader->uniform("u_NormalSampler", 1);
         ciShader->uniform("u_NormalScale", 1.0f);
@@ -279,23 +273,32 @@ MaterialObj::Ref MaterialObj::create(ModelObjRef modelObj, const tinyobj::materi
         ciShader->uniform("u_brdfLUT", 7);
     }
 
-    ciShader->uniform("u_DiffuseFactor", ref->diffuseFactor);
-    ciShader->uniform("u_SpecularGlossinessValues", vec4(ref->specularFactor, ref->glossinessFactor));
-    ciShader->uniform("u_EmissiveFactor", ref->emissiveFactor);
+    ciShader->uniform("u_DiffuseFactor", diffuseFactor);
+    ciShader->uniform("u_SpecularGlossinessValues", vec4(specularFactor, glossinessFactor));
+    ciShader->uniform("u_EmissiveFactor", emissiveFactor);
 
     ciShader->uniform("u_LightDirection", vec3(1.0f, 1.0f, 1.0f));
     ciShader->uniform("u_LightColor", vec3(1.0f, 1.0f, 1.0f));
     ciShader->uniform("u_Camera", vec3(1.0f, 1.0f, 1.0f));
 
-    if (ref->normalTexture)
+    if (normalTexture)
     ciShader->uniform("u_OcclusionStrength", 1.0f);
 
-    //if (ref->emissiveTexture)
+    //if (emissiveTexture)
     //    ciShader->uniform("u_EmissiveSampler", 2);
-    //if (ref->occlusionTexture)
+    //if (occlusionTexture)
     //    ciShader->uniform("u_OcclusionSampler", 4);
+}
 
-    ref->ciShader = ciShader;
+MaterialObj::Ref MaterialObj::create(ModelObjRef modelObj, const tinyobj::material_t& property)
+{
+    auto ref = make_shared<MaterialObj>();
+    ref->property = property;
+    ref->modelObj = modelObj;
+    ref->name = property.name;
+    ref->materialType = MATERIAL_PBR_SPEC_GLOSSINESS;
+
+    ref->recreate(property);
 
     return ref;
 }
