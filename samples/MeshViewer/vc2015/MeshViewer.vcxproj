@@ -128,7 +128,11 @@
     <ClInclude Include="..\..\..\include\cigltf.h" />
     <ClInclude Include="..\..\..\include\ciobj.h" />
     <ClInclude Include="..\..\..\include\NodeExt.h" />
+    <ClInclude Include="..\..\..\include\postprocess\FXAA.h" />
+    <ClInclude Include="..\..\..\include\postprocess\SMAA.h" />
     <ClInclude Include="..\..\..\include\SkyNode.h" />
+    <ClInclude Include="..\..\..\src\postprocess\AreaTex.h" />
+    <ClInclude Include="..\..\..\src\postprocess\SearchTex.h" />
     <ClInclude Include="..\include\Resources.h" />
     <ClInclude Include="..\include\item.def" />
     <ClInclude Include="..\..\..\..\Cinder-VNM\include\AnsiToUtf.h" />
@@ -159,6 +163,8 @@
     <ClCompile Include="..\..\..\src\cigltf.cpp" />
     <ClCompile Include="..\..\..\src\ciobj.cpp" />
     <ClCompile Include="..\..\..\src\NodeExt.cpp" />
+    <ClCompile Include="..\..\..\src\postprocess\FXAA.cpp" />
+    <ClCompile Include="..\..\..\src\postprocess\SMAA.cpp" />
     <ClCompile Include="..\..\..\src\SceneIO.cpp" />
     <ClCompile Include="..\..\..\src\SkyNode.cpp" />
     <ClCompile Include="..\src\MeshViewerApp.cpp" />

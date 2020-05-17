@@ -34,6 +34,9 @@
     <Filter Include="Blocks\vnm\ui">
       <UniqueIdentifier>{0cc3464f-d296-4845-bac9-422e575a7c0c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Blocks\melo\postprocess">
+      <UniqueIdentifier>{bb6585b9-e70c-4948-a5e4-c948e1dd9f3a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\MeshViewerApp.cpp">
@@ -138,6 +141,12 @@
     <ClCompile Include="..\..\..\..\Cinder-VNM\ui\ImGuizmo\ImGuizmo.cpp">
       <Filter>Blocks\vnm\ui</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\postprocess\SMAA.cpp">
+      <Filter>Blocks\melo\postprocess</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\postprocess\FXAA.cpp">
+      <Filter>Blocks\melo\postprocess</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Resources.h">
@@ -190,6 +199,18 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\Cinder-VNM\ui\ImGuizmo\ImGuizmo.h">
       <Filter>Blocks\vnm\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\postprocess\AreaTex.h">
+      <Filter>Blocks\melo\postprocess</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\postprocess\SearchTex.h">
+      <Filter>Blocks\melo\postprocess</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\postprocess\FXAA.h">
+      <Filter>Blocks\melo\postprocess</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\postprocess\SMAA.h">
+      <Filter>Blocks\melo\postprocess</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

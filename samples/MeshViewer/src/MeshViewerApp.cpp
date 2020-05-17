@@ -22,6 +22,9 @@
 #include "CinderGuizmo.h"
 #include "DearLogger.h"
 
+#include "postprocess/FXAA.h"
+#include "postprocess/SMAA.h"
+
 using namespace ci;
 using namespace ci::app;
 using namespace std;
