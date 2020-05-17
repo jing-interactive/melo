@@ -3,8 +3,7 @@
 #include "cinder/app/App.h"
 #include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
-#include "cinder/ObjLoader.h"
-#include "cinder/FileWatcher.h"
+#include "cinder/json.h"
 
 // vnm
 #include "AssetManager.h"
@@ -20,9 +19,6 @@
 #include "MiniConfigImgui.h"
 #include "CinderGuizmo.h"
 #include "DearLogger.h"
-
-#include "postprocess/FXAA.h"
-#include "postprocess/SMAA.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -42,9 +38,6 @@ struct XRoomApp : public App
     melo::DirectionalLightNode::Ref mLightNode;
     melo::NodeRef mGridNode;
 
-    mat4 mPickedTransform;
-
-
     shared_ptr<ImGui::DearLogger>  mUiLogger;
 
     void createDefaultScene()
@@ -62,10 +55,19 @@ struct XRoomApp : public App
         mLightNode = melo::DirectionalLightNode::create(1, { 0.5, 0.5, 0.5 });
         mLightNode->setPosition({ 10,10,10 });
         mScene->addChild(mLightNode);
+
+        auto obj_3d = JsonTree(app::loadAsset(OBJ_3D_JSON));
+        for (const auto& sku : obj_3d.getChildren())
+        {
+            auto name = sku.getValueForKey("mesh");
+            CI_LOG_W(name);
+        }
     }
 
     void drawGUI()
     {
+        vnm::drawMinicofigImgui();
+
         mUiLogger->Draw("Log");
     }
 
@@ -77,6 +79,7 @@ struct XRoomApp : public App
         am::addAssetDirectory(getAppPath() / "../assets");
         am::addAssetDirectory(getAppPath() / "../../assets");
         am::addAssetDirectory(getAppPath() / "../../../assets");
+        am::addAssetDirectory(GC_RAW_FOLDER);
 
         mCam.lookAt({ CAM_POS_X, CAM_POS_Y, CAM_POS_Z }, { CAM_DIR_X, CAM_DIR_Y, CAM_DIR_Z }, vec3(0, 1, 0));
         mCamUi = CameraUi(&mCam, getWindow(), -1);
@@ -91,6 +94,11 @@ struct XRoomApp : public App
         gl::enableDepth();
         gl::context()->depthFunc(GL_LEQUAL);
 
+        getWindow()->getSignalKeyUp().connect([&](KeyEvent& event) {
+            auto code = event.getCode();
+            if (code == KeyEvent::KEY_ESCAPE)
+                quit();
+            });
         getSignalCleanup().connect([&] { writeConfig(); });
 
         getWindow()->getSignalResize().connect([&] {
@@ -143,8 +151,8 @@ struct XRoomApp : public App
             });
 
         getWindow()->getSignalDraw().connect([&] {
-             gl::setMatrices(mCam);
-              gl::clear(ColorA::gray(0.2f, 1.0f));
+            gl::setMatrices(mCam);
+            gl::clear(ColorA::gray(0.2f, 1.0f));
 
             mSkyNode->setVisible(ENV_VISIBLE);
             mGridNode->setVisible(XYZ_VISIBLE);
