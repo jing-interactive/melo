@@ -218,8 +218,15 @@ struct MeloViewer : public App
                     {
                         for (auto& channel : mPickedAnimation->channels)
                         {
-                            int idx = channel.samplerIndex;
-                            ImGui::DragFloat4(channel.property.target_path.c_str(), &mPickedAnimation->samplers[idx].value.value());
+                            if (channel.path == AnimationChannel::TRANSLATION)
+                                ImGui::DragFloat4(channel.property.target_path.c_str(), &channel.translation.value());
+                            else if (channel.path == AnimationChannel::ROTATION)
+                            {
+                                quat* ptr = &channel.rotation.value();
+                                ImGui::DragFloat4(channel.property.target_path.c_str(), (vec4*)ptr);
+                            }
+                            else if (channel.path == AnimationChannel::SCALE)
+                                ImGui::DragFloat4(channel.property.target_path.c_str(), &channel.scale.value());
                         }
                     }
                 }

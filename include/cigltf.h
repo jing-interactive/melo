@@ -107,6 +107,11 @@ struct AnimationChannel
     enum PathType { TRANSLATION, ROTATION, SCALE };
     PathType path;
     int node;
+
+    ci::Anim<ci::vec4> translation;
+    ci::Anim<ci::quat> rotation;
+    ci::Anim<ci::vec4> scale;
+
     uint32_t samplerIndex;
 };
 
@@ -118,9 +123,6 @@ struct AnimationSampler
     InterpolationType interpolation;
     std::vector<float> inputs;
     std::vector<glm::vec4> outputsVec4;
-
-    ci::Anim<glm::vec4> value;
-    void apply();
 };
 
 struct AnimationGLTF

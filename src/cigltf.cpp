@@ -21,12 +21,35 @@ using namespace ci;
 using namespace std;
 using namespace melo;
 
+template <typename T>
+void AnimationSampler_apply(const AnimationSampler& sampler, Anim<T>& value)
+{
+    CI_ASSERT(sampler.inputs.size() == sampler.outputsVec4.size());
+    int size = sampler.inputs.size();
+    for (int i = 0; i < size; i++)
+    {
+        if (i == 0)
+        {
+            app::timeline().apply(&value, (T)sampler.outputsVec4[i], sampler.inputs[i]);
+        }
+        else
+        {
+            app::timeline().appendTo(&value, (T)sampler.outputsVec4[i], sampler.inputs[i] - sampler.inputs[i - 1]);
+        }
+    }
+}
+
 void AnimationGLTF::apply()
 {
     for (auto& channel : channels)
     {
         auto& sampler = samplers[channel.samplerIndex];
-        sampler.apply();
+        if (channel.path == AnimationChannel::TRANSLATION)
+            AnimationSampler_apply(sampler, channel.translation);
+        else if (channel.path == AnimationChannel::ROTATION)
+            AnimationSampler_apply(sampler, channel.rotation);
+        else if (channel.path == AnimationChannel::SCALE)
+            AnimationSampler_apply(sampler, channel.scale);
     }
 }
 
@@ -1193,21 +1216,4 @@ BufferViewGLTF::Ref BufferViewGLTF::create(ModelGLTFRef modelGLTF,
     ref->gpuBuffer->setLabel(property.name);
 #endif
     return ref;
-}
-
-void AnimationSampler::apply()
-{
-    CI_ASSERT(inputs.size() == outputsVec4.size());
-    int size = inputs.size();
-    for (int i = 0; i < size; i++)
-    {
-        if (i == 0)
-        {
-            app::timeline().apply(&value, outputsVec4[i], inputs[i]);
-        }
-        else
-        {
-            app::timeline().appendTo(&value, outputsVec4[i], inputs[i] - inputs[i-1]);
-        }
-    }
 }
