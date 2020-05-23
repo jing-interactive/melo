@@ -21,12 +21,20 @@ using namespace ci;
 using namespace std;
 using namespace melo;
 
+void AnimationGLTF::apply()
+{
+    for (auto& channel : channels)
+    {
+        auto& sampler = samplers[channel.samplerIndex];
+        sampler.apply();
+    }
+}
+
 AnimationGLTF::Ref AnimationGLTF::create(ModelGLTFRef modelGLTF,
                                          const tinygltf::Animation& property)
 {
     Ref ref = make_shared<AnimationGLTF>();
     ref->property = property;
-
     ref->name = property.name;
     if (property.name.empty()) {
         //ref->name = std::to_string(animations.size());
@@ -35,6 +43,7 @@ AnimationGLTF::Ref AnimationGLTF::create(ModelGLTFRef modelGLTF,
     // Samplers
     for (auto& samp : property.samplers) {
         AnimationSampler sampler{};
+        sampler.property = samp;
 
         if (samp.interpolation == "LINEAR") {
             sampler.interpolation = AnimationSampler::InterpolationType::LINEAR;
@@ -108,6 +117,7 @@ AnimationGLTF::Ref AnimationGLTF::create(ModelGLTFRef modelGLTF,
     // Channels
     for (auto& source : property.channels) {
         AnimationChannel channel{};
+        channel.property = source;
 
         if (source.target_path == "rotation") {
             channel.path = AnimationChannel::PathType::ROTATION;
@@ -1183,4 +1193,21 @@ BufferViewGLTF::Ref BufferViewGLTF::create(ModelGLTFRef modelGLTF,
     ref->gpuBuffer->setLabel(property.name);
 #endif
     return ref;
+}
+
+void AnimationSampler::apply()
+{
+    CI_ASSERT(inputs.size() == outputsVec4.size());
+    int size = inputs.size();
+    for (int i = 0; i < size; i++)
+    {
+        if (i == 0)
+        {
+            app::timeline().apply(&value, outputsVec4[i], inputs[i]);
+        }
+        else
+        {
+            app::timeline().appendTo(&value, outputsVec4[i], inputs[i]);
+        }
+    }
 }

@@ -2,10 +2,11 @@
 
 #ifdef CINDER_LESS
 #include <filesystem>
-namespace fs2 = std::experimental::filesystem;
+namespace fs2 = std::filesystem;
 #else
 #include <cinder/Filesystem.h>
 #include <cinder/gl/gl.h>
+#include <cinder/Timeline.h>
 namespace fs2 = ci::fs;
 #endif
 
@@ -101,6 +102,8 @@ struct WeakBuffer
 
 struct AnimationChannel
 {
+    tinygltf::AnimationChannel property;
+
     enum PathType { TRANSLATION, ROTATION, SCALE };
     PathType path;
     int node;
@@ -109,10 +112,15 @@ struct AnimationChannel
 
 struct AnimationSampler
 {
+    tinygltf::AnimationSampler property;
+
     enum InterpolationType { LINEAR, STEP, CUBICSPLINE };
     InterpolationType interpolation;
     std::vector<float> inputs;
     std::vector<glm::vec4> outputsVec4;
+
+    ci::Anim<glm::vec4> value;
+    void apply();
 };
 
 struct AnimationGLTF
@@ -126,6 +134,7 @@ struct AnimationGLTF
     float start = std::numeric_limits<float>::max();
     float end = std::numeric_limits<float>::min();
 
+    void apply();
     static Ref create(ModelGLTFRef modelGLTF, const tinygltf::Animation& property);
 };
 
