@@ -26,6 +26,111 @@ AnimationGLTF::Ref AnimationGLTF::create(ModelGLTFRef modelGLTF,
 {
     Ref ref = make_shared<AnimationGLTF>();
     ref->property = property;
+
+    ref->name = property.name;
+    if (property.name.empty()) {
+        //ref->name = std::to_string(animations.size());
+    }
+
+    // Samplers
+    for (auto& samp : property.samplers) {
+        AnimationSampler sampler{};
+
+        if (samp.interpolation == "LINEAR") {
+            sampler.interpolation = AnimationSampler::InterpolationType::LINEAR;
+        }
+        if (samp.interpolation == "STEP") {
+            sampler.interpolation = AnimationSampler::InterpolationType::STEP;
+        }
+        if (samp.interpolation == "CUBICSPLINE") {
+            sampler.interpolation = AnimationSampler::InterpolationType::CUBICSPLINE;
+        }
+
+        // Read sampler input time values
+        {
+            const tinygltf::Accessor& accessor = modelGLTF->property.accessors[samp.input];
+            const tinygltf::BufferView& bufferView = modelGLTF->property.bufferViews[accessor.bufferView];
+            const tinygltf::Buffer& buffer = modelGLTF->property.buffers[bufferView.buffer];
+
+            assert(accessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT);
+
+            const void* dataPtr = &buffer.data[accessor.byteOffset + bufferView.byteOffset];
+            const float* buf = static_cast<const float*>(dataPtr);
+            for (size_t index = 0; index < accessor.count; index++) {
+                sampler.inputs.push_back(buf[index]);
+            }
+
+            for (auto input : sampler.inputs) {
+                if (input < ref->start) {
+                    ref->start = input;
+                };
+                if (input > ref->end) {
+                    ref->end = input;
+                }
+            }
+        }
+
+        // Read sampler output T/R/S values 
+        {
+            const tinygltf::Accessor& accessor = modelGLTF->property.accessors[samp.output];
+            const tinygltf::BufferView& bufferView = modelGLTF->property.bufferViews[accessor.bufferView];
+            const tinygltf::Buffer& buffer = modelGLTF->property.buffers[bufferView.buffer];
+
+            assert(accessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT);
+
+            const void* dataPtr = &buffer.data[accessor.byteOffset + bufferView.byteOffset];
+
+            switch (accessor.type) {
+            case TINYGLTF_TYPE_VEC3: {
+                const glm::vec3* buf = static_cast<const glm::vec3*>(dataPtr);
+                for (size_t index = 0; index < accessor.count; index++) {
+                    sampler.outputsVec4.push_back(glm::vec4(buf[index], 0.0f));
+                }
+                break;
+            }
+            case TINYGLTF_TYPE_VEC4: {
+                const glm::vec4* buf = static_cast<const glm::vec4*>(dataPtr);
+                for (size_t index = 0; index < accessor.count; index++) {
+                    sampler.outputsVec4.push_back(buf[index]);
+                }
+                break;
+            }
+            default: {
+                std::cout << "unknown type" << std::endl;
+                break;
+            }
+            }
+        }
+
+        ref->samplers.push_back(sampler);
+    }
+
+    // Channels
+    for (auto& source : property.channels) {
+        AnimationChannel channel{};
+
+        if (source.target_path == "rotation") {
+            channel.path = AnimationChannel::PathType::ROTATION;
+        }
+        if (source.target_path == "translation") {
+            channel.path = AnimationChannel::PathType::TRANSLATION;
+        }
+        if (source.target_path == "scale") {
+            channel.path = AnimationChannel::PathType::SCALE;
+        }
+        if (source.target_path == "weights") {
+            std::cout << "weights not yet supported, skipping channel" << std::endl;
+            continue;
+        }
+        channel.samplerIndex = source.sampler;
+        channel.node = source.target_node;
+        if (!channel.node) {
+            continue;
+        }
+
+        ref->channels.push_back(channel);
+    }
+
     return ref;
 }
 

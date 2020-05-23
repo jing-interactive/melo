@@ -99,10 +99,32 @@ struct WeakBuffer
     size_t mDataSize;
 };
 
+struct AnimationChannel
+{
+    enum PathType { TRANSLATION, ROTATION, SCALE };
+    PathType path;
+    int node;
+    uint32_t samplerIndex;
+};
+
+struct AnimationSampler
+{
+    enum InterpolationType { LINEAR, STEP, CUBICSPLINE };
+    InterpolationType interpolation;
+    std::vector<float> inputs;
+    std::vector<glm::vec4> outputsVec4;
+};
+
 struct AnimationGLTF
 {
     typedef std::shared_ptr<AnimationGLTF> Ref;
     tinygltf::Animation property;
+
+    std::string name;
+    std::vector<AnimationSampler> samplers;
+    std::vector<AnimationChannel> channels;
+    float start = std::numeric_limits<float>::max();
+    float end = std::numeric_limits<float>::min();
 
     static Ref create(ModelGLTFRef modelGLTF, const tinygltf::Animation& property);
 };
