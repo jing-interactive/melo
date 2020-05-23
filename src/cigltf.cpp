@@ -1207,7 +1207,7 @@ void AnimationSampler::apply()
         }
         else
         {
-            app::timeline().appendTo(&value, outputsVec4[i], inputs[i]);
+            app::timeline().appendTo(&value, outputsVec4[i], inputs[i] - inputs[i-1]);
         }
     }
 }
