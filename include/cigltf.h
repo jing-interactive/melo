@@ -364,7 +364,7 @@ struct ModelGLTF : public melo::Node
 {
     tinygltf::Model property;
 
-    static ModelGLTFRef create(const fs2::path& meshPath, std::string* loadingError = nullptr);
+    static ModelGLTFRef create(const fs2::path& meshPath, std::string* loadingError = nullptr, bool loadAnimationOnly = false);
 
     //void update(double elapsed = 0.0) override;
 

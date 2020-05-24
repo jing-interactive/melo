@@ -293,7 +293,7 @@ void NodeGLTF::postdraw()
 }
 
 
-ModelGLTFRef ModelGLTF::create(const fs2::path& meshPath, std::string* loadingError)
+ModelGLTFRef ModelGLTF::create(const fs2::path& meshPath, std::string* loadingError, bool loadAnimationOnly)
 {
     if (!fs2::exists(meshPath))
     {
@@ -365,43 +365,48 @@ ModelGLTFRef ModelGLTF::create(const fs2::path& meshPath, std::string* loadingEr
     }
 #endif
 
-    for (auto& item : model.buffers)
-        ref->buffers.emplace_back(BufferGLTF::create(ref, item));
-    for (auto& item : model.bufferViews)
-        ref->bufferViews.emplace_back(BufferViewGLTF::create(ref, item));
+    if (!loadAnimationOnly)
+    {
+        for (auto& item : model.buffers)
+            ref->buffers.emplace_back(BufferGLTF::create(ref, item));
+        for (auto& item : model.bufferViews)
+            ref->bufferViews.emplace_back(BufferViewGLTF::create(ref, item));
+        for (auto& item : model.accessors)
+            ref->accessors.emplace_back(AccessorGLTF::create(ref, item));
+
+        for (auto& item : model.images)
+            ref->images.emplace_back(ImageGLTF::create(ref, item));
+        for (auto& item : model.samplers)
+            ref->samplers.emplace_back(SamplerGLTF::create(ref, item));
+        for (auto& item : model.textures)
+            ref->textures.emplace_back(TextureGLTF::create(ref, item));
+        for (auto& item : model.materials)
+            ref->materials.emplace_back(MaterialGLTF::create(ref, item));
+
+        for (auto& item : model.meshes)
+            ref->meshes.emplace_back(MeshGLTF::create(ref, item));
+        for (auto& item : model.skins)
+            ref->skins.emplace_back(SkinGLTF::create(ref, item));
+        for (auto& item : model.cameras)
+            ref->cameras.emplace_back(CameraGLTF::create(ref, item));
+
+        int nodeId = 0;
+        for (auto& item : model.nodes)
+        {
+            auto& node = NodeGLTF::create(ref, item);
+            if (item.name.empty())
+            {
+                auto name = "node_" + toString(nodeId);
+                node->setName(name);
+            }
+            ref->nodes.emplace_back(node);
+            nodeId++;
+        }
+    }
+
     for (auto& item : model.animations)
         ref->animations.emplace_back(AnimationGLTF::create(ref, item));
-    for (auto& item : model.accessors)
-        ref->accessors.emplace_back(AccessorGLTF::create(ref, item));
 
-    for (auto& item : model.images)
-        ref->images.emplace_back(ImageGLTF::create(ref, item));
-    for (auto& item : model.samplers)
-        ref->samplers.emplace_back(SamplerGLTF::create(ref, item));
-    for (auto& item : model.textures)
-        ref->textures.emplace_back(TextureGLTF::create(ref, item));
-    for (auto& item : model.materials)
-        ref->materials.emplace_back(MaterialGLTF::create(ref, item));
-
-    for (auto& item : model.meshes)
-        ref->meshes.emplace_back(MeshGLTF::create(ref, item));
-    for (auto& item : model.skins)
-        ref->skins.emplace_back(SkinGLTF::create(ref, item));
-    for (auto& item : model.cameras)
-        ref->cameras.emplace_back(CameraGLTF::create(ref, item));
-
-    int nodeId = 0;
-    for (auto& item : model.nodes)
-    {
-        auto& node = NodeGLTF::create(ref, item);
-        if (item.name.empty())
-        {
-            auto name = "node_" + toString(nodeId);
-            node->setName(name);
-        }
-        ref->nodes.emplace_back(node);
-        nodeId++;
-    }
     for (auto& item : model.scenes)
     {
         auto scene = SceneGLTF::create(ref, item);
