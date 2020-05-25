@@ -19,20 +19,12 @@ struct CameraPersp2 : CameraPersp
 
 struct FirstPersonCamera : public CameraPersp2
 {
-    double mElapsedSeconds;
-    ivec2 mMousePos, mPrevMousePos;
-
-    bool mIsKeyPressed[KeyEvent::KEY_LAST] = { false };
-    bool mIsRMousePressed = false;
-
     //vec3 eye = { 3.0f, 3.0f, 3.0f };
     //vec3 look = { 0.0f, 0.0f, 1.0f };
     //const vec3 up = { 0.0f, 1.0f, 0.0f };
-    float eye_speed = 3.0f;
-    float degrees_per_cursor_move = 0.2f;
+    float move_speed = 3.0f;
+    float rotate_speed = 0.2f;
     float max_pitch_rotation_degrees = 80.0f;
-
-    bool activated = true;
 
     void setActive(bool flag)
     {
@@ -70,18 +62,18 @@ struct FirstPersonCamera : public CameraPersp2
             float delta_time_sec = getElapsedSeconds() - mElapsedSeconds;
             mElapsedSeconds = getElapsedSeconds();
 
-            flythrough_camera_update(
-                glm::value_ptr(mEyePoint), glm::value_ptr(mViewDirection), glm::value_ptr(mWorldUp),
-                glm::value_ptr(mViewMatrix), delta_time_sec,
-                eye_speed * (mIsKeyPressed[KeyEvent::KEY_LSHIFT] ? 2.0f : 1.0f) * activated,
-                degrees_per_cursor_move, max_pitch_rotation_degrees, mMousePos.x - mPrevMousePos.x,
-                mMousePos.y - mPrevMousePos.y, 
-                mIsKeyPressed[KeyEvent::KEY_w], mIsKeyPressed[KeyEvent::KEY_a], mIsKeyPressed[KeyEvent::KEY_s], mIsKeyPressed[KeyEvent::KEY_d], 
-                false /*mIsKeyPressed[KeyEvent::KEY_SPACE]*/,
-                mIsKeyPressed[KeyEvent::KEY_LCTRL], 0);
-
             if (activated)
             {
+                flythrough_camera_update(
+                    glm::value_ptr(mEyePoint), glm::value_ptr(mViewDirection), glm::value_ptr(mWorldUp),
+                    glm::value_ptr(mViewMatrix), delta_time_sec,
+                    move_speed * (mIsKeyPressed[KeyEvent::KEY_LSHIFT] ? 2.0f : 1.0f) * activated,
+                    rotate_speed, max_pitch_rotation_degrees, mMousePos.x - mPrevMousePos.x,
+                    mMousePos.y - mPrevMousePos.y,
+                    mIsKeyPressed[KeyEvent::KEY_UP], mIsKeyPressed[KeyEvent::KEY_LEFT], mIsKeyPressed[KeyEvent::KEY_DOWN], mIsKeyPressed[KeyEvent::KEY_RIGHT],
+                    false /*mIsKeyPressed[KeyEvent::KEY_SPACE]*/,
+                    mIsKeyPressed[KeyEvent::KEY_LCTRL], 0);
+
                 float* view = glm::value_ptr(mViewMatrix);
 #if 0
                 printf("\n");
@@ -100,4 +92,13 @@ struct FirstPersonCamera : public CameraPersp2
             mPrevMousePos = mMousePos;
         });
     }
+
+private:
+    double mElapsedSeconds;
+    ivec2 mMousePos, mPrevMousePos;
+
+    bool mIsKeyPressed[KeyEvent::KEY_LAST] = { false };
+    bool mIsRMousePressed = false;
+
+    bool activated = true;
 };
