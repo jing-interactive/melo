@@ -329,6 +329,7 @@ struct MeloViewer : public App
         mFpsCam.setEyePoint({ CAM_POS_X, CAM_POS_Y, CAM_POS_Z });
         mFpsCam.setViewDirection({ CAM_DIR_X, CAM_DIR_Y, CAM_DIR_Z });
         mMayaCamUi = CameraUi(&mMayaCam, getWindow(), -1);
+        mMayaCamUi.setMouseWheelMultiplier(1.05f);
         mFpsCam.setup();
 
         createDefaultScene();
@@ -392,6 +393,8 @@ struct MeloViewer : public App
                         XYZ_VISIBLE = !XYZ_VISIBLE; break;
                     case KeyEvent::KEY_g:
                         GUI_VISIBLE = !GUI_VISIBLE; break;
+                    case KeyEvent::KEY_RETURN:
+                        setFullScreen(!isFullScreen()); break;
                     case KeyEvent::KEY_f:
                         FPS_CAMERA = !FPS_CAMERA; break;
                     case KeyEvent::KEY_DELETE:
