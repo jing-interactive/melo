@@ -37,6 +37,9 @@
     <Filter Include="Blocks\melo\postprocess">
       <UniqueIdentifier>{bb6585b9-e70c-4948-a5e4-c948e1dd9f3a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Blocks\miniz">
+      <UniqueIdentifier>{b00341a0-5244-46ce-a36d-d49b763466a1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\MeshViewerApp.cpp">
@@ -211,6 +214,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\include\postprocess\SMAA.h">
       <Filter>Blocks\melo\postprocess</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\miniz\miniz.h">
+      <Filter>Blocks\miniz</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
