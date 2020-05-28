@@ -425,6 +425,16 @@ struct MeloViewer : public App
                     break;
                 }
 
+                if (ext == "zip")
+                {
+                    dispatchAsync([&, filePath] {
+                        int err = 0;
+                        zip* z = zip_open("foo.zip", 0, &err);
+                        loadMeshFromFile(filePath);
+                    });
+                    break;
+                }
+
                 bool isImageType = std::find(imageExts.begin(), imageExts.end(), ext) != imageExts.end();
                 if (isImageType)
                 {
