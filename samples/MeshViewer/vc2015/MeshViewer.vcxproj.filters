@@ -150,6 +150,9 @@
     <ClCompile Include="..\..\..\src\postprocess\FXAA.cpp">
       <Filter>Blocks\melo\postprocess</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\miniz\miniz.c">
+      <Filter>Blocks\miniz</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Resources.h">

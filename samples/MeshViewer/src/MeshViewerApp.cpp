@@ -429,44 +429,7 @@ struct MeloViewer : public App
                 if (ext == "zip")
                 {
                     dispatchAsync([&, filePath] {
-                        mz_zip_archive zip_archive;
-                        memset(&zip_archive, 0, sizeof(zip_archive));
-                        mz_bool status = mz_zip_reader_init_file(&zip_archive, filePath.string().c_str(), 0);
-                        if (!status)
-                        {
-                            printf("mz_zip_reader_init_file() failed!\n");
-                            return EXIT_FAILURE;
-                        }
-
-                        // Get and print information about each file in the archive.
-                        for (int i = 0; i < (int)mz_zip_reader_get_num_files(&zip_archive); i++)
-                        {
-                            mz_zip_archive_file_stat file_stat;
-                            if (!mz_zip_reader_file_stat(&zip_archive, i, &file_stat))
-                            {
-                                printf("mz_zip_reader_file_stat() failed!\n");
-                                mz_zip_reader_end(&zip_archive);
-                                return EXIT_FAILURE;
-                            }
-
-                            printf("Filename: \"%s\", Comment: \"%s\", Uncompressed size: %u, Compressed size: %u, Is Dir: %u\n", 
-                                file_stat.m_filename, file_stat.m_comment, (uint32_t)file_stat.m_uncomp_size, (uint32_t)file_stat.m_comp_size,
-                                mz_zip_reader_is_file_a_directory(&zip_archive, i));
-
-                            if (!strcmp(file_stat.m_filename, "directory/"))
-                            {
-                                if (!mz_zip_reader_is_file_a_directory(&zip_archive, i))
-                                {
-                                    printf("mz_zip_reader_is_file_a_directory() didn't return the expected results!\n");
-                                    mz_zip_reader_end(&zip_archive);
-                                    return EXIT_FAILURE;
-                                }
-                            }
-                        }
-
-                        // Close the archive, freeing any resources it was using
-                        mz_zip_reader_end(&zip_archive);
-                        loadMeshFromFile(filePath);
+                        loadMeshFromZip(filePath);
                     });
                     break;
                 }
@@ -599,6 +562,52 @@ struct MeloViewer : public App
         {
             mScene->addChild(newModel);
         }
+    }
+
+
+    bool loadMeshFromZip(const fs::path& filePath)
+    {
+        miniz_zip_archive zip_archive;
+        memset(&zip_archive, 0, sizeof(zip_archive));
+        miniz_bool status = miniz_zip_reader_init_file(&zip_archive, filePath.string().c_str(), 0);
+        if (!status)
+        {
+            CI_LOG_V("miniz_zip_reader_init_file() failed!");
+            return false;
+        }
+
+        // Get and print information about each file in the archive.
+        for (int i = 0; i < (int)miniz_zip_reader_get_num_files(&zip_archive); i++)
+        {
+            miniz_zip_archive_file_stat file_stat;
+            if (!miniz_zip_reader_file_stat(&zip_archive, i, &file_stat))
+            {
+                CI_LOG_V("miniz_zip_reader_file_stat() failed!");
+                miniz_zip_reader_end(&zip_archive);
+                return false;
+            }
+
+            CI_LOG_V("Filename: " << file_stat.m_filename <<
+                ", Uncompressed size: " << file_stat.m_uncomp_size <<
+                ", Compressed size: " << file_stat.m_comp_size <<
+                ", Is Dir: " << miniz_zip_reader_is_file_a_directory(&zip_archive, i));
+                
+            if (!strcmp(file_stat.m_filename, "textures/"))
+            {
+                if (!miniz_zip_reader_is_file_a_directory(&zip_archive, i))
+                {
+                    CI_LOG_V("miniz_zip_reader_is_file_a_directory() didn't return the expected results!");
+                    miniz_zip_reader_end(&zip_archive);
+                    return false;
+                }
+            }
+        }
+
+        // Close the archive, freeing any resources it was using
+        miniz_zip_reader_end(&zip_archive);
+        loadMeshFromFile(filePath);
+
+        return true;
     }
 
     void parseArgs()

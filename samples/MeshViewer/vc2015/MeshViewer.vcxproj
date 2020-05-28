@@ -171,6 +171,7 @@
     <ClCompile Include="..\src\MeshViewerApp.cpp" />
     <ClCompile Include="..\..\..\..\Cinder-VNM\src\AssetManager.cpp" />
     <ClCompile Include="..\..\..\..\Cinder-VNM\src\MiniConfig.cpp" />
+    <ClCompile Include="..\src\miniz\miniz.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
