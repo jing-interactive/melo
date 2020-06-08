@@ -134,6 +134,7 @@ struct MeloViewer : public App
 
             if (ImGui::BeginTabItem("Settings"))
             {
+                vnm::drawFrameTime();
                 vnm::drawMinicofigImgui();
                 ImGui::EndTabItem();
             }
