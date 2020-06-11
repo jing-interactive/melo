@@ -2,12 +2,14 @@
 #include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
 #include "cinder/Log.h"
+#include "cinder/CameraUi.h"
 
 #include "AssetManager.h"
 #include "MiniConfig.h"
 #include "MiniConfigImgui.h"
 
 #include "cigltf.h"
+#include "melo.h"
 
 #include <glm/gtc/quaternion.hpp>
 
@@ -17,6 +19,14 @@ using namespace std;
 
 struct AnimToCSVApp : public App
 {
+    ModelGLTFRef        gltfNode;
+    AnimationGLTF::Ref  mPickedAnimation;
+    melo::NodeRef       mScene;
+    melo::NodeRef       mGridNode;
+
+    CameraPersp         mCam;
+    CameraUi            mCamUi;
+
     void setup() override
     {
         log::makeLogger<log::LoggerFileRotating>(fs::path(), "IG.%Y.%m.%d.log");
@@ -88,19 +98,38 @@ struct AnimToCSVApp : public App
                 // only dumps the first anim
                 break;
             }
-
         }
 
         createConfigImgui();
+        gl::enableDepth();
+
+        mScene = melo::createRootNode();
+
+        mGridNode = melo::createGridNode(100.0f);
+        mScene->addChild(mGridNode);
+
+        mCam.setFarClip(10000);
+        mCamUi = CameraUi(&mCam, getWindow(), -1);
     
         getWindow()->getSignalKeyUp().connect([&](KeyEvent& event) {
             if (event.getCode() == KeyEvent::KEY_ESCAPE) quit();
         });
 
         getSignalCleanup().connect([&] { writeConfig(); });
+
+        getSignalUpdate().connect([&] {
+            mScene->treeUpdate();
+        });
         
         getWindow()->getSignalDraw().connect([&] {
             gl::clear();
+            gl::setMatrices(mCam);
+
+            mScene->treeDraw();
+
+            vec3 T;
+            quat R;
+            vec3 S;
 
             if (ImGui::Begin("Anim"))
             {
@@ -115,30 +144,41 @@ struct AnimToCSVApp : public App
 
                 if (mPickedAnimation)
                 {
-
                     for (auto& channel : mPickedAnimation->channels)
                     {
                         if (channel.path == AnimationChannel::TRANSLATION)
                         {
                             ImGui::Text("Duraton: %.2f s", channel.translation.getParent()->getDuration());
-                            ImGui::DragFloat4(channel.property.target_path.c_str(), &channel.translation.value());
+                            T = channel.translation.value();
+                            ImGui::DragFloat3(channel.property.target_path.c_str(), &T);
                         }
                         else if (channel.path == AnimationChannel::ROTATION)
                         {
-                            quat* ptr = &channel.rotation.value();
-                            ImGui::DragFloat4(channel.property.target_path.c_str(), (vec4*)ptr);
+                            R = channel.rotation.value();
+                            ImGui::DragFloat4(channel.property.target_path.c_str(), (vec4*)&R);
                         }
                         else if (channel.path == AnimationChannel::SCALE)
-                            ImGui::DragFloat4(channel.property.target_path.c_str(), &channel.scale.value());
+                        {
+                            S = channel.scale.value();
+                            ImGui::DragFloat3(channel.property.target_path.c_str(), &S);
+                        }
                     }
                 }
                 ImGui::End();
             }
+
+            {
+                glm::mat4 transform = glm::translate(T);
+                transform *= glm::toMat4(R);
+                transform *= glm::scale(vec3{3.0f,3.0f,3.0f });
+                gl::ScopedModelMatrix mdl(transform);
+                gl::ScopedGlslProg prog(am::glslProg("lambert"));
+                gl::draw(am::vboMesh("Teapot"));
+                gl::drawCoordinateFrame(2);
+            }
+
         });
     }
-
-    ModelGLTFRef gltfNode;
-    AnimationGLTF::Ref mPickedAnimation;
 };
 
 CINDER_APP( AnimToCSVApp, RendererGl, [](App::Settings* settings) {

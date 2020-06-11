@@ -36,9 +36,6 @@
     <Filter Include="Blocks\melo\3rdparty\tinygltf">
       <UniqueIdentifier>{71BFBAA6-B35D-4494-8FFE-D52356E57103}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Blocks\melo\3rdparty\tinyobjloader">
-      <UniqueIdentifier>{A6A6112D-68FE-4879-A598-6DD7B1FB029A}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Blocks\melo\include">
       <UniqueIdentifier>{55D036E9-07D4-4C62-BAE1-500178D9FF69}</UniqueIdentifier>
     </Filter>
@@ -125,19 +122,10 @@
     <ClCompile Include="..\..\..\src\cigltf.cpp">
       <Filter>Blocks\melo\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\ciobj.cpp">
-      <Filter>Blocks\melo\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\melo.cpp">
-      <Filter>Blocks\melo\src</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\Node.cpp">
       <Filter>Blocks\melo\src</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\NodeExt.cpp">
-      <Filter>Blocks\melo\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\SceneIO.cpp">
       <Filter>Blocks\melo\src</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\SkyNode.cpp">
@@ -157,12 +145,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\3rdparty\tinygltf\tiny_gltf.h">
       <Filter>Blocks\melo\3rdparty\tinygltf</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\3rdparty\tinyobjloader\tiny_obj_loader.cc">
-      <Filter>Blocks\melo\3rdparty\tinyobjloader</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\3rdparty\tinyobjloader\tiny_obj_loader.h">
-      <Filter>Blocks\melo\3rdparty\tinyobjloader</Filter>
     </ClCompile>
     <ClInclude Include="..\..\..\include\cigltf.h">
       <Filter>Blocks\melo\include</Filter>
@@ -188,10 +170,22 @@
     <ClInclude Include="..\..\..\include\SkyNode.h">
       <Filter>Blocks\melo\include</Filter>
     </ClInclude>
+    <ClCompile Include="..\..\..\3rdparty\tinyobjloader\tiny_obj_loader.cc">
+      <Filter>Blocks\melo\3rdparty</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\melo.cpp">
+      <Filter>Blocks\melo\include</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\ciobj.cpp">
+      <Filter>Blocks\melo\include</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Resources.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\tinyobjloader\tiny_obj_loader.h">
+      <Filter>Blocks\melo\3rdparty</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
