@@ -115,10 +115,14 @@ struct AnimToCSVApp : public App
 
                 if (mPickedAnimation)
                 {
+
                     for (auto& channel : mPickedAnimation->channels)
                     {
                         if (channel.path == AnimationChannel::TRANSLATION)
+                        {
+                            ImGui::Text("Duraton: %.2f s", channel.translation.getParent()->getDuration());
                             ImGui::DragFloat4(channel.property.target_path.c_str(), &channel.translation.value());
+                        }
                         else if (channel.path == AnimationChannel::ROTATION)
                         {
                             quat* ptr = &channel.rotation.value();
