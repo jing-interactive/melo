@@ -1,0 +1,158 @@
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{9B9E5F13-7358-46D5-8587-682B7A86D2DB}</ProjectGuid>
+    <RootNamespace>AnimToCSV</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\include;"..\..\..\..\..\include";..\..\..\..\Cinder-VNM\include;..\..\..\..\;..\..\..\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WIN32_WINNT=0x0601;_WINDOWS;NOMINMAX;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>"..\..\..\..\..\include";..\include</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>cinder.lib;OpenGL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>"..\..\..\..\..\lib\msw\$(PlatformTarget)";"..\..\..\..\..\lib\msw\$(PlatformTarget)\$(Configuration)\$(PlatformToolset)"</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention />
+      <IgnoreSpecificDefaultLibraries>LIBCMT;LIBCPMT</IgnoreSpecificDefaultLibraries>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\include;"..\..\..\..\..\include";..\..\..\..\Cinder-VNM\include;..\..\..\..\;..\..\..\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WIN32_WINNT=0x0601;_WINDOWS;NOMINMAX;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>"..\..\..\..\..\include";..\include</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>cinder.lib;OpenGL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>"..\..\..\..\..\lib\msw\$(PlatformTarget)";"..\..\..\..\..\lib\msw\$(PlatformTarget)\$(Configuration)\$(PlatformToolset)"</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <GenerateMapFile>true</GenerateMapFile>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding />
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention />
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resources.rc" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup />
+  <ItemGroup>
+    <ClInclude Include="..\include\Resources.h" />
+    <ClInclude Include="..\include\item.def" />
+    <ClInclude Include="..\..\..\..\Cinder-VNM\include\AnsiToUtf.h" />
+    <ClInclude Include="..\..\..\..\Cinder-VNM\include\AssetManager.h" />
+    <ClInclude Include="..\..\..\..\Cinder-VNM\include\CaptureHelper.h" />
+    <ClInclude Include="..\..\..\..\Cinder-VNM\include\CinderGuizmo.h" />
+    <ClInclude Include="..\..\..\..\Cinder-VNM\include\CubemapRenderer.h" />
+    <ClInclude Include="..\..\..\..\Cinder-VNM\include\DearLogger.h" />
+    <ClInclude Include="..\..\..\..\Cinder-VNM\include\FontHelper.h" />
+    <ClInclude Include="..\..\..\..\Cinder-VNM\include\GLHelper.h" />
+    <ClInclude Include="..\..\..\..\Cinder-VNM\include\GlslParamsBuilder.h" />
+    <ClInclude Include="..\..\..\..\Cinder-VNM\include\GlslParamsBuilderImgui.h" />
+    <ClInclude Include="..\..\..\..\Cinder-VNM\include\LimitSingleInstance.h" />
+    <ClInclude Include="..\..\..\..\Cinder-VNM\include\MiniConfig.h" />
+    <ClInclude Include="..\..\..\..\Cinder-VNM\include\MiniConfigImgui.h" />
+    <ClInclude Include="..\..\..\..\Cinder-VNM\include\MotionHelper.h" />
+    <ClInclude Include="..\..\..\..\Cinder-VNM\include\NvOptimusEnablement.h" />
+    <ClInclude Include="..\..\..\..\Cinder-VNM\include\OscHelper.h" />
+    <ClInclude Include="..\..\..\..\Cinder-VNM\include\SharedMemory.h" />
+    <ClInclude Include="..\..\..\..\Cinder-VNM\include\StateMachine.h" />
+    <ClInclude Include="..\..\..\..\Cinder-VNM\include\TextureHelper.h" />
+    <ClInclude Include="..\..\..\..\Cinder-VNM\include\TuioHelper.h" />
+    <ClInclude Include="..\..\..\include\cigltf.h" />
+    <ClInclude Include="..\..\..\include\ciobj.h" />
+    <ClInclude Include="..\..\..\include\civox.h" />
+    <ClInclude Include="..\..\..\include\FirstPersonCamera.h" />
+    <ClInclude Include="..\..\..\include\melo.h" />
+    <ClInclude Include="..\..\..\include\Node.h" />
+    <ClInclude Include="..\..\..\include\NodeExt.h" />
+    <ClInclude Include="..\..\..\include\SkyNode.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\AnimToCSVApp.cpp" />
+    <ClCompile Include="..\..\..\..\Cinder-VNM\src\AssetManager.cpp" />
+    <ClCompile Include="..\..\..\..\Cinder-VNM\src\MiniConfig.cpp" />
+    <ClCompile Include="..\..\..\src\cigltf.cpp" />
+    <ClCompile Include="..\..\..\src\ciobj.cpp" />
+    <ClCompile Include="..\..\..\src\melo.cpp" />
+    <ClCompile Include="..\..\..\src\Node.cpp" />
+    <ClCompile Include="..\..\..\src\NodeExt.cpp" />
+    <ClCompile Include="..\..\..\src\SceneIO.cpp" />
+    <ClCompile Include="..\..\..\src\SkyNode.cpp" />
+    <ClCompile Include="..\..\..\3rdparty\tinygltf\json.hpp" />
+    <ClCompile Include="..\..\..\3rdparty\tinygltf\stb_image.h" />
+    <ClCompile Include="..\..\..\3rdparty\tinygltf\stb_image_write.h" />
+    <ClCompile Include="..\..\..\3rdparty\tinygltf\tiny_gltf.cc" />
+    <ClCompile Include="..\..\..\3rdparty\tinygltf\tiny_gltf.h" />
+    <ClCompile Include="..\..\..\3rdparty\tinyobjloader\tiny_obj_loader.cc" />
+    <ClCompile Include="..\..\..\3rdparty\tinyobjloader\tiny_obj_loader.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets" />
+</Project>
