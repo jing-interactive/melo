@@ -342,13 +342,6 @@ ModelGLTFRef ModelGLTF::create(const fs2::path& meshPath, std::string* loadingEr
     ref->rayCategory = 0xFF;
     ref->setName(meshPath.generic_string());
 
-    {
-        tinygltf::Material mtrl;
-        mtrl.name = "default";
-        mtrl.extensions["KHR_materials_unlit"] = {};
-        ref->fallbackMaterial = MaterialGLTF::create(ref, mtrl);
-    }
-
 #if 0
     if (model.scenes.size() == 1 && model.scenes[0].name == "OSG_Scene")
     {
@@ -367,6 +360,13 @@ ModelGLTFRef ModelGLTF::create(const fs2::path& meshPath, std::string* loadingEr
 
     if (!loadAnimationOnly)
     {
+        {
+            tinygltf::Material mtrl;
+            mtrl.name = "default";
+            mtrl.extensions["KHR_materials_unlit"] = {};
+            ref->fallbackMaterial = MaterialGLTF::create(ref, mtrl);
+        }
+
         for (auto& item : model.buffers)
             ref->buffers.emplace_back(BufferGLTF::create(ref, item));
         for (auto& item : model.bufferViews)
@@ -402,22 +402,22 @@ ModelGLTFRef ModelGLTF::create(const fs2::path& meshPath, std::string* loadingEr
             ref->nodes.emplace_back(node);
             nodeId++;
         }
+
+        for (auto& item : model.scenes)
+        {
+            auto scene = SceneGLTF::create(ref, item);
+            ref->scenes.emplace_back(scene);
+        }
+
+        if (model.defaultScene == -1)
+            model.defaultScene = 0;
+        ref->currentScene = ref->scenes[model.defaultScene];
+
+        ref->addChild(ref->currentScene);
     }
 
     for (auto& item : model.animations)
         ref->animations.emplace_back(AnimationGLTF::create(ref, item));
-
-    for (auto& item : model.scenes)
-    {
-        auto scene = SceneGLTF::create(ref, item);
-        ref->scenes.emplace_back(scene);
-    }
-
-    if (model.defaultScene == -1)
-        model.defaultScene = 0;
-    ref->currentScene = ref->scenes[model.defaultScene];
-
-    ref->addChild(ref->currentScene);
 
     ref->mBoundBoxMin = { +FLT_MAX, +FLT_MAX, +FLT_MAX };
     ref->mBoundBoxMax = {-FLT_MIN, -FLT_MIN, -FLT_MIN};
