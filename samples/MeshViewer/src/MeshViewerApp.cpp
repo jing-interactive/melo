@@ -221,14 +221,24 @@ struct MeloViewer : public App
                         for (auto& channel : mPickedAnimation->channels)
                         {
                             if (channel.path == AnimationChannel::TRANSLATION)
-                                ImGui::DragFloat4(channel.property.target_path.c_str(), &channel.translation.value());
+                            {
+                                auto T = channel.translation.value();
+                                ImGui::DragFloat4(channel.property.target_path.c_str(), &T);
+                                mPickedNode->setPosition(T);
+                            }
                             else if (channel.path == AnimationChannel::ROTATION)
                             {
-                                quat* ptr = &channel.rotation.value();
-                                ImGui::DragFloat4(channel.property.target_path.c_str(), (vec4*)ptr);
+                                auto R = channel.rotation.value();
+                                ImGui::DragFloat4(channel.property.target_path.c_str(), (vec4*)&R);
+                                mPickedNode->setRotation(R);
                             }
                             else if (channel.path == AnimationChannel::SCALE)
-                                ImGui::DragFloat4(channel.property.target_path.c_str(), &channel.scale.value());
+                            {
+                                auto S = channel.scale.value();
+                                ImGui::DragFloat4(channel.property.target_path.c_str(), &S);
+                                mPickedNode->setScale(S);
+                            }
+                            mPickedTransform = mPickedNode->getWorldTransform();
                         }
                     }
                 }
