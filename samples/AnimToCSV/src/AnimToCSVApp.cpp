@@ -64,7 +64,7 @@ struct AnimToCSVApp : public App
                 return;
             }
 
-            fprintf(fp, "x,y,z,pitch,yaw,roll\n");
+            fprintf(fp, "x,y,z,pitch,yaw,roll,qx,qy,qz,qw\n");
 
             for (const auto& anim : gltfNode->animations)
             {
@@ -90,9 +90,10 @@ struct AnimToCSVApp : public App
                 {
                     glm::quat q = glm::make_quat(&R->outputsVec4[i].x);
                     auto euler = glm::degrees(glm::eulerAngles(q));
-                    fprintf(fp, "%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\n",
+                    fprintf(fp, "%f,%f,%f,%f,%f,%f,%f,%f,%f,%f\n",
                         T->outputsVec4[i].x, T->outputsVec4[i].y, T->outputsVec4[i].z,
-                        euler.x, euler.y, euler.z);
+                        euler.x, euler.y, euler.z,
+                        R->outputsVec4[i].x, R->outputsVec4[i].y, R->outputsVec4[i].z, R->outputsVec4[i].w);
                 }
 
                 fclose(fp);
@@ -150,7 +151,7 @@ struct AnimToCSVApp : public App
                     {
                         if (channel.path == AnimationChannel::TRANSLATION)
                         {
-                            ImGui::Text("Duraton: %.2f s", channel.translation.getParent()->getDuration());
+                            ImGui::Text("Duraton: %f s", channel.translation.getParent()->getDuration());
                             T = channel.translation.value();
                             ImGui::DragFloat3(channel.property.target_path.c_str(), &T);
                         }
