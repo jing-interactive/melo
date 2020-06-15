@@ -166,6 +166,17 @@ struct AnimToCSVApp : public App
             {
                 glm::mat4 transform = glm::translate(values.T);
                 transform *= glm::toMat4(values.R);
+
+                #if 0
+                auto euler = glm::eulerAngles(values.R);
+                auto q2 = glm::quat()
+                    * glm::angleAxis(euler.y, vec3(0.0f, 1.0f, 0.0f))
+                    * glm::angleAxis(euler.x, vec3(1.0f, 0.0f, 0.0f))
+                    * glm::angleAxis(euler.z, vec3(0.0f, 0.0f, 1.0f));
+                CI_LOG_I("q:" << values.R);
+                CI_LOG_I("euler:" << euler);
+                CI_LOG_I("q2:" << q2);
+                #endif
                 transform *= glm::scale(vec3{3.0f,3.0f,3.0f });
                 gl::ScopedModelMatrix mdl(transform);
                 gl::ScopedGlslProg prog(am::glslProg("lambert"));
