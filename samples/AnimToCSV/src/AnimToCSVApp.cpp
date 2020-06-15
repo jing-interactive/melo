@@ -130,9 +130,7 @@ struct AnimToCSVApp : public App
 
             mScene->treeDraw();
 
-            vec3 T;
-            quat R;
-            vec3 S;
+            AnimatedValues values;
 
             if (ImGui::Begin("Anim"))
             {
@@ -141,38 +139,33 @@ struct AnimToCSVApp : public App
                     if (ImGui::Button(anim->name.c_str()))
                     {
                         mPickedAnimation = anim;
-                        anim->apply();
+                        anim->startAnimation();
                     }
                 }
 
                 if (mPickedAnimation)
                 {
-                    for (auto& channel : mPickedAnimation->channels)
+                    mPickedAnimation->getAnimatedValues(&values);
+                    ImGui::Text("Time: %.2f / %.2f s", mPickedAnimation->animTime.value(), mPickedAnimation->animTime.getParent()->getDuration());
+                    if (values.T_animated)
                     {
-                        if (channel.path == AnimationChannel::TRANSLATION)
-                        {
-                            ImGui::Text("Duraton: %f s", channel.translation.getParent()->getDuration());
-                            T = channel.translation.value();
-                            ImGui::DragFloat3(channel.property.target_path.c_str(), &T);
-                        }
-                        else if (channel.path == AnimationChannel::ROTATION)
-                        {
-                            R = channel.rotation.value();
-                            ImGui::DragFloat4(channel.property.target_path.c_str(), (vec4*)&R);
-                        }
-                        else if (channel.path == AnimationChannel::SCALE)
-                        {
-                            S = channel.scale.value();
-                            ImGui::DragFloat3(channel.property.target_path.c_str(), &S);
-                        }
+                        ImGui::DragFloat3("T", &values.T);
+                    }
+                    if (values.R_animated)
+                    {
+                        ImGui::DragFloat4("R", (vec4*)&values.R);
+                    }
+                    if (values.S_animated)
+                    {
+                        ImGui::DragFloat3("S", &values.S);
                     }
                 }
                 ImGui::End();
             }
 
             {
-                glm::mat4 transform = glm::translate(T);
-                transform *= glm::toMat4(R);
+                glm::mat4 transform = glm::translate(values.T);
+                transform *= glm::toMat4(values.R);
                 transform *= glm::scale(vec3{3.0f,3.0f,3.0f });
                 gl::ScopedModelMatrix mdl(transform);
                 gl::ScopedGlslProg prog(am::glslProg("lambert"));

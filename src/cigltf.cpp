@@ -45,13 +45,9 @@ void AnimationGLTF::startAnimation()
     app::timeline().apply(&animTime, end, end - start);
 }
 
-void AnimationGLTF::getAnimatedValues(ci::vec3* translation, ci::quat* rotation, ci::vec3* scale,
-    bool* isTAnimated, bool* isRAnimated, bool* isSAnimated)
+void AnimationGLTF::getAnimatedValues(AnimatedValues* values)
 {
-    if (isTAnimated) *isTAnimated = false;
-    if (isRAnimated) *isRAnimated = false;
-    if (isSAnimated) *isSAnimated = false;
-
+    CI_ASSERT(values);
     for (auto& channel : channels) {
         AnimationSampler& sampler = samplers[channel.samplerIndex];
         if (sampler.inputs.size() > sampler.outputsVec4.size()) {
@@ -65,14 +61,14 @@ void AnimationGLTF::getAnimatedValues(ci::vec3* translation, ci::quat* rotation,
                     switch (channel.path) {
                     case AnimationChannel::PathType::TRANSLATION: {
                         glm::vec4 trans = glm::mix(sampler.outputsVec4[i], sampler.outputsVec4[i + 1], u);
-                        if (translation) *translation = glm::vec3(trans);
-                        if (isTAnimated) *isTAnimated = true;
+                        values->T = glm::vec3(trans);
+                        values->T_animated = true;
                         break;
                     }
                     case AnimationChannel::PathType::SCALE: {
-                        glm::vec4 trans = glm::mix(sampler.outputsVec4[i], sampler.outputsVec4[i + 1], u);
-                        if (scale) *scale = glm::vec3(trans);
-                        if (isSAnimated) *isSAnimated = true;
+                        glm::vec4 scale = glm::mix(sampler.outputsVec4[i], sampler.outputsVec4[i + 1], u);
+                        values->S = glm::vec3(scale);
+                        values->S_animated = true;
                         break;
                     }
                     case AnimationChannel::PathType::ROTATION: {
@@ -86,8 +82,8 @@ void AnimationGLTF::getAnimatedValues(ci::vec3* translation, ci::quat* rotation,
                         q2.y = sampler.outputsVec4[i + 1].y;
                         q2.z = sampler.outputsVec4[i + 1].z;
                         q2.w = sampler.outputsVec4[i + 1].w;
-                        if (rotation) *rotation = glm::normalize(glm::slerp(q1, q2, u));
-                        if (isRAnimated) *isRAnimated = true;
+                        values->R = glm::normalize(glm::slerp(q1, q2, u));
+                        values->R_animated = true;
                         break;
                     }
                     }

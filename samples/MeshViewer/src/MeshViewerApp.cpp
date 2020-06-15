@@ -218,25 +218,23 @@ struct MeloViewer : public App
 
                     if (mPickedAnimation)
                     {
-                        vec3 T;
-                        quat R;
-                        vec3 S;
-                        bool TAnimated, RAniamted, SAnimated;
-                        mPickedAnimation->getAnimatedValues(&T, &R, &S, &TAnimated, &RAniamted, &SAnimated);
-                        if (TAnimated)
+                        AnimatedValues values;
+                        mPickedAnimation->getAnimatedValues(&values);
+                        ImGui::Text("Time: %.2f / %.2f s", mPickedAnimation->animTime.value(), mPickedAnimation->animTime.getParent()->getDuration());
+                        if (values.T_animated)
                         {
-                            ImGui::DragFloat3("T", &T);
-                            mPickedNode->setPosition(T);
+                            ImGui::DragFloat3("T", &values.T);
+                            mPickedNode->setPosition(values.T);
                         }
-                        if (RAniamted)
+                        if (values.R_animated)
                         {
-                            ImGui::DragFloat4("R", (vec4*)&R);
-                            mPickedNode->setRotation(R);
+                            ImGui::DragFloat4("R", (vec4*)&values.R);
+                            mPickedNode->setRotation(values.R);
                         }
-                        if (SAnimated)
+                        if (values.S_animated)
                         {
-                            ImGui::DragFloat3("S", &S);
-                            mPickedNode->setScale(S);
+                            ImGui::DragFloat3("S", &values.S);
+                            mPickedNode->setScale(values.S);
                         }
                         mPickedTransform = mPickedNode->getWorldTransform();
                     }

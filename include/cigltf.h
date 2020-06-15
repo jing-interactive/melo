@@ -120,6 +120,16 @@ struct AnimationSampler
     std::vector<glm::vec4> outputsVec4;
 };
 
+struct AnimatedValues
+{
+    ci::vec3 T;
+    ci::quat R;
+    ci::vec3 S;
+    bool T_animated = false;
+    bool R_animated = false;
+    bool S_animated = false;
+};
+
 struct AnimationGLTF
 {
     typedef std::shared_ptr<AnimationGLTF> Ref;
@@ -134,8 +144,7 @@ struct AnimationGLTF
     ci::Anim<float> animTime;
 
     void startAnimation();
-    void getAnimatedValues(ci::vec3* translation, ci::quat* rotation, ci::vec3* scale,
-        bool* isTAnimated, bool* isRAnimated, bool* isSAnimated);
+    void getAnimatedValues(AnimatedValues* values);
 
     static Ref create(ModelGLTFRef modelGLTF, const tinygltf::Animation& property);
 };
