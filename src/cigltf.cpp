@@ -39,17 +39,61 @@ void AnimationSampler_apply(const AnimationSampler& sampler, Anim<T>& value)
     }
 }
 
-void AnimationGLTF::apply()
+void AnimationGLTF::startAnimation()
 {
-    for (auto& channel : channels)
-    {
-        auto& sampler = samplers[channel.samplerIndex];
-        if (channel.path == AnimationChannel::TRANSLATION)
-            AnimationSampler_apply(sampler, channel.translation);
-        else if (channel.path == AnimationChannel::ROTATION)
-            AnimationSampler_apply(sampler, channel.rotation);
-        else if (channel.path == AnimationChannel::SCALE)
-            AnimationSampler_apply(sampler, channel.scale);
+    animTime = start;
+    app::timeline().apply(&animTime, end, end - start);
+}
+
+void AnimationGLTF::getAnimatedValues(ci::vec3* translation, ci::quat* rotation, ci::vec3* scale,
+    bool* isTAnimated, bool* isRAnimated, bool* isSAnimated)
+{
+    if (isTAnimated) *isTAnimated = false;
+    if (isRAnimated) *isRAnimated = false;
+    if (isSAnimated) *isSAnimated = false;
+
+    for (auto& channel : channels) {
+        AnimationSampler& sampler = samplers[channel.samplerIndex];
+        if (sampler.inputs.size() > sampler.outputsVec4.size()) {
+            continue;
+        }
+
+        for (size_t i = 0; i < sampler.inputs.size() - 1; i++) {
+            if ((animTime >= sampler.inputs[i]) && (animTime <= sampler.inputs[i + 1])) {
+                float u = std::max(0.0f, animTime - sampler.inputs[i]) / (sampler.inputs[i + 1] - sampler.inputs[i]);
+                if (u <= 1.0f) {
+                    switch (channel.path) {
+                    case AnimationChannel::PathType::TRANSLATION: {
+                        glm::vec4 trans = glm::mix(sampler.outputsVec4[i], sampler.outputsVec4[i + 1], u);
+                        if (translation) *translation = glm::vec3(trans);
+                        if (isTAnimated) *isTAnimated = true;
+                        break;
+                    }
+                    case AnimationChannel::PathType::SCALE: {
+                        glm::vec4 trans = glm::mix(sampler.outputsVec4[i], sampler.outputsVec4[i + 1], u);
+                        if (scale) *scale = glm::vec3(trans);
+                        if (isSAnimated) *isSAnimated = true;
+                        break;
+                    }
+                    case AnimationChannel::PathType::ROTATION: {
+                        glm::quat q1;
+                        q1.x = sampler.outputsVec4[i].x;
+                        q1.y = sampler.outputsVec4[i].y;
+                        q1.z = sampler.outputsVec4[i].z;
+                        q1.w = sampler.outputsVec4[i].w;
+                        glm::quat q2;
+                        q2.x = sampler.outputsVec4[i + 1].x;
+                        q2.y = sampler.outputsVec4[i + 1].y;
+                        q2.z = sampler.outputsVec4[i + 1].z;
+                        q2.w = sampler.outputsVec4[i + 1].w;
+                        if (rotation) *rotation = glm::normalize(glm::slerp(q1, q2, u));
+                        if (isRAnimated) *isRAnimated = true;
+                        break;
+                    }
+                    }
+                }
+            }
+        }
     }
 }
 

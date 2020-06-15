@@ -107,11 +107,6 @@ struct AnimationChannel
     enum PathType { TRANSLATION, ROTATION, SCALE };
     PathType path;
     int node;
-
-    ci::Anim<ci::vec4> translation;
-    ci::Anim<ci::quat> rotation;
-    ci::Anim<ci::vec4> scale;
-
     uint32_t samplerIndex;
 };
 
@@ -136,7 +131,12 @@ struct AnimationGLTF
     float start = std::numeric_limits<float>::max();
     float end = std::numeric_limits<float>::min();
 
-    void apply();
+    ci::Anim<float> animTime;
+
+    void startAnimation();
+    void getAnimatedValues(ci::vec3* translation, ci::quat* rotation, ci::vec3* scale,
+        bool* isTAnimated, bool* isRAnimated, bool* isSAnimated);
+
     static Ref create(ModelGLTFRef modelGLTF, const tinygltf::Animation& property);
 };
 

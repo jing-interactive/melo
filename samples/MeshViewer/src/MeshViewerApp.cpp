@@ -212,34 +212,33 @@ struct MeloViewer : public App
                         if (ImGui::Button(anim->name.c_str()))
                         {
                             mPickedAnimation = anim;
-                            anim->apply();
+                            anim->startAnimation();
                         }
                     }
 
                     if (mPickedAnimation)
                     {
-                        for (auto& channel : mPickedAnimation->channels)
+                        vec3 T;
+                        quat R;
+                        vec3 S;
+                        bool TAnimated, RAniamted, SAnimated;
+                        mPickedAnimation->getAnimatedValues(&T, &R, &S, &TAnimated, &RAniamted, &SAnimated);
+                        if (TAnimated)
                         {
-                            if (channel.path == AnimationChannel::TRANSLATION)
-                            {
-                                auto T = channel.translation.value();
-                                ImGui::DragFloat4(channel.property.target_path.c_str(), &T);
-                                mPickedNode->setPosition(T);
-                            }
-                            else if (channel.path == AnimationChannel::ROTATION)
-                            {
-                                auto R = channel.rotation.value();
-                                ImGui::DragFloat4(channel.property.target_path.c_str(), (vec4*)&R);
-                                mPickedNode->setRotation(R);
-                            }
-                            else if (channel.path == AnimationChannel::SCALE)
-                            {
-                                auto S = channel.scale.value();
-                                ImGui::DragFloat4(channel.property.target_path.c_str(), &S);
-                                mPickedNode->setScale(S);
-                            }
-                            mPickedTransform = mPickedNode->getWorldTransform();
+                            ImGui::DragFloat3("T", &T);
+                            mPickedNode->setPosition(T);
                         }
+                        if (RAniamted)
+                        {
+                            ImGui::DragFloat4("R", (vec4*)&R);
+                            mPickedNode->setRotation(R);
+                        }
+                        if (SAnimated)
+                        {
+                            ImGui::DragFloat3("S", &S);
+                            mPickedNode->setScale(S);
+                        }
+                        mPickedTransform = mPickedNode->getWorldTransform();
                     }
                 }
                 ImGui::EndTabItem();
