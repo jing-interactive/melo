@@ -7,6 +7,7 @@
 namespace melo
 {
     NodeRef create(const std::string& typeName);
+    bool isMeshPathSupported(const cinder::fs::path& meshPath);
 
     NodeRef createRootNode();
     NodeRef createMeshNode(const cinder::fs::path& meshPath);

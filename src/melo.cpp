@@ -35,6 +35,13 @@ namespace melo
         return root;
     }
 
+    bool isMeshPathSupported(const cinder::fs::path& meshPath)
+    {
+        auto ext = meshPath.extension().string();
+        std::transform(ext.begin(), ext.end(), ext.begin(), static_cast<int(*)(int)>(tolower));
+        return (ext == ".gltf" || ext == ".glb" || ext == ".obj");
+    }
+
     NodeRef createMeshNode(const fs::path& meshPath)
     {
         fs::path realPath = meshPath;
@@ -44,10 +51,12 @@ namespace melo
             if (!fs::exists(realPath)) return {};
         }
 
-        if (realPath.extension() == ".obj")
+        auto ext = meshPath.extension().string();
+        std::transform(ext.begin(), ext.end(), ext.begin(), static_cast<int(*)(int)>(tolower));
+        if (ext == ".obj")
             return ModelObj::create(realPath);
 
-        if (realPath.extension() == ".gltf" || realPath.extension() == ".glb")
+        if (ext == ".gltf" || realPath.extension() == ".glb")
             return ModelGLTF::create(realPath);
 
 #define ENTRY(name)  if (meshPath == #name) { auto node = BuiltinMeshNode::create(geom::name()); node->setName(#name); return node;}

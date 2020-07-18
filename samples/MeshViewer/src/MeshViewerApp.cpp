@@ -274,8 +274,7 @@ struct MeloViewer : public App
 #endif
             ))
         {
-            auto ext = p.path().extension();
-            if (ext == ".gltf" || ext == ".glb" || ext == ".obj")
+            if (melo::isMeshPathSupported(p.path()))
             {
                 auto filename = p.path().generic_string();
                 filename.replace(filename.find(assetModel),
@@ -424,9 +423,10 @@ struct MeloViewer : public App
             {
                 if (fs::is_directory(filePath)) continue;
                 if (!filePath.has_extension()) continue;
-                auto ext = filePath.extension().string().substr(1);
+                auto ext = filePath.extension().string();
+                std::transform(ext.begin(), ext.end(), ext.begin(), static_cast<int(*)(int)>(tolower));
 
-                if (ext == "obj" || ext == "gltf" || ext == "glb")
+                if (ext == ".obj" || ext == ".gltf" || ext == ".glb")
                 {
                     dispatchAsync([&, filePath] {
                         loadMeshFromFile(filePath);
