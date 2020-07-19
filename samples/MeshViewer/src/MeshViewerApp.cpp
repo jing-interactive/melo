@@ -27,6 +27,8 @@
 #include "postprocess/FXAA.h"
 #include "postprocess/SMAA.h"
 
+#include "NvOptimusEnablement.h"
+
 using namespace ci;
 using namespace ci::app;
 using namespace std;
