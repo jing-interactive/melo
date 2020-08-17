@@ -8,6 +8,7 @@ ITEM_DEF(bool, WIRE_FRAME, false)
 ITEM_DEF(bool, FLIP_V, true)
 ITEM_DEF(bool, FPS_CAMERA, false)
 ITEM_DEF(bool, CONSOLE_ENABLED, false)
+ITEM_DEF(bool, RENDER_DOC_ENABLED, false)
 
 GROUP_DEF(Environment)
 ITEM_DEF(string, IRRADIANCE_TEX, "CathedralIrradiance.dds")
