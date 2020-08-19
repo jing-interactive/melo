@@ -1,3 +1,5 @@
+#define _HAS_STD_BYTE 0
+
 #include "cinder/CameraUi.h"
 #include "cinder/Log.h"
 #include "cinder/app/App.h"
