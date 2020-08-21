@@ -9,6 +9,7 @@
 	git="https://github.com/jing-interactive/melo.git"
 	>	
 	<includePath>include</includePath>
+	<includePath>3rdparty/rapidjson</includePath>
 	
 	<sourcePattern>src/*.*</sourcePattern>
 	<sourcePattern>3rdparty/tinygltf/*.*</sourcePattern>
