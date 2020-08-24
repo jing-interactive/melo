@@ -492,12 +492,16 @@ struct MeloViewer : public App
             mCurrentCam->setNearClip(CAM_Z_NEAR);
             mCurrentCam->setFarClip(CAM_Z_FAR);
 
+            Frustumf frustrum(*mCurrentCam);
+
             for (auto& child : mScene->getChildren())
             {
                 //mModel->flipV = FLIP_V;
                 child->cameraPosition = mCurrentCam->getEyePoint();
                 child->lightDirection = glm::normalize(mLightNode->getPosition());
                 child->lightColor = mLightNode->color;
+
+                child->setVisible(child->isInsideFrustrum(frustrum));
             }
 
             if (GUI_VISIBLE)

@@ -294,4 +294,17 @@ namespace melo
         mIsConstantTransform = true;
         mConstantTransform = transform;
     }
+
+#ifndef CINDER_LESS
+    bool Node::isInsideFrustrum(const Frustumf& viewFrustum)
+    {
+        // Use the object's bounding box, converted to world space.
+
+        AxisAlignedBox localBounds = { mBoundBoxMin, mBoundBoxMax };
+        AxisAlignedBox worldBounds = localBounds.transformed(getWorldTransform());
+
+        return viewFrustum.intersects(worldBounds);
+    }
+#endif
+
 } // namespace melo

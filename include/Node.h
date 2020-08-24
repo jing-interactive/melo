@@ -138,6 +138,7 @@ namespace melo
         void setName(const std::string& name);
         const std::string& getName() const;
 
+
     protected:
         std::string mName;
 
@@ -224,6 +225,8 @@ namespace melo
         static ci::gl::TextureCubeMapRef radianceTexture;
         static ci::gl::TextureCubeMapRef irradianceTexture;
         static ci::gl::Texture2dRef brdfLUTTexture;
+
+        bool isInsideFrustrum(const ci::Frustumf& viewFrustum);
 #endif
 
     };
