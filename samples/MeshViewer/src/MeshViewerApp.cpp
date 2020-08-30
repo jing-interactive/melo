@@ -528,6 +528,15 @@ struct MeloViewer : public App
             });
 
         getWindow()->getSignalDraw().connect([&] {
+<<<<<<< HEAD
+=======
+
+            gl::ScopedDebugGroup scp(string("f") + toString(getElapsedFrames()));
+
+            if (mToCaptureRdc)
+                mRdc.startCapture();
+
+>>>>>>> c097202... Add gl::ScopedDebugGroup
             if (mIsFpsCamera)
                 gl::setMatrices(mFpsCam);
             else
