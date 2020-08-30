@@ -8,6 +8,7 @@
 #include <cinder/FileWatcher.h>
 #include <cinder/Timer.h>
 
+
 #include "miniz/miniz.h"
 
 // vnm
@@ -30,12 +31,71 @@
 #include "postprocess/FXAA.h"
 #include "postprocess/SMAA.h"
 
+#include "NvOptimusEnablement.h"
+
+#include "renderdoc_app.h"
+
 using namespace ci;
 using namespace ci::app;
 using namespace std;
 
+struct RenderDocHelper
+{
+    RENDERDOC_API_1_4_1* rdc = nullptr;
+
+    bool setup()
+    {
+        rdc = GetRenderDocApi();
+        return rdc != nullptr;
+    }
+
+    void startCapture()
+    {
+        if (rdc)
+            rdc->StartFrameCapture(NULL, NULL);
+    }
+
+    void endCapture()
+    {
+        if (rdc)
+            rdc->EndFrameCapture(NULL, NULL);
+    }
+
+    static RENDERDOC_API_1_4_1* GetRenderDocApi()
+    {
+        RENDERDOC_API_1_4_1* rdoc = nullptr;
+#if 1
+        HINSTANCE module = LoadLibraryA("C:/Program Files/RenderDoc/renderdoc.dll");
+#else
+        HMODULE module = GetModuleHandleA("renderdoc.dll");
+#endif
+        if (module == NULL)
+        {
+            return nullptr;
+        }
+
+        pRENDERDOC_GetAPI getApi = nullptr;
+        getApi = (pRENDERDOC_GetAPI)GetProcAddress(module, "RENDERDOC_GetAPI");
+
+        if (getApi == nullptr)
+        {
+            return nullptr;
+        }
+
+        if (getApi(eRENDERDOC_API_Version_1_4_1, (void**)&rdoc) != 1)
+        {
+            return nullptr;
+        }
+
+        return rdoc;
+    }
+};
+
 struct MeloViewer : public App
 {
+    RenderDocHelper mRdc;
+    bool mToCaptureRdc = false;
+
     CameraPersp2 mMayaCam;
     CameraUi mMayaCamUi;
     FirstPersonCamera mFpsCam;
@@ -138,6 +198,13 @@ struct MeloViewer : public App
             if (ImGui::BeginTabItem("Settings"))
             {
                 vnm::drawFrameTime();
+                if (RENDER_DOC_ENABLED)
+                {
+                    if (ImGui::Button("Capture RenderDoc"))
+                    {
+                        mToCaptureRdc = true;
+                    }
+                }
                 vnm::drawMinicofigImgui();
                 ImGui::EndTabItem();
             }
@@ -277,8 +344,7 @@ struct MeloViewer : public App
 #endif
             ))
         {
-            auto ext = p.path().extension();
-            if (ext == ".gltf" || ext == ".glb" || ext == ".obj")
+            if (melo::isMeshPathSupported(p.path()))
             {
                 auto filename = p.path().generic_string();
                 filename.replace(filename.find(assetModel),
@@ -329,6 +395,9 @@ struct MeloViewer : public App
 
     void setup() override
     {
+        if (RENDER_DOC_ENABLED)
+            mRdc.setup();
+
         log::makeLogger<log::LoggerFileRotating>(fs::path(), "IG.%Y.%m.%d.log");
         mUiLogger = log::makeLogger<ImGui::DearLogger>();
 
@@ -395,26 +464,26 @@ struct MeloViewer : public App
                 auto code = event.getCode();
                 switch (code)
                 {
-                    case KeyEvent::KEY_ESCAPE:
-                        quit(); break;
-                    case KeyEvent::KEY_w:
-                        WIRE_FRAME = !WIRE_FRAME; break;
-                    case KeyEvent::KEY_e:
-                        ENV_VISIBLE = !ENV_VISIBLE; break;
-                    case KeyEvent::KEY_x:
-                        XYZ_VISIBLE = !XYZ_VISIBLE; break;
-                    case KeyEvent::KEY_g:
-                        GUI_VISIBLE = !GUI_VISIBLE; break;
-                    case KeyEvent::KEY_RETURN:
-                        setFullScreen(!isFullScreen()); break;
-                    case KeyEvent::KEY_f:
-                        FPS_CAMERA = !FPS_CAMERA; break;
-                    case KeyEvent::KEY_DELETE:
-                        deletePickedNode(); break;
-                    case KeyEvent::KEY_SPACE:
-                        lookAtPickedNode(); break;
-                    default:
-                        break;
+                case KeyEvent::KEY_ESCAPE:
+                    quit(); break;
+                case KeyEvent::KEY_w:
+                    WIRE_FRAME = !WIRE_FRAME; break;
+                case KeyEvent::KEY_e:
+                    ENV_VISIBLE = !ENV_VISIBLE; break;
+                case KeyEvent::KEY_x:
+                    XYZ_VISIBLE = !XYZ_VISIBLE; break;
+                case KeyEvent::KEY_g:
+                    GUI_VISIBLE = !GUI_VISIBLE; break;
+                case KeyEvent::KEY_RETURN:
+                    setFullScreen(!isFullScreen()); break;
+                case KeyEvent::KEY_f:
+                    FPS_CAMERA = !FPS_CAMERA; break;
+                case KeyEvent::KEY_DELETE:
+                    deletePickedNode(); break;
+                case KeyEvent::KEY_SPACE:
+                    lookAtPickedNode(); break;
+                default:
+                    break;
                 }
                 });
         }
@@ -427,9 +496,8 @@ struct MeloViewer : public App
             {
                 if (fs::is_directory(filePath)) continue;
                 if (!filePath.has_extension()) continue;
-                auto ext = filePath.extension().string().substr(1);
 
-                if (ext == "obj" || ext == "gltf" || ext == "glb")
+                if (melo::isMeshPathSupported(filePath))
                 {
                     dispatchAsync([&, filePath] {
                         loadMeshFromFile(filePath);
@@ -437,11 +505,12 @@ struct MeloViewer : public App
                     break;
                 }
 
-                if (ext == "zip")
+                auto ext = filePath.extension().string();
+                if (ext == ".zip")
                 {
                     dispatchAsync([&, filePath] {
                         loadMeshFromZip(filePath);
-                    });
+                        });
                     break;
                 }
 
@@ -528,15 +597,11 @@ struct MeloViewer : public App
             });
 
         getWindow()->getSignalDraw().connect([&] {
-<<<<<<< HEAD
-=======
 
             gl::ScopedDebugGroup scp(string("f") + toString(getElapsedFrames()));
-
             if (mToCaptureRdc)
                 mRdc.startCapture();
 
->>>>>>> c097202... Add gl::ScopedDebugGroup
             if (mIsFpsCamera)
                 gl::setMatrices(mFpsCam);
             else
@@ -568,6 +633,12 @@ struct MeloViewer : public App
                 auto windowSurf = copyWindowSurfaceWithAlpha();
                 writeImage(mOutputFilename, windowSurf);
                 quit();
+            }
+
+            if (mToCaptureRdc)
+            {
+                mRdc.endCapture();
+                mToCaptureRdc = false;
             }
             });
     }
@@ -617,7 +688,7 @@ struct MeloViewer : public App
                 ", Uncompressed size: " << file_stat.m_uncomp_size <<
                 ", Compressed size: " << file_stat.m_comp_size <<
                 ", Is Dir: " << miniz_zip_reader_is_file_a_directory(&zip_archive, i));
-                
+
             if (!strcmp(file_stat.m_filename, "textures/"))
             {
                 if (!miniz_zip_reader_is_file_a_directory(&zip_archive, i))
