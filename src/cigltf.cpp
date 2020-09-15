@@ -639,7 +639,10 @@ MaterialGLTF::Ref MaterialGLTF::create(ModelGLTFRef modelGLTF, const tinygltf::M
     if (property.alphaMode == "BLEND")
         ref->alphaMode = ALPHA_BLEND;
     else if (property.alphaMode == "MASK")
+    {
         ref->alphaMode = ALPHA_MASK;
+        ref->alphaCutoff = property.alphaCutoff;
+    }
 
     // pbr
     const auto& pbr = property.pbrMetallicRoughness;
@@ -836,6 +839,12 @@ void MaterialGLTF::predraw()
     {
         ctx->pushBoolState(GL_BLEND, false);
     }
+    else if (alphaMode == ALPHA_MASK)
+    {
+        ctx->pushBoolState(GL_BLEND, true);
+        ctx->pushBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA,
+            GL_ONE_MINUS_SRC_ALPHA);
+    }
     else
     {
         ctx->pushBoolState(GL_BLEND, true);
@@ -862,14 +871,24 @@ void MaterialGLTF::predraw()
 
 void MaterialGLTF::postdraw()
 {
+    auto ctx = gl::context();
     if (doubleSided)
     {
-        gl::context()->popBoolState(GL_CULL_FACE);
+        ctx->popBoolState(GL_CULL_FACE);
     }
-    gl::context()->popBoolState(GL_BLEND);
-    if (alphaMode != ALPHA_OPAQUE)
+    if (alphaMode == ALPHA_OPAQUE)
     {
-        gl::context()->popBlendFuncSeparate();
+        ctx->popBoolState(GL_BLEND);
+    }
+    else if (alphaMode == ALPHA_MASK)
+    {
+        ctx->popBoolState(GL_BLEND);
+        ctx->popBlendFuncSeparate();
+    }
+    else
+    {
+        ctx->popBoolState(GL_BLEND);
+        ctx->popBlendFuncSeparate();
     }
     if (baseColorTexture)
         baseColorTexture->postdraw();
