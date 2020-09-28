@@ -24,14 +24,14 @@ namespace melo
 
     }
 
-    void SkyNode::predraw()
+    void SkyNode::predraw(DrawOrder order)
     {
         skyBoxShader->uniform("uCubeMapTex", 0);
         skyBoxShader->uniform("uExposure", 2.0f);
         skyBoxShader->uniform("uGamma", 2.0f);
     }
 
-    void SkyNode::draw()
+    void SkyNode::draw(DrawOrder order)
     {
         if (!mSkyBoxBatch && !mSkyTex) return;
 

@@ -72,6 +72,17 @@ namespace melo
         MATERIAL_COUNT,
     };
 
+    enum DrawOrder
+    {
+        DRAW_SOLID,
+        DRAW_SHADOW,
+        DRAW_TRANSPARENCY,
+        DRAW_POST_PROCESSING,
+        DRAW_GUI,
+
+        DRAW_ORDER_COUNT,
+    };
+
     class Node : public std::enable_shared_from_this<Node>
     {
     public:
@@ -133,7 +144,7 @@ namespace melo
         //! calls the update() function of this node and all its decendants
         void treeUpdate(double elapsed = 0.0);
         //! calls the draw() function of this node and all its decendants
-        void treeDraw();
+        void treeDraw(DrawOrder order = DRAW_SOLID);
 
         void setName(const std::string& name);
         const std::string& getName() const;
@@ -160,12 +171,12 @@ namespace melo
         virtual void setup() {}
         virtual void shutdown() {}
         virtual void update(double elapsed = 0.0) {}
-        virtual void draw() {}
+        virtual void draw(DrawOrder order = DRAW_SOLID) {}
 
         //! function that is called right before drawing this node
-        virtual void predraw() {}
+        virtual void predraw(DrawOrder order = DRAW_SOLID) {}
         //! function that is called right after drawing this node
-        virtual void postdraw() {}
+        virtual void postdraw(DrawOrder order = DRAW_SOLID) {}
 
         // required function (see: class Node)
         virtual void transform() const;

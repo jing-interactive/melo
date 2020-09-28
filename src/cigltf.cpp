@@ -314,7 +314,7 @@ void NodeGLTF::update(double elapsed)
     }
 }
 
-void NodeGLTF::draw()
+void NodeGLTF::draw(DrawOrder order)
 {
     if (mesh)
     {
@@ -322,12 +322,12 @@ void NodeGLTF::draw()
     }
 }
 
-void NodeGLTF::predraw()
+void NodeGLTF::predraw(DrawOrder order)
 {
     //rmt_BeginOpenGLSampleDynamic(getName().c_str());
 }
 
-void NodeGLTF::postdraw()
+void NodeGLTF::postdraw(DrawOrder order)
 {
     //rmt_EndOpenGLSample();
 }
@@ -481,7 +481,7 @@ ModelGLTFRef ModelGLTF::create(const fs2::path& meshPath, std::string* loadingEr
 //    currentScene->treeUpdate(elapsed);
 //}
 
-void ModelGLTF::predraw()
+void ModelGLTF::predraw(DrawOrder order)
 {
 #ifndef CINDER_LESS
     if (Node::irradianceTexture && Node::radianceTexture && Node::brdfLUTTexture)
@@ -493,7 +493,7 @@ void ModelGLTF::predraw()
 #endif
 }
 
-void ModelGLTF::postdraw()
+void ModelGLTF::postdraw(DrawOrder order)
 {
 #ifndef CINDER_LESS
     if (Node::irradianceTexture && Node::radianceTexture && Node::brdfLUTTexture)

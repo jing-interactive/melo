@@ -42,7 +42,7 @@ namespace melo
         typedef std::shared_ptr<DirectionalLightNode> Ref;
         static Ref create(float radius = 5, Color color = { 1,1,1 });
 
-        void draw() override;
+        void draw(DrawOrder order) override;
 
         float radius;
         Color color;
@@ -60,7 +60,7 @@ namespace melo
 
         GridNode(float meters = 10.0f);
 
-        void draw();
+        void draw(DrawOrder order) override;
     };
 
     struct BuiltinMeshNode : public Node
@@ -75,6 +75,6 @@ namespace melo
         static Ref create(const geom::Source& source);
         BuiltinMeshNode(TriMeshRef triMesh);
 
-        void draw() override;
+        void draw(DrawOrder order) override;
     };
 } // namespace nodes

@@ -166,7 +166,7 @@ namespace melo
             node->treeUpdate(elapsed);
     }
 
-    void Node::treeDraw()
+    void Node::treeDraw(DrawOrder order)
     {
         if (!mIsVisible)
             return;
@@ -186,7 +186,7 @@ namespace melo
         if (!mName.empty())
             gl::pushDebugGroup(mName);
 #endif
-        predraw();
+        predraw(order);
 
 #ifndef CINDER_LESS
         // apply transform
@@ -196,17 +196,17 @@ namespace melo
         gl::setModelMatrix(getWorldTransform());
 
         // draw this node by calling derived class
-        draw();
+        draw(order);
 
         // draw this node's children
         for (auto& child : mChildren)
-            child->treeDraw();
+            child->treeDraw(order);
 
         // restore transform
         gl::popModelView();
 #endif
 
-        postdraw();
+        postdraw(order);
 #if defined(CINDER_MSW_DESKTOP)
         if (!mName.empty())
             gl::popDebugGroup();

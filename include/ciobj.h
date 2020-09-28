@@ -69,9 +69,9 @@ struct MeshObj : public melo::Node
 
     static Ref create(ModelObjRef modelObj, const tinyobj::shape_t& property);
 
-    virtual void draw();
-    virtual void predraw();
-    virtual void postdraw();
+    void draw(melo::DrawOrder order) override;
+    void predraw(melo::DrawOrder order) override;
+    void postdraw(melo::DrawOrder order) override;
 };
 
 struct ModelObj : public MeshObj

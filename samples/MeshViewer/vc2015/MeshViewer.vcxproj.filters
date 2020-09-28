@@ -221,6 +221,9 @@
     <ClInclude Include="..\src\miniz\miniz.h">
       <Filter>Blocks\miniz</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ShadowMap.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources.rc">

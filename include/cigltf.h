@@ -352,13 +352,13 @@ struct NodeGLTF : public melo::Node
 
     ModelGLTFRef modelGLTF;
 
-    void setup();
+    void setup() override;
 
-    void update(double elapsed = 0.0);
+    void update(double elapsed = 0.0) override;
 
-    void predraw();
-    void draw();
-    void postdraw();
+    void predraw(melo::DrawOrder order) override;
+    void draw(melo::DrawOrder order) override;
+    void postdraw(melo::DrawOrder order) override;
 };
 
 struct SceneGLTF : public NodeGLTF
@@ -377,8 +377,8 @@ struct ModelGLTF : public melo::Node
 
     //void update(double elapsed = 0.0) override;
 
-    void predraw() override;
-    void postdraw() override;
+    void predraw(melo::DrawOrder order) override;
+    void postdraw(melo::DrawOrder order) override;
 
     std::vector<AccessorGLTF::Ref> accessors;
     std::vector<AnimationGLTF::Ref> animations;

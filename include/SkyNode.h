@@ -11,8 +11,8 @@ namespace melo
 
         static Ref create(const std::string& skyTexturePath);
 
-        void predraw() override;
-        void draw() override;
+        void predraw(DrawOrder order) override;
+        void draw(DrawOrder order) override;
 
         ci::gl::TextureCubeMapRef mSkyTex;
         ci::gl::BatchRef mSkyBoxBatch;

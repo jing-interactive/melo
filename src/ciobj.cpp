@@ -126,7 +126,7 @@ void MeshObj::SubMesh::draw()
     material->postdraw();
 }
 
-void MeshObj::predraw()
+void MeshObj::predraw(DrawOrder order)
 {
 #ifndef CINDER_LESS
     if (Node::irradianceTexture && Node::radianceTexture && Node::brdfLUTTexture)
@@ -138,7 +138,7 @@ void MeshObj::predraw()
 #endif
 }
 
-void MeshObj::postdraw()
+void MeshObj::postdraw(DrawOrder order)
 {
 #ifndef CINDER_LESS
     if (Node::irradianceTexture && Node::radianceTexture && Node::brdfLUTTexture)
@@ -150,7 +150,7 @@ void MeshObj::postdraw()
 #endif
 }
 
-void MeshObj::draw()
+void MeshObj::draw(DrawOrder order)
 {
     for (auto& kv : submeshes)
     {

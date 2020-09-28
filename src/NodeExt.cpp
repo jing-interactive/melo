@@ -16,7 +16,7 @@ DirectionalLightNode::Ref DirectionalLightNode::create(float radius, Color color
     return ref;
 }
 
-void DirectionalLightNode::draw()
+void DirectionalLightNode::draw(DrawOrder order)
 {
     static auto shader = gl::getStockShader(gl::ShaderDef().lambert());
     shader->bind();
@@ -56,7 +56,7 @@ GridNode::GridNode(float meters) : mMeters(meters)
     setName("GridNode");
 }
 
-void GridNode::draw()
+void GridNode::draw(DrawOrder order)
 {
     gl::ScopedDepthTest depthTest(false);
     gl::ScopedGlslProg glsl(shader);
@@ -82,7 +82,7 @@ BuiltinMeshNode::Ref BuiltinMeshNode::create(const geom::Source& source)
     return make_shared<BuiltinMeshNode>(triMesh);
 }
 
-void BuiltinMeshNode::draw()
+void BuiltinMeshNode::draw(DrawOrder order)
 {
     if (vboMesh)
     {

@@ -28,6 +28,7 @@
 #include "CinderGuizmo.h"
 #include "DearLogger.h"
 
+#include "ShadowMap.h"
 #include "postprocess/FXAA.h"
 #include "postprocess/SMAA.h"
 
@@ -615,7 +616,8 @@ struct MeloViewer : public App
             mGridNode->setVisible(XYZ_VISIBLE);
 
             gl::setWireframeEnabled(WIRE_FRAME);
-            mScene->treeDraw();
+            mScene->treeDraw(melo::DRAW_SOLID);
+            mScene->treeDraw(melo::DRAW_TRANSPARENCY);
             gl::disableWireframe();
 
             if (mMouseHitNode)

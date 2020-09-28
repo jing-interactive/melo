@@ -150,6 +150,7 @@
     <ClInclude Include="..\..\..\..\Cinder-VNM\include\TextureHelper.h" />
     <ClInclude Include="..\..\..\..\Cinder-VNM\include\TuioHelper.h" />
     <ClInclude Include="..\src\miniz\miniz.h" />
+    <ClInclude Include="..\src\ShadowMap.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\Cinder-VNM\ui\CinderGuizmo.cpp" />
