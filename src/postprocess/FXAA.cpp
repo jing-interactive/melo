@@ -24,21 +24,17 @@
 #include "cinder/Log.h"
 
 #include "postprocess/FXAA.h"
+#include "AssetManager.h"
 
 using namespace ci;
 using namespace std;
 
 FXAA::FXAA()
 {
-	try {
-		auto glsl = gl::GlslProg::create( app::loadAsset( "postprocess/fxaa.vert" ), app::loadAsset( "postprocess/fxaa.frag" ) );
-		glsl->uniform( "uTexture", 0 );
+	auto glsl = am::glslProg( "postprocess/fxaa.vert", "postprocess/fxaa.frag" );
+	glsl->uniform( "uTexture", 0 );
 
-		mBatch = gl::Batch::create( geom::Rect( Rectf( 0, 0, 1, 1 ) ), glsl );
-	}
-	catch( const std::exception &e ) {
-		CI_LOG_EXCEPTION( "exception caught loading fxaa.vert / frag", e );
-	}
+	mBatch = gl::Batch::create( geom::Rect( Rectf( 0, 0, 1, 1 ) ), glsl );
 }
 
 void FXAA::apply( const gl::FboRef &destination, const gl::FboRef &source )

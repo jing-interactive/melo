@@ -229,9 +229,13 @@ SamplerGLTF::Ref SamplerGLTF::create(ModelGLTFRef modelGLTF, const tinygltf::Sam
     Ref ref = make_shared<SamplerGLTF>();
     ref->property = property;
 #ifndef CINDER_LESS
+    if (ref->property.minFilter == -1)
+        ref->property.minFilter = GL_LINEAR;
+    if (ref->property.magFilter == -1)
+        ref->property.magFilter = GL_LINEAR;
     auto fmt = gl::Sampler::Format()
-                   .minFilter((GLenum)property.minFilter)
-                   .magFilter((GLenum)property.magFilter)
+                   .minFilter((GLenum)ref->property.minFilter)
+                   .magFilter((GLenum)ref->property.magFilter)
                    .wrap(property.wrapS, property.wrapT, property.wrapR)
                    .label(property.name);
     ref->ciSampler = gl::Sampler::create(fmt);

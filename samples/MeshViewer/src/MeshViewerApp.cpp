@@ -8,7 +8,6 @@
 #include <cinder/FileWatcher.h>
 #include <cinder/Timer.h>
 
-
 #include "miniz/miniz.h"
 
 // vnm
@@ -107,6 +106,10 @@ struct MeloViewer : public App
     bool mSnapshotMode = false;
     string mOutputFilename;
 
+    unique_ptr<FXAA> mFXAA;
+    unique_ptr<SMAA> mSMAA;
+    gl::FboRef mFboMain;
+    gl::FboRef mFboAA;
     gl::GlslProgRef mGlslProg;
     int mMeshFileId = -1;
     vector<string> mMeshFilenames;
@@ -416,14 +419,15 @@ struct MeloViewer : public App
 
         createDefaultScene();
 
+        mFXAA = make_unique<FXAA>();
+        mSMAA = make_unique<SMAA>();
+
         mMeshFilenames = listGlTFFiles();
         parseArgs();
 
         createConfigImgui(getWindow(), false);
         //ADD_ENUM_TO_INT(mParams.get(), MESH_FILE_ID, mMeshFilenames);
         //mParams->addParam("MESH_ROTATION", &mMeshRotation);
-        gl::enableDepth();
-        gl::context()->depthFunc(GL_LEQUAL);
 
         getSignalCleanup().connect([&] { writeConfig(); });
 
@@ -431,7 +435,17 @@ struct MeloViewer : public App
             APP_WIDTH = getWindowWidth();
             APP_HEIGHT = getWindowHeight();
             mMayaCam.setAspectRatio(getWindowAspectRatio());
-            });
+
+            mFboMain = gl::Fbo::create(APP_WIDTH, APP_HEIGHT, gl::Fbo::Format().colorTexture(gl::Texture2d::Format()));
+            mFboMain->setLabel("mFboMain");
+
+            gl::Texture2d::Format tfmt;
+            tfmt.setMinFilter(GL_NEAREST);
+            tfmt.setMagFilter(GL_NEAREST);
+            tfmt.setInternalFormat(GL_RGBA8);
+            mFboAA = gl::Fbo::create(APP_WIDTH, APP_HEIGHT, gl::Fbo::Format().colorTexture(tfmt).disableDepth());
+            mFboAA->setLabel("mFboAA");
+        });
 
         getWindow()->getSignalMouseDown().connect([&](MouseEvent& event) {
             mMouseBeingDragged = false;
@@ -607,27 +621,65 @@ struct MeloViewer : public App
                 gl::setMatrices(mFpsCam);
             else
                 gl::setMatrices(mMayaCam);
-            if (mSnapshotMode)
-                gl::clear(ColorA::gray(0.0f, 0.0f));
-            else
-                gl::clear(ColorA::gray(0.2f, 1.0f));
 
-            mSkyNode->setVisible(ENV_VISIBLE);
-            mGridNode->setVisible(XYZ_VISIBLE);
-
-            gl::setWireframeEnabled(WIRE_FRAME);
-            mScene->treeDraw(melo::DRAW_SOLID);
-            mScene->treeDraw(melo::DRAW_TRANSPARENCY);
-            gl::disableWireframe();
-
-            if (mMouseHitNode)
             {
-                melo::drawBoundingBox(mMouseHitNode);
+                // main pass
+                gl::ScopedDebugGroup group("mFboMain");
+                gl::ScopedFramebuffer fbo(mFboMain);
+                if (mSnapshotMode)
+                    gl::clear(ColorA::gray(0.0f, 0.0f));
+                else
+                    gl::clear(ColorA::gray(0.2f, 1.0f));
+
+                gl::enableDepth();
+                gl::context()->depthFunc(GL_LEQUAL);
+
+                mSkyNode->setVisible(ENV_VISIBLE);
+                mGridNode->setVisible(XYZ_VISIBLE);
+
+                gl::setWireframeEnabled(WIRE_FRAME);
+                gl::disableAlphaBlending();
+                mScene->treeDraw(melo::DRAW_SOLID);
+                
+                gl::enableAlphaBlending();
+                //mScene->treeDraw(melo::DRAW_TRANSPARENCY);
+                gl::disableWireframe();
+
+                if (mMouseHitNode)
+                {
+                    melo::drawBoundingBox(mMouseHitNode);
+                }
+
+                if (mPickedNode)
+                {
+                    melo::drawBoundingBox(mPickedNode, Color(1, 0, 0));
+                }
             }
 
-            if (mPickedNode)
+            auto blitTexture = mFboMain->getColorTexture();
+            if (IS_FXAA || IS_SMAA)
             {
-                melo::drawBoundingBox(mPickedNode, Color(1, 0, 0));
+                // AA pass
+                gl::ScopedDebugGroup group("mFboAA");
+                if (IS_FXAA)
+                {
+                    IS_SMAA = false;
+                    mFXAA->apply(mFboAA, mFboMain);
+                }
+                else
+                {
+                    gl::disableAlphaBlending();
+                    IS_FXAA = false;
+                    mSMAA->apply(mFboAA, mFboMain);
+                }
+                blitTexture = mFboAA->getColorTexture();
+            }
+
+            {
+                // blit
+                gl::disableDepthRead();
+                gl::setMatricesWindow(getWindowSize());
+                gl::draw(blitTexture, getWindowBounds());
             }
 
             if (mSnapshotMode)
@@ -749,7 +801,7 @@ void preSettings(App::Settings* settings)
 }
 
 #if !defined(NDEBUG) && defined(CINDER_MSW)
-auto gfxOption = RendererGl::Options().msaa(4).debug().debugLog(GL_DEBUG_SEVERITY_MEDIUM);
+auto gfxOption = RendererGl::Options().msaa(4).debug().debugLog(GL_DEBUG_SEVERITY_MEDIUM).debugBreak(GL_DEBUG_SEVERITY_HIGH);
 #else
 auto gfxOption = RendererGl::Options().msaa(4);
 #endif

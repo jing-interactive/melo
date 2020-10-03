@@ -15,6 +15,7 @@ ITEM_DEF(string, IRRADIANCE_TEX, "CathedralIrradiance.dds")
 ITEM_DEF(string, RADIANCE_TEX, "CathedralRadiance.dds")
 ITEM_DEF(string, BRDF_LUT_TEX, "brdfLUT.png")
 ITEM_DEF(bool, IS_FXAA, false)
+ITEM_DEF(bool, IS_SMAA, true)
 
 GROUP_DEF(Camera)
 ITEM_DEF(float, CAM_POS_X, 10)

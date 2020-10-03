@@ -226,7 +226,7 @@ struct TextureGLTF
 #ifndef CINDER_LESS
     ci::gl::Texture2dRef ciTexture;
     ci::gl::SamplerRef ciSampler; // points to SamplerGLTF::ciSampler
-    uint8_t textureUnit;
+    int32_t textureUnit;
 #endif
 
     void predraw(uint8_t texUnit = 0);
