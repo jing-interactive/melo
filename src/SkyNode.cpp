@@ -33,6 +33,7 @@ namespace melo
 
     void SkyNode::draw(DrawOrder order)
     {
+        if (order != DRAW_SOLID) return;
         if (!mSkyBoxBatch && !mSkyTex) return;
 
         //gl::ScopedDepthWrite depthWrite(false);

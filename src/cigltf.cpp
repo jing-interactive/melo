@@ -245,11 +245,12 @@ SamplerGLTF::Ref SamplerGLTF::create(ModelGLTFRef modelGLTF, const tinygltf::Sam
     return ref;
 }
 
-void PrimitiveGLTF::draw()
+void PrimitiveGLTF::draw(DrawOrder order)
 {
     if (material)
     {
-        material->predraw();
+        if (!material->predraw(order))
+            return;
     }
 #ifndef CINDER_LESS
     gl::draw(ciVboMesh);
@@ -297,10 +298,10 @@ void MeshGLTF::update()
         item->update();
 }
 
-void MeshGLTF::draw()
+void MeshGLTF::draw(DrawOrder order)
 {
     for (auto& item : primitives)
-        item->draw();
+        item->draw(order);
 }
 
 SkinGLTF::Ref SkinGLTF::create(ModelGLTFRef modelGLTF, const tinygltf::Skin& property)
@@ -322,7 +323,7 @@ void NodeGLTF::draw(DrawOrder order)
 {
     if (mesh)
     {
-        mesh->draw();
+        mesh->draw(order);
     }
 }
 
@@ -823,17 +824,12 @@ MaterialGLTF::Ref MaterialGLTF::create(ModelGLTFRef modelGLTF, const tinygltf::M
 }
 
 #ifdef CINDER_LESS
-void MaterialGLTF::predraw() {}
+bool MaterialGLTF::predraw() { return true; }
 void MaterialGLTF::postdraw() {}
 
 #else
-void MaterialGLTF::predraw()
+bool MaterialGLTF::predraw(DrawOrder order)
 {
-    ciShader->uniform("u_flipV", modelGLTF->flipV);
-    ciShader->uniform("u_Camera", modelGLTF->cameraPosition);
-    ciShader->uniform("u_LightDirection", modelGLTF->lightDirection);
-    ciShader->uniform("u_LightColor", modelGLTF->lightColor);
-
     auto ctx = gl::context();
     if (doubleSided)
     {
@@ -841,20 +837,28 @@ void MaterialGLTF::predraw()
     }
     if (alphaMode == ALPHA_OPAQUE)
     {
+        if (order == DRAW_TRANSPARENCY) return false;
         ctx->pushBoolState(GL_BLEND, false);
     }
     else if (alphaMode == ALPHA_MASK)
     {
+        if (order != DRAW_TRANSPARENCY) return false;
         ctx->pushBoolState(GL_BLEND, true);
         ctx->pushBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA,
             GL_ONE_MINUS_SRC_ALPHA);
     }
     else
     {
+        if (order != DRAW_TRANSPARENCY) return false;
         ctx->pushBoolState(GL_BLEND, true);
         ctx->pushBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA,
                                    GL_ONE_MINUS_SRC_ALPHA);
     }
+
+    ciShader->uniform("u_flipV", modelGLTF->flipV);
+    ciShader->uniform("u_Camera", modelGLTF->cameraPosition);
+    ciShader->uniform("u_LightDirection", modelGLTF->lightDirection);
+    ciShader->uniform("u_LightColor", modelGLTF->lightColor);
 
     ciShader->bind();
     if (baseColorTexture)
@@ -871,6 +875,8 @@ void MaterialGLTF::predraw()
         specularGlossinessTexture->predraw(3);
     if (occlusionTexture)
         occlusionTexture->predraw(4);
+
+    return true;
 }
 
 void MaterialGLTF::postdraw()

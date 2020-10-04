@@ -286,7 +286,7 @@ struct MaterialGLTF
 
     static Ref create(ModelGLTFRef modelGLTF, const tinygltf::Material& property);
 
-    void predraw();
+    bool predraw(melo::DrawOrder order);
 
     void postdraw();
 };
@@ -314,7 +314,7 @@ struct PrimitiveGLTF
 
     void update();
 
-    void draw();
+    void draw(melo::DrawOrder order);
 };
 
 struct MeshGLTF
@@ -328,7 +328,7 @@ struct MeshGLTF
 
     void update();
 
-    void draw();
+    void draw(melo::DrawOrder order);
 };
 
 struct SkinGLTF

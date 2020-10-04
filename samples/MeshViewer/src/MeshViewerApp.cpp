@@ -638,13 +638,24 @@ struct MeloViewer : public App
                 mGridNode->setVisible(XYZ_VISIBLE);
 
                 gl::setWireframeEnabled(WIRE_FRAME);
-                gl::disableAlphaBlending();
-                mScene->treeDraw(melo::DRAW_SOLID);
+
+                {
+                    gl::ScopedDebugGroup group("solid");
+                    gl::enableDepthRead();
+                    gl::disableAlphaBlending();
+                    mScene->treeDraw(melo::DRAW_SOLID);
+                }
                 
-                gl::enableAlphaBlending();
-                //mScene->treeDraw(melo::DRAW_TRANSPARENCY);
+                {
+                    gl::ScopedDebugGroup group("transparency");
+                    gl::enableAlphaBlending();
+                    gl::disableDepthRead();
+                    mScene->treeDraw(melo::DRAW_TRANSPARENCY);
+                }
+
                 gl::disableWireframe();
 
+                gl::enableDepthRead();
                 if (mMouseHitNode)
                 {
                     melo::drawBoundingBox(mMouseHitNode);
