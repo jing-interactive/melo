@@ -12,9 +12,9 @@ melo is mesh loader for OBJ, glTF2 and PLY, also includes a `Cinder` based mesh 
 # TODO
 - Implement skinning animation
 - Implement morph animation
-- Support Linux
-- Support mobile platforms
+- Support Linux / Android / iOS
 - Support Sketchfab download API
+- FrameGraph
 
 # To build `samples/MeshViewer`, you need:
 
@@ -28,7 +28,7 @@ Cinder/
     blocks/
         Cinder-VNM/
         melo/
-            samples/BasicSample/vc2015/MeshViewer.sln
+            samples/MeshViewer/vc2015/MeshViewer.sln
             assets/
                 Cube/
                     Cube.gltf
