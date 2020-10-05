@@ -91,6 +91,129 @@ struct RenderDocHelper
     }
 };
 
+struct AAPass
+{
+    unique_ptr<FXAA> mFXAA;
+    unique_ptr<SMAA> mSMAA;
+    gl::FboRef fboDest;
+
+    void setup()
+    {
+        mFXAA = make_unique<FXAA>();
+        mSMAA = make_unique<SMAA>();
+
+        // TODO: disconnect old signals
+        getWindow()->getSignalResize().connect([&] {
+            gl::Texture2d::Format tfmt;
+            tfmt.setMinFilter(GL_NEAREST);
+            tfmt.setMagFilter(GL_NEAREST);
+            tfmt.setInternalFormat(GL_RGBA8);
+            fboDest = gl::Fbo::create(APP_WIDTH, APP_HEIGHT, gl::Fbo::Format().colorTexture(tfmt).disableDepth());
+            fboDest->setLabel("fboDest");
+        });
+    }
+
+    const gl::Texture2dRef draw(gl::FboRef fboSrc)
+    {
+        gl::ScopedDebugGroup group("fboDest");
+        gl::disableAlphaBlending();
+        mSMAA->apply(fboDest, fboSrc);
+
+        return fboDest->getColorTexture();
+    }
+};
+
+struct ShadowMapPass
+{
+    gl::GlslProgRef				mShadowShader;
+    gl::GlslProgRef				mPassthroughShader;
+    ShadowMapRef				mShadowMap;
+    int							mShadowMapSize;
+    bool						mOnlyShadowmap;
+
+    LightData					mLight;
+
+    int							mShadowTechnique;
+
+    float						mDepthBias;
+    bool						mEnableNormSlopeOffset;
+    float						mRandomOffset;
+    int							mNumRandomSamples;
+    float						mPolygonOffsetFactor, mPolygonOffsetUnits;
+
+    void setup()
+    {
+        mShadowMapSize = 2048;
+
+        mLight.distanceRadius = 100.0f;
+        mLight.viewpoint = vec3(mLight.distanceRadius);
+        mLight.fov = 10.0f;
+        mLight.target = vec3(0);
+        mLight.toggleViewpoint = false;
+
+        mShadowTechnique = 1;
+        mDepthBias = -0.0005f;
+        mRandomOffset = 1.2f;
+        mNumRandomSamples = 32;
+        mEnableNormSlopeOffset = false;
+        mOnlyShadowmap = false;
+        mPolygonOffsetFactor = mPolygonOffsetUnits = 3.0f;
+
+        mShadowShader = am::glslProg("shadow_mapping.vert", "shadow_mapping.frag");
+
+        mShadowMap = ShadowMap::create(mShadowMapSize);
+        mLight.camera.setPerspective(mLight.fov, mShadowMap->getAspectRatio(), 0.5, 500.0);
+
+        mPassthroughShader = am::glslProg("passthrough");
+
+        App::get()->getSignalUpdate().connect([&] {
+            ImGui::Begin("Settings");
+            ImGui::Separator();
+            ImGui::Checkbox("Light viewpoint", &mLight.toggleViewpoint);
+            ImGui::DragFloat("Light distance radius", &mLight.distanceRadius, 1.0f, 0.0f, 450.0f);
+            ImGui::Checkbox("Render only shadow map", &mOnlyShadowmap);
+            ImGui::Separator();
+            std::vector<std::string> techniques = { "Hard", "PCF3x3", "PCF4x4", "Random" };
+            ImGui::Combo("Technique", &mShadowTechnique, techniques);
+            ImGui::Separator();
+            ImGui::DragFloat("Polygon offset factor", &mPolygonOffsetFactor, 0.025f, 0.0f);
+            ImGui::DragFloat("Polygon offset units", &mPolygonOffsetUnits, 0.025f, 0.0f);
+            if (ImGui::DragInt("Shadow map size", &mShadowMapSize, 16, 16, 2048)) {
+                mShadowMap->reset(mShadowMapSize);
+            };
+            ImGui::DragFloat("Depth bias", &mDepthBias, 0.00001f, -1.0f, 0.0f, "%.5f");
+            ImGui::Text("(PCF radius is const: tweak in shader.)");
+            ImGui::Separator();
+            ImGui::Text("Random sampling params");
+            ImGui::DragFloat("Offset radius", &mRandomOffset, 0.05f, 0.0f);
+            ImGui::Checkbox("Auto normal slope offset", &mEnableNormSlopeOffset);
+            ImGui::DragInt("Num samples", &mNumRandomSamples, 1.0f, 1, 256);
+            ImGui::End();
+        });
+    }
+
+    const gl::Texture2dRef& draw(melo::NodeRef scene)
+    {
+        gl::ScopedDepth enableDepthRW(true);
+        gl::ScopedDebugGroup group("gen shadow map");
+        // Offset to help combat surface acne (self-shadowing)
+        gl::ScopedState enable(GL_POLYGON_OFFSET_FILL, GL_TRUE);
+        glPolygonOffset(mPolygonOffsetFactor, mPolygonOffsetUnits);
+
+        // Render scene into shadow map
+        gl::ScopedMatrices setMatrices(mLight.camera);
+        gl::ScopedViewport viewport(mShadowMap->getSize());
+        {
+            gl::ScopedFramebuffer bindFbo(mShadowMap->getFbo());
+            gl::ScopedGlslProg glsl(mPassthroughShader);
+            gl::clear();
+            scene->treeDraw(melo::DRAW_SHADOW);
+        }
+
+        return mShadowMap->getTexture();
+    }
+};
+
 struct MeloViewer : public App
 {
     RenderDocHelper mRdc;
@@ -106,10 +229,10 @@ struct MeloViewer : public App
     bool mSnapshotMode = false;
     string mOutputFilename;
 
-    unique_ptr<FXAA> mFXAA;
-    unique_ptr<SMAA> mSMAA;
+    AAPass mAAPass;
+    ShadowMapPass mShadowMapPass;
+
     gl::FboRef mFboMain;
-    gl::FboRef mFboAA;
     gl::GlslProgRef mGlslProg;
     int mMeshFileId = -1;
     vector<string> mMeshFilenames;
@@ -419,8 +542,8 @@ struct MeloViewer : public App
 
         createDefaultScene();
 
-        mFXAA = make_unique<FXAA>();
-        mSMAA = make_unique<SMAA>();
+        mAAPass.setup();
+        mShadowMapPass.setup();
 
         mMeshFilenames = listGlTFFiles();
         parseArgs();
@@ -438,13 +561,6 @@ struct MeloViewer : public App
 
             mFboMain = gl::Fbo::create(APP_WIDTH, APP_HEIGHT, gl::Fbo::Format().colorTexture(gl::Texture2d::Format()));
             mFboMain->setLabel("mFboMain");
-
-            gl::Texture2d::Format tfmt;
-            tfmt.setMinFilter(GL_NEAREST);
-            tfmt.setMagFilter(GL_NEAREST);
-            tfmt.setInternalFormat(GL_RGBA8);
-            mFboAA = gl::Fbo::create(APP_WIDTH, APP_HEIGHT, gl::Fbo::Format().colorTexture(tfmt).disableDepth());
-            mFboAA->setLabel("mFboAA");
         });
 
         getWindow()->getSignalMouseDown().connect([&](MouseEvent& event) {
@@ -540,6 +656,9 @@ struct MeloViewer : public App
 
         getSignalUpdate().connect([&] {
 
+            mSkyNode->setVisible(ENV_VISIBLE);
+            mGridNode->setVisible(XYZ_VISIBLE);
+
             if (mIsFpsCamera != FPS_CAMERA)
             {
                 if (FPS_CAMERA)
@@ -575,6 +694,8 @@ struct MeloViewer : public App
             CAM_DIR_Z = mCurrentCam->getViewDirection().z;
             mCurrentCam->setNearClip(CAM_Z_NEAR);
             mCurrentCam->setFarClip(CAM_Z_FAR);
+
+            mShadowMapPass.mLight.camera.lookAt(mLightNode->getPosition(), { 0,0,0 });
 
             Frustumf frustrum(*mCurrentCam);
 
@@ -617,10 +738,7 @@ struct MeloViewer : public App
             if (mToCaptureRdc)
                 mRdc.startCapture();
 
-            if (mIsFpsCamera)
-                gl::setMatrices(mFpsCam);
-            else
-                gl::setMatrices(mMayaCam);
+            auto texShadowMap = mShadowMapPass.draw(mScene);
 
             {
                 // main pass
@@ -634,10 +752,12 @@ struct MeloViewer : public App
                 gl::enableDepth();
                 gl::context()->depthFunc(GL_LEQUAL);
 
-                mSkyNode->setVisible(ENV_VISIBLE);
-                mGridNode->setVisible(XYZ_VISIBLE);
-
                 gl::setWireframeEnabled(WIRE_FRAME);
+
+                if (mIsFpsCamera)
+                    gl::setMatrices(mFpsCam);
+                else
+                    gl::setMatrices(mMayaCam);
 
                 {
                     gl::ScopedDebugGroup group("solid");
@@ -655,6 +775,8 @@ struct MeloViewer : public App
 
                 gl::disableWireframe();
 
+                //gl::disable(GL_POLYGON_OFFSET_FILL);
+
                 gl::enableDepthRead();
                 if (mMouseHitNode)
                 {
@@ -668,23 +790,8 @@ struct MeloViewer : public App
             }
 
             auto blitTexture = mFboMain->getColorTexture();
-            if (IS_FXAA || IS_SMAA)
-            {
-                // AA pass
-                gl::ScopedDebugGroup group("mFboAA");
-                if (IS_FXAA)
-                {
-                    IS_SMAA = false;
-                    mFXAA->apply(mFboAA, mFboMain);
-                }
-                else
-                {
-                    gl::disableAlphaBlending();
-                    IS_FXAA = false;
-                    mSMAA->apply(mFboAA, mFboMain);
-                }
-                blitTexture = mFboAA->getColorTexture();
-            }
+            if (IS_SMAA)
+                blitTexture = mAAPass.draw(mFboMain);
 
             {
                 // blit
@@ -812,8 +919,8 @@ void preSettings(App::Settings* settings)
 }
 
 #if !defined(NDEBUG) && defined(CINDER_MSW)
-auto gfxOption = RendererGl::Options().msaa(4).debug().debugLog(GL_DEBUG_SEVERITY_MEDIUM).debugBreak(GL_DEBUG_SEVERITY_HIGH);
+auto gfxOption = RendererGl::Options().msaa(0).debug().debugLog(GL_DEBUG_SEVERITY_MEDIUM).debugBreak(GL_DEBUG_SEVERITY_HIGH);
 #else
-auto gfxOption = RendererGl::Options().msaa(4);
+auto gfxOption = RendererGl::Options().msaa(0);
 #endif
 CINDER_APP(MeloViewer, RendererGl(gfxOption), preSettings)

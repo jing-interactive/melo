@@ -855,6 +855,11 @@ bool MaterialGLTF::predraw(DrawOrder order)
                                    GL_ONE_MINUS_SRC_ALPHA);
     }
 
+    if (order == DRAW_SHADOW)
+    {
+        return true;
+    }
+
     ciShader->uniform("u_flipV", modelGLTF->flipV);
     ciShader->uniform("u_Camera", modelGLTF->cameraPosition);
     ciShader->uniform("u_LightDirection", modelGLTF->lightDirection);
@@ -886,6 +891,8 @@ void MaterialGLTF::postdraw()
     {
         ctx->popBoolState(GL_CULL_FACE);
     }
+
+    // TODO: fix order fuzzy
     if (alphaMode == ALPHA_OPAQUE)
     {
         ctx->popBoolState(GL_BLEND);
