@@ -166,6 +166,7 @@ struct ShadowMapPass
 
         mPassthroughShader = am::glslProg("passthrough");
 
+        if (false)
         App::get()->getSignalUpdate().connect([&] {
             ImGui::Begin("Settings");
             ImGui::Separator();
@@ -260,8 +261,6 @@ struct MeloViewer : public App
         mGridNode = melo::createGridNode(100.0f);
         mScene->addChild(mGridNode);
 
-        mScene->addChild(melo::createMeshNode("Cube"));
-
         mLightNode = melo::DirectionalLightNode::create(1, { 0.5, 0.5, 0.5 });
         mLightNode->setPosition({ 10,10,10 });
         mScene->addChild(mLightNode);
@@ -297,6 +296,20 @@ struct MeloViewer : public App
                 {
                     createDefaultScene();
                     setPickedNode(nullptr);
+                }
+
+                if (ImGui::Button("Add Cube"))
+                {
+                    auto node = melo::createMeshNode("Cube");
+                    mScene->addChild(node);
+                    setPickedNode(node);
+                }
+
+                if (ImGui::Button("Add Sphere"))
+                {
+                    auto node = melo::createMeshNode("Sphere");
+                    mScene->addChild(node);
+                    setPickedNode(node);
                 }
 
                 if (ImGui::Button("Load"))

@@ -15,6 +15,10 @@ in vec4 ciPosition;
 uniform mat4 ciModelViewProjection;
 uniform mat4 ciModelMatrix;
 
+// shadow mapping
+uniform mat4 uShadowMatrix;
+out vec4 vShadowCoord;
+
 out vec3 v_Position; // in world space
 out vec2 v_UV;
 
@@ -31,10 +35,16 @@ uniform bool u_flipV;
     out vec4 v_Color;
 #endif
 
+const mat4 biasMatrix = mat4( 0.5, 0.0, 0.0, 0.0,
+							  0.0, 0.5, 0.0, 0.0,
+							  0.0, 0.0, 0.5, 0.0,
+							  0.5, 0.5, 0.5, 1.0 );
+
 void main()
 {
     vec4 pos = ciModelMatrix * ciPosition;
     v_Position = vec3(pos.xyz) / pos.w;
+	vShadowCoord	= ( biasMatrix * uShadowMatrix * ciModelMatrix ) * ciPosition;
 
     #ifdef HAS_NORMALS
         #ifdef HAS_TANGENTS

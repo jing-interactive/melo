@@ -44,21 +44,6 @@ namespace melo
 
     NodeRef createMeshNode(const fs::path& meshPath)
     {
-        fs::path realPath = meshPath;
-        if (!fs::exists(realPath))
-        {
-            realPath = getAssetPath(realPath);
-            if (!fs::exists(realPath)) return {};
-        }
-
-        auto ext = meshPath.extension().string();
-        std::transform(ext.begin(), ext.end(), ext.begin(), static_cast<int(*)(int)>(tolower));
-        if (ext == ".obj")
-            return ModelObj::create(realPath);
-
-        if (ext == ".gltf" || realPath.extension() == ".glb")
-            return ModelGLTF::create(realPath);
-
 #define ENTRY(name)  if (meshPath == #name) { auto node = BuiltinMeshNode::create(geom::name()); node->setName(#name); return node;}
         ENTRY(Rect);
         ENTRY(RoundedRect);
@@ -85,6 +70,21 @@ namespace melo
         ENTRY(WireSphere);
         ENTRY(WireTorus);
 #undef ENTRY
+        
+        fs::path realPath = meshPath;
+        if (!fs::exists(realPath))
+        {
+            realPath = getAssetPath(realPath);
+            if (!fs::exists(realPath)) return {};
+        }
+
+        auto ext = meshPath.extension().string();
+        std::transform(ext.begin(), ext.end(), ext.begin(), static_cast<int(*)(int)>(tolower));
+        if (ext == ".obj")
+            return ModelObj::create(realPath);
+
+        if (ext == ".gltf" || realPath.extension() == ".glb")
+            return ModelGLTF::create(realPath);
 
         return {};
     }

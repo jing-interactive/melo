@@ -19,6 +19,11 @@
 uniform vec3 u_LightDirection/* = vec3(1.0, 1.0, 1.0)*/;
 uniform vec3 u_LightColor/* = vec3(1.0, 1.0, 1.0)*/;
 
+// shadow mapping
+uniform int u_EnableShadowMap;
+uniform sampler2DShadow uShadowMap;
+in vec4 vShadowCoord;
+
 #ifdef HAS_IBL
     uniform samplerCube u_DiffuseEnvSampler;
     uniform samplerCube u_SpecularEnvSampler;
@@ -302,6 +307,17 @@ void main()
     float G = geometricOcclusion(pbrInputs);
     float D = microfacetDistribution(pbrInputs);
 
+    // shadow mapping
+    float Shadow		= 1.0;
+    if (u_EnableShadowMap == 1)
+    {
+        vec4 ShadowCoord	= vShadowCoord / vShadowCoord.w;
+        
+        if ( ShadowCoord.z > -1 && ShadowCoord.z < 1 ) {
+            Shadow = textureProj( uShadowMap, ShadowCoord, -0.00005 );
+        }
+    }
+
     // Calculation of analytical lighting contribution
     vec3 diffuseContrib = (1.0 - F) * diffuse(pbrInputs);
     vec3 specContrib = F * G * D / (4.0 * NdotL * NdotV);
@@ -311,6 +327,7 @@ void main()
 #ifdef HAS_IBL
     color += getIBLContribution(pbrInputs, n, reflection);
 #endif
+    color = color * Shadow;
 
     // Apply optional PBR terms for additional (optional) shading
 #ifdef HAS_OCCLUSIONMAP
