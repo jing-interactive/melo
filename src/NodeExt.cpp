@@ -21,8 +21,8 @@ void DirectionalLightNode::draw(DrawOrder order)
     if (order != DRAW_SOLID) return;
 
     static auto shader = gl::getStockShader(gl::ShaderDef().lambert());
-    shader->bind();
-    gl::color(color);
+    gl::ScopedGlslProg glsl(shader);
+    gl::ScopedColor clr(color);
     gl::drawSphere({}, radius);
 }
 
