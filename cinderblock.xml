@@ -11,10 +11,12 @@
 	<includePath>include</includePath>
 	<includePath>3rdparty/rapidjson</includePath>
 	
-	<sourcePattern>src/*.*</sourcePattern>
-	<sourcePattern>3rdparty/tinygltf/*.*</sourcePattern>
-	<sourcePattern>3rdparty/tinyobjloader/*.*</sourcePattern>
+	<sourcePattern>src/*.cpp</sourcePattern>
+	<sourcePattern>3rdparty/tinygltf/*.cc</sourcePattern>
+	<sourcePattern>3rdparty/tinyobjloader/*.cc</sourcePattern>
 	<headerPattern>include/*.*</headerPattern>
+	<headerPattern>3rdparty/tinygltf/*.h</headerPattern>
+	<headerPattern>3rdparty/tinyobjloader/*.h</headerPattern>
 	
 </block>
 </cinder>
