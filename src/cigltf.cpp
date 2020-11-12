@@ -1134,7 +1134,14 @@ PrimitiveGLTF::Ref PrimitiveGLTF::create(ModelGLTFRef modelGLTF,
     if (!material->ciShader)
     {
 #if 1
-        material->ciShader = gl::GlslProg::create(material->ciShaderFormat);
+        try
+        {
+            material->ciShader = gl::GlslProg::create(material->ciShaderFormat);
+        }
+        catch (Exception& e)
+        {
+            CI_LOG_E("Create shader failed, reason: \n" << e.what());
+        }
 #else
         material->ciShader = am::glslProg("lambert texture");
 #endif
