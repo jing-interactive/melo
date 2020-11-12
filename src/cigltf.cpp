@@ -338,9 +338,9 @@ void NodeGLTF::postdraw(DrawOrder order)
 }
 
 
-ModelGLTFRef ModelGLTF::create(const fs2::path& meshPath, std::string* loadingError, bool loadAnimationOnly)
+ModelGLTFRef ModelGLTF::create(const fs::path& meshPath, const Option& option, std::string* loadingError)
 {
-    if (!fs2::exists(meshPath))
+    if (!fs::exists(meshPath))
     {
         CI_LOG_F("File doesn't exist: ") << meshPath;
         return {};
@@ -382,6 +382,7 @@ ModelGLTFRef ModelGLTF::create(const fs2::path& meshPath, std::string* loadingEr
     }
 
     ModelGLTFRef ref = make_shared<ModelGLTF>();
+    ref->option = option;
     ref->property = model;
     ref->meshPath = meshPath;
     ref->rayCategory = 0xFF;
@@ -403,7 +404,7 @@ ModelGLTFRef ModelGLTF::create(const fs2::path& meshPath, std::string* loadingEr
     }
 #endif
 
-    if (!loadAnimationOnly)
+    if (!option.loadAnimationOnly)
     {
         {
             tinygltf::Material mtrl;
@@ -419,14 +420,17 @@ ModelGLTFRef ModelGLTF::create(const fs2::path& meshPath, std::string* loadingEr
         for (auto& item : model.accessors)
             ref->accessors.emplace_back(AccessorGLTF::create(ref, item));
 
-        for (auto& item : model.images)
-            ref->images.emplace_back(ImageGLTF::create(ref, item));
-        for (auto& item : model.samplers)
-            ref->samplers.emplace_back(SamplerGLTF::create(ref, item));
-        for (auto& item : model.textures)
-            ref->textures.emplace_back(TextureGLTF::create(ref, item));
-        for (auto& item : model.materials)
-            ref->materials.emplace_back(MaterialGLTF::create(ref, item));
+        if (option.loadTextures)
+        {
+            for (auto& item : model.images)
+                ref->images.emplace_back(ImageGLTF::create(ref, item));
+            for (auto& item : model.samplers)
+                ref->samplers.emplace_back(SamplerGLTF::create(ref, item));
+            for (auto& item : model.textures)
+                ref->textures.emplace_back(TextureGLTF::create(ref, item));
+            for (auto& item : model.materials)
+                ref->materials.emplace_back(MaterialGLTF::create(ref, item));
+        }
 
         for (auto& item : model.meshes)
             ref->meshes.emplace_back(MeshGLTF::create(ref, item));
@@ -1047,7 +1051,7 @@ PrimitiveGLTF::Ref PrimitiveGLTF::create(ModelGLTFRef modelGLTF,
     {
         ref->material = modelGLTF->fallbackMaterial;
     }
-    else
+    else if (modelGLTF->option.loadTextures)
     {
         ref->material = modelGLTF->materials[property.material];
     }
@@ -1104,10 +1108,13 @@ PrimitiveGLTF::Ref PrimitiveGLTF::create(ModelGLTFRef modelGLTF,
         AccessorGLTF::Ref acc = modelGLTF->accessors[kv.second];
         geom::BufferLayout layout;
         auto attrib = (geom::Attrib)getAttribFromString(kv.first);
-        if (attrib == geom::TEX_COORD_0) material->ciShaderFormat.define("HAS_UV");
-        if (attrib == geom::NORMAL) material->ciShaderFormat.define("HAS_NORMALS");
-        if (attrib == geom::TANGENT) material->ciShaderFormat.define("HAS_TANGENTS");
-        if (attrib == geom::COLOR) material->ciShaderFormat.define("HAS_COLOR");
+        if (material)
+        {
+            if (attrib == geom::TEX_COORD_0) material->ciShaderFormat.define("HAS_UV");
+            if (attrib == geom::NORMAL) material->ciShaderFormat.define("HAS_NORMALS");
+            if (attrib == geom::TANGENT) material->ciShaderFormat.define("HAS_TANGENTS");
+            if (attrib == geom::COLOR) material->ciShaderFormat.define("HAS_COLOR");
+        }
         layout.append(
             attrib, getDataType((GltfComponentType)acc->property.componentType),
             getTypeSizeInBytes((GltfType)acc->property.type), acc->byteStride, acc->property.byteOffset);
@@ -1131,7 +1138,7 @@ PrimitiveGLTF::Ref PrimitiveGLTF::create(ModelGLTFRef modelGLTF,
 
     // create shader
 
-    if (!material->ciShader)
+    if (material && !material->ciShader)
     {
 #if 1
         try

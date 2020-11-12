@@ -2,12 +2,12 @@
 
 #ifdef CINDER_LESS
 #include <filesystem>
-namespace fs2 = std::filesystem;
+namespace fs = std::filesystem;
 #else
 #include <cinder/Filesystem.h>
 #include <cinder/gl/gl.h>
 #include <cinder/Timeline.h>
-namespace fs2 = ci::fs;
+namespace fs = ci::fs;
 #endif
 
 #include <memory>
@@ -373,7 +373,13 @@ struct ModelGLTF : public melo::Node
 {
     tinygltf::Model property;
 
-    static ModelGLTFRef create(const fs2::path& meshPath, std::string* loadingError = nullptr, bool loadAnimationOnly = false);
+    struct Option
+    {
+        bool loadAnimationOnly = false;
+        bool loadTextures = true;
+    };
+
+    static ModelGLTFRef create(const fs::path& meshPath, const Option& option = {}, std::string* loadingError = nullptr);
 
     //void update(double elapsed = 0.0) override;
 
@@ -394,7 +400,8 @@ struct ModelGLTF : public melo::Node
     std::vector<SkinGLTF::Ref> skins;
     std::vector<TextureGLTF::Ref> textures;
 
-    fs2::path meshPath;
+    fs::path meshPath;
+    Option option;
 
     bool flipV = true;
 
