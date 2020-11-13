@@ -8,6 +8,19 @@
 	license="MIT License"
 	git="https://github.com/jing-interactive/melo.git"
 	>	
+	<asset>assets/brdfLUT.png</asset>
+	<asset>assets/CathedralIrradiance.dds</asset>
+	<asset>assets/CathedralRadiance.dds</asset>
+
+	<asset>assets/common.glsl</asset>
+	<asset>assets/pbr.frag</asset>
+	<asset>assets/pbr.vert</asset>
+	<asset>assets/shadow_mapping.frag</asset>
+	<asset>assets/shadow_mapping.vert</asset>
+	<asset>assets/SkyBox.frag</asset>
+	<asset>assets/SkyBox.vert</asset>
+	<asset>assets/unlit.frag</asset>
+	
 	<includePath>include</includePath>
 	<includePath>3rdparty/rapidjson</includePath>
 	
