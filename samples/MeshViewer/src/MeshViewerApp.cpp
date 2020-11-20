@@ -168,7 +168,7 @@ struct ShadowMapPass
 
         if (false)
         App::get()->getSignalUpdate().connect([&] {
-            ImGui::Begin("Settings");
+            ImGui::Begin("Settings", NULL, ImGuiWindowFlags_AlwaysAutoResize);
             ImGui::Separator();
             ImGui::Checkbox("Light viewpoint", &mLight.toggleViewpoint);
             ImGui::DragFloat("Light distance radius", &mLight.distanceRadius, 1.0f, 0.0f, 450.0f);
@@ -459,13 +459,13 @@ struct MeloViewer : public App
     {
         mUiLogger->Draw("Log");
 
-        if (ImGui::Begin("Scene"))
+        if (ImGui::Begin("Scene", NULL, ImGuiWindowFlags_AlwaysAutoResize))
         {
             drawSceneWidget();
             ImGui::End();
         }
 
-        if (mPickedNode && ImGui::Begin("Node"))
+        if (mPickedNode && ImGui::Begin("Node", NULL, ImGuiWindowFlags_AlwaysAutoResize))
         {
             drawNodeWidget();
             ImGui::End();
