@@ -39,9 +39,9 @@ SMAA::SMAA()
 		auto fmt = gl::GlslProg::Format().vertex( loadAsset( "postprocess/smaa.vert" ) ).fragment( loadAsset( "postprocess/smaa.frag" ) )
 		.define( "SMAA_PRESET_ULTRA" ).define( "SMAA_GLSL_3", "1" );
 		// Each pass uses the same files, but with a different value for the SMAA_PASS pre-processor directive.
-		auto glslFirstPass = gl::GlslProg::create( gl::GlslProg::Format( fmt ).define( "SMAA_PASS", "1" ) );
-		auto glslSecondPass = gl::GlslProg::create( gl::GlslProg::Format( fmt ).define( "SMAA_PASS", "2" ) );
-		auto glslThirdPass = gl::GlslProg::create( gl::GlslProg::Format( fmt ).define( "SMAA_PASS", "3" ) );
+		auto glslFirstPass = gl::GlslProg::create( gl::GlslProg::Format( fmt ).define( "SMAA_PASS", "1" ).label("SMAA_PASS1"));
+		auto glslSecondPass = gl::GlslProg::create( gl::GlslProg::Format( fmt ).define( "SMAA_PASS", "2" ).label("SMAA_PASS2"));
+		auto glslThirdPass = gl::GlslProg::create( gl::GlslProg::Format( fmt ).define( "SMAA_PASS", "3" ).label("SMAA_PASS3"));
 
 		auto geom = geom::Rect( Rectf( 0, 0, 1, 1 ) );
 		mBatchFirstPass = gl::Batch::create( geom, glslFirstPass );
