@@ -76,6 +76,10 @@ BuiltinMeshNode::Ref BuiltinMeshNode::create(TriMeshRef triMesh)
 BuiltinMeshNode::BuiltinMeshNode(TriMeshRef triMesh)
 {
     rayCategory = 0xFF;
+    auto aabb = triMesh->calcBoundingBox();
+    mBoundBoxMin = aabb.getMin();
+    mBoundBoxMax = aabb.getMax();
+
     vboMesh = gl::VboMesh::create(*triMesh);
     shader = gl::getStockShader(gl::ShaderDef().lambert());
     setName("BuiltinMeshNode");
@@ -84,10 +88,8 @@ BuiltinMeshNode::BuiltinMeshNode(TriMeshRef triMesh)
 BuiltinMeshNode::Ref BuiltinMeshNode::create(const geom::Source& source)
 {
     auto triMesh = TriMesh::create(source);
-    auto aabb = triMesh->calcBoundingBox();
     auto ref = make_shared<BuiltinMeshNode>(triMesh);
-    ref->mBoundBoxMin = aabb.getMin();
-    ref->mBoundBoxMax = aabb.getMax();
+
     return ref;
 }
 
