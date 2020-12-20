@@ -63,9 +63,9 @@ namespace melo
         void draw(DrawOrder order) override;
     };
 
-    struct BuiltinMeshNode : public Node
+    struct MeshNode : public Node
     {
-        typedef std::shared_ptr<BuiltinMeshNode> Ref;
+        typedef std::shared_ptr<MeshNode> Ref;
 
         gl::VboMeshRef vboMesh;
         gl::GlslProgRef shader;
@@ -73,7 +73,7 @@ namespace melo
         static Ref create(TriMeshRef triMesh);
 
         static Ref create(const geom::Source& source);
-        BuiltinMeshNode(TriMeshRef triMesh);
+        MeshNode(TriMeshRef triMesh);
 
         void draw(DrawOrder order) override;
     };

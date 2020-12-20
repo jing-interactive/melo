@@ -195,8 +195,11 @@ namespace melo
         // usual way to update model matrix
         gl::setModelMatrix(getWorldTransform());
 
-        // draw this node by calling derived class
-        draw(order);
+        if (order == mDrawOrder)
+        {
+            // draw this node by calling derived class
+            draw(order);
+        }
 
         // draw this node's children
         for (auto& child : mChildren)

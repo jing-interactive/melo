@@ -44,7 +44,7 @@ namespace melo
 
     NodeRef createMeshNode(const fs::path& meshPath)
     {
-#define ENTRY(name)  if (meshPath == #name) { auto node = BuiltinMeshNode::create(geom::name()); node->setName(#name); return node;}
+#define ENTRY(name)  if (meshPath == #name) { auto node = MeshNode::create(geom::name()); node->setName(#name); return node;}
         ENTRY(Rect);
         ENTRY(RoundedRect);
         ENTRY(Cube);

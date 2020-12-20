@@ -149,9 +149,11 @@ namespace melo
         void setName(const std::string& name);
         const std::string& getName() const;
 
+        void setDrawOrder(DrawOrder drawOrder) { mDrawOrder = drawOrder; }
 
     protected:
         std::string mName;
+        DrawOrder mDrawOrder = DRAW_SOLID;
 
         bool mIsVisible;
 

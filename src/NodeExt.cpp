@@ -68,12 +68,12 @@ void GridNode::draw(DrawOrder order)
     gl::drawCoordinateFrame(mMeters * 0.5f, mMeters * 0.05f, mMeters * 0.005f);
 }
 
-BuiltinMeshNode::Ref BuiltinMeshNode::create(TriMeshRef triMesh)
+MeshNode::Ref MeshNode::create(TriMeshRef triMesh)
 {
-    return std::make_shared<BuiltinMeshNode>(triMesh);
+    return std::make_shared<MeshNode>(triMesh);
 }
 
-BuiltinMeshNode::BuiltinMeshNode(TriMeshRef triMesh)
+MeshNode::MeshNode(TriMeshRef triMesh)
 {
     rayCategory = 0xFF;
     auto aabb = triMesh->calcBoundingBox();
@@ -82,18 +82,18 @@ BuiltinMeshNode::BuiltinMeshNode(TriMeshRef triMesh)
 
     vboMesh = gl::VboMesh::create(*triMesh);
     shader = gl::getStockShader(gl::ShaderDef().lambert());
-    setName("BuiltinMeshNode");
+    setName("MeshNode");
 }
 
-BuiltinMeshNode::Ref BuiltinMeshNode::create(const geom::Source& source)
+MeshNode::Ref MeshNode::create(const geom::Source& source)
 {
     auto triMesh = TriMesh::create(source);
-    auto ref = make_shared<BuiltinMeshNode>(triMesh);
+    auto ref = make_shared<MeshNode>(triMesh);
 
     return ref;
 }
 
-void BuiltinMeshNode::draw(DrawOrder order)
+void MeshNode::draw(DrawOrder order)
 {
     if (order != DRAW_SOLID) return;
 
