@@ -236,7 +236,7 @@ void MaterialObj::recreate(const tinyobj::material_t& property)
     fmt.label("pbr.vert/pbr.frag");
 
     // use stock shader for the moment
-#if 0
+#if 1
     ciShader = gl::GlslProg::create(fmt);
 #else
     ciShader = am::glslProg("lambert texture");
