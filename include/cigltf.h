@@ -122,9 +122,9 @@ struct AnimationSampler
 
 struct AnimatedValues
 {
-    ci::vec3 T;
-    ci::quat R;
-    ci::vec3 S;
+    glm::vec3 T;
+    glm::quat R;
+    glm::vec3 S;
     bool T_animated = false;
     bool R_animated = false;
     bool S_animated = false;
@@ -141,7 +141,11 @@ struct AnimationGLTF
     float start = std::numeric_limits<float>::max();
     float end = std::numeric_limits<float>::min();
 
+#ifdef CINDER_LESS
+    float animTime;
+#else
     ci::Anim<float> animTime;
+#endif
 
     void startAnimation();
     void getAnimatedValues(AnimatedValues* values);

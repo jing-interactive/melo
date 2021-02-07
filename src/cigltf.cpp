@@ -21,28 +21,12 @@ using namespace ci;
 using namespace std;
 using namespace melo;
 
-template <typename T>
-void AnimationSampler_apply(const AnimationSampler& sampler, Anim<T>& value)
-{
-    CI_ASSERT(sampler.inputs.size() == sampler.outputsVec4.size());
-    int size = sampler.inputs.size();
-    for (int i = 0; i < size; i++)
-    {
-        if (i == 0)
-        {
-            app::timeline().apply(&value, (T)sampler.outputsVec4[i], sampler.inputs[i]);
-        }
-        else
-        {
-            app::timeline().appendTo(&value, (T)sampler.outputsVec4[i], sampler.inputs[i] - sampler.inputs[i - 1]);
-        }
-    }
-}
-
 void AnimationGLTF::startAnimation()
 {
     animTime = start;
+#ifndef CINDER_LESS
     app::timeline().apply(&animTime, end, end - start);
+#endif
 }
 
 void AnimationGLTF::getAnimatedValues(AnimatedValues* values)
@@ -439,13 +423,14 @@ ModelGLTFRef ModelGLTF::create(const fs::path& meshPath, const Option& option, s
         for (auto& item : model.cameras)
             ref->cameras.emplace_back(CameraGLTF::create(ref, item));
 
+        char name[100];
         int nodeId = 0;
         for (auto& item : model.nodes)
         {
             auto& node = NodeGLTF::create(ref, item);
             if (item.name.empty())
             {
-                auto name = "node_" + toString(nodeId);
+                sprintf(name, "node_%d", nodeId);
                 node->setName(name);
             }
             ref->nodes.emplace_back(node);
@@ -828,7 +813,7 @@ MaterialGLTF::Ref MaterialGLTF::create(ModelGLTFRef modelGLTF, const tinygltf::M
 }
 
 #ifdef CINDER_LESS
-bool MaterialGLTF::predraw() { return true; }
+bool MaterialGLTF::predraw(melo::DrawOrder order) { return true; }
 void MaterialGLTF::postdraw() {}
 
 #else
