@@ -19,6 +19,7 @@
 // melo
 #include "melo.h"
 #include "cigltf.h"
+#include "GltfNode.h"
 #include "NodeExt.h"
 #include "FirstPersonCamera.h"
 
@@ -31,65 +32,13 @@
 #include "postprocess/FXAA.h"
 #include "postprocess/SMAA.h"
 
-#include "NvOptimusEnablement.h"
+#include "RenderDocHelper.h"
 
-#include "renderdoc_app.h"
+#include "NvOptimusEnablement.h"
 
 using namespace ci;
 using namespace ci::app;
 using namespace std;
-
-struct RenderDocHelper
-{
-    RENDERDOC_API_1_4_1* rdc = nullptr;
-
-    bool setup()
-    {
-        rdc = GetRenderDocApi();
-        return rdc != nullptr;
-    }
-
-    void startCapture()
-    {
-        if (rdc)
-            rdc->StartFrameCapture(NULL, NULL);
-    }
-
-    void endCapture()
-    {
-        if (rdc)
-            rdc->EndFrameCapture(NULL, NULL);
-    }
-
-    static RENDERDOC_API_1_4_1* GetRenderDocApi()
-    {
-        RENDERDOC_API_1_4_1* rdoc = nullptr;
-#if 1
-        HINSTANCE module = LoadLibraryA("C:/Program Files/RenderDoc/renderdoc.dll");
-#else
-        HMODULE module = GetModuleHandleA("renderdoc.dll");
-#endif
-        if (module == NULL)
-        {
-            return nullptr;
-        }
-
-        pRENDERDOC_GetAPI getApi = nullptr;
-        getApi = (pRENDERDOC_GetAPI)GetProcAddress(module, "RENDERDOC_GetAPI");
-
-        if (getApi == nullptr)
-        {
-            return nullptr;
-        }
-
-        if (getApi(eRENDERDOC_API_Version_1_4_1, (void**)&rdoc) != 1)
-        {
-            return nullptr;
-        }
-
-        return rdoc;
-    }
-};
 
 struct AAPass
 {
@@ -174,7 +123,7 @@ struct ShadowMapPass
             ImGui::DragFloat("Light distance radius", &mLight.distanceRadius, 1.0f, 0.0f, 450.0f);
             ImGui::Checkbox("Render only shadow map", &mOnlyShadowmap);
             ImGui::Separator();
-            std::vector<std::string> techniques = { "Hard", "PCF3x3", "PCF4x4", "Random" };
+            vector<string> techniques = { "Hard", "PCF3x3", "PCF4x4", "Random" };
             ImGui::Combo("Technique", &mShadowTechnique, techniques);
             ImGui::Separator();
             ImGui::DragFloat("Polygon offset factor", &mPolygonOffsetFactor, 0.025f, 0.0f);
@@ -264,6 +213,8 @@ struct MeloViewer : public App
         mLightNode = melo::DirectionalLightNode::create(1, { 0.5, 0.5, 0.5 });
         mLightNode->setPosition({ 10,10,10 });
         mScene->addChild(mLightNode);
+
+        auto ref = GltfData::create(app::getAssetPath("gta5/scene.gltf"));
     }
 
     void deletePickedNode()
@@ -658,7 +609,7 @@ struct MeloViewer : public App
                     break;
                 }
 
-                bool isImageType = std::find(imageExts.begin(), imageExts.end(), ext) != imageExts.end();
+                bool isImageType = find(imageExts.begin(), imageExts.end(), ext) != imageExts.end();
                 if (isImageType)
                 {
                     TEX0_NAME = filePath.string();

@@ -153,6 +153,12 @@
     <ClCompile Include="..\src\miniz\miniz.c">
       <Filter>Blocks\miniz</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\cgltf\cgltf.cpp">
+      <Filter>Blocks\3rdparty</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\GltfNode.cpp">
+      <Filter>Blocks\melo</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Resources.h">
@@ -223,6 +229,12 @@
     </ClInclude>
     <ClInclude Include="..\src\ShadowMap.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\cgltf\cgltf.h">
+      <Filter>Blocks\3rdparty</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\GltfNode.h">
+      <Filter>Blocks\melo</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
