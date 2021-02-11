@@ -24,31 +24,14 @@ struct GltfTexture
 {
     typedef std::shared_ptr<GltfTexture> Ref;
 
-    static Ref create(GltfDataRef dataRef, const cgltf_texture& property)
-    {
-        auto ref = std::make_shared<GltfTexture>();
+    static Ref create(GltfDataRef dataRef, const cgltf_texture& property);
+    
+    cgltf_texture property;
 
-        return ref;
-    }
-};
-
-struct GltfImage
-{
-    typedef std::shared_ptr<GltfImage> Ref;
-
-    static Ref create(GltfDataRef dataRef, const cgltf_image& property);
-};
-
-struct GltfSampler
-{
-    typedef std::shared_ptr<GltfSampler> Ref;
-
-    static Ref create(GltfDataRef dataRef, const cgltf_sampler& property)
-    {
-        auto ref = std::make_shared<GltfSampler>();
-
-        return ref;
-    }
+    int w = 0;
+    int h = 0;
+    int comp = 4;
+    uint8_t* pixels = nullptr;
 };
 
 struct GltfAccessor
@@ -124,7 +107,5 @@ struct GltfData : melo::Node
     std::vector<GltfBuffer::Ref> buffers;
     std::vector<GltfBufferView::Ref> bufferViews;
     std::vector<GltfMesh::Ref> meshes;
-    std::vector<GltfImage::Ref> images;
-    std::vector<GltfSampler::Ref> samplers;
     std::vector<GltfTexture::Ref> textures;
 };
