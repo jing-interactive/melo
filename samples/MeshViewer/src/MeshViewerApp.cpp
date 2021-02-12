@@ -46,19 +46,28 @@ struct YoctoNode : melo::Node
 {
     typedef shared_ptr<YoctoNode> Ref;
 
+    static void progress_callback(const string& message, int current, int total)
+    {
+        CI_LOG_V(message << ": " << current << '/' << total);
+    }
+
     static Ref create(const fs::path& path)
     {
         auto ref = make_shared<YoctoNode>();
         ref->path = path;
         string error;
-        if (!load_scene(path.string(), &ref->scene, error))
+
+        if (!load_scene(path.string(), ref->scene, error, progress_callback))
+        {
+            CI_LOG_E(error);
             return {};
+        }
 
         return ref;
     }
 
     fs::path path;
-    yocto::sceneio_scene scene;
+    yocto::scene_scene scene;
 };
 
 struct AAPass
@@ -237,7 +246,7 @@ struct MeloViewer : public App
         
         if (CGLTF_ENABLED)
         {
-            auto ref = YoctoNode::create(app::getAssetPath("gta5/scene.gltf"));
+            auto ref = YoctoNode::create(app::getAssetPath("polly/project_polly.gltf"));
         }
     }
 

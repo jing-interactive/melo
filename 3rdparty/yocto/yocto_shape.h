@@ -65,23 +65,157 @@ using std::vector;
 }  // namespace yocto
 
 // -----------------------------------------------------------------------------
+// SHAPE DATA AND UTILITIES
+// -----------------------------------------------------------------------------
+namespace yocto {
+
+// Shape ddata stored as an indexed mesh
+struct shape_data {
+  // element data
+  vector<int>   points    = {};
+  vector<vec2i> lines     = {};
+  vector<vec3i> triangles = {};
+  vector<vec4i> quads     = {};
+
+  // vertex data
+  vector<vec3f> positions = {};
+  vector<vec3f> normals   = {};
+  vector<vec2f> texcoords = {};
+  vector<vec4f> colors    = {};
+  vector<float> radius    = {};
+};
+
+// Interpolate vertex data
+vec3f eval_position(const shape_data& shape, int element, const vec2f& uv);
+vec3f eval_normal(const shape_data& shape, int element, const vec2f& uv);
+vec3f eval_tangent(const shape_data& shape, int element, const vec2f& uv);
+vec2f eval_texcoord(const shape_data& shape, int element, const vec2f& uv);
+vec4f eval_color(const shape_data& shape, int element, const vec2f& uv);
+float eval_radius(const shape_data& shape, int element, const vec2f& uv);
+
+// Evaluate element normals
+vec3f eval_element_normal(const shape_data& shape, int element);
+
+// Compute per-vertex normals/tangents for lines/triangles/quads.
+vector<vec3f> compute_normals(const shape_data& shape);
+void          compute_normals(vector<vec3f>& normals, const shape_data& shape);
+
+// An unevaluated location on a shape
+struct shape_point {
+  int   element = 0;
+  vec2f uv      = {0, 0};
+};
+
+// Shape sampling
+vector<float> sample_shape_cdf(const shape_data& shape);
+void          sample_shape_cdf(vector<float>& cdf, const shape_data& shape);
+shape_point   sample_shape(const shape_data& shape, const vector<float>& cdf,
+      float rn, const vec2f& ruv);
+vector<shape_point> sample_shape(const shape_data& shape,
+    const vector<float>& cdf, int num_samples, uint64_t seed = 98729387);
+
+// Conversions
+shape_data quads_to_triangles(const shape_data& shape);
+void       quads_to_triangles(shape_data& result, const shape_data& shape);
+
+// Subdivision
+shape_data subdivide_shape(
+    const shape_data& shape, int subdivisions, bool catmullclark);
+
+// Shape data stored as a face-varying mesh
+struct fvshape_data {
+  // element data
+  vector<vec4i> quadspos      = {};
+  vector<vec4i> quadsnorm     = {};
+  vector<vec4i> quadstexcoord = {};
+
+  // vertex data
+  vector<vec3f> positions = {};
+  vector<vec3f> normals   = {};
+  vector<vec2f> texcoords = {};
+};
+
+// Interpolate vertex data
+vec3f eval_position(const fvshape_data& shape, int element, const vec2f& uv);
+vec3f eval_normal(const fvshape_data& shape, int element, const vec2f& uv);
+vec2f eval_texcoord(const shape_data& shape, int element, const vec2f& uv);
+
+// Evaluate element normals
+vec3f eval_element_normal(const fvshape_data& shape, int element);
+
+// Compute per-vertex normals/tangents for lines/triangles/quads.
+vector<vec3f> compute_normals(const fvshape_data& shape);
+void compute_normals(vector<vec3f>& normals, const fvshape_data& shape);
+
+// An unevaluated location on a shape
+using fvshape_point = shape_point;
+
+// Conversions
+shape_data fvshape_to_shape(
+    const fvshape_data& shape, bool as_triangles = false);
+fvshape_data shape_to_fvshape(const shape_data& shape);
+
+// Subdivision
+fvshape_data subdivide_fvshape(
+    const fvshape_data& shape, int subdivisions, bool catmullclark);
+
+}  // namespace yocto
+
+// -----------------------------------------------------------------------------
+// SHAPE IO FUNCTIONS
+// -----------------------------------------------------------------------------
+namespace yocto {
+
+// Load/save a shape
+bool load_shape(const string& filename, shape_data& shape, string& error,
+    bool flip_texcoords = true);
+bool save_shape(const string& filename, const shape_data& shape, string& error,
+    bool flip_texcoords = true, bool ascii = false);
+
+// Load/save a subdiv
+bool load_fvshape(const string& filename, fvshape_data& shape, string& error,
+    bool flip_texcoords = true);
+bool save_fvshape(const string& filename, const fvshape_data& shape,
+    string& error, bool flip_texcoords = true, bool ascii = false);
+
+// Make presets. Supported mostly in IO.
+bool make_shape_preset(shape_data& shape, const string& type, string& error);
+bool make_fvshape_preset(
+    fvshape_data& shape, const string& type, string& error);
+
+}  // namespace yocto
+
+// -----------------------------------------------------------------------------
+// SHAPE STATS AND VALIDATION
+// -----------------------------------------------------------------------------
+namespace yocto {
+
+// Get mesh statistics for printing
+vector<string> shape_stats(const shape_data& shape, bool verbose = false);
+
+// Get mesh statistics for printing
+vector<string> fvshape_stats(const fvshape_data& shape, bool verbose = false);
+
+}  // namespace yocto
+
+// -----------------------------------------------------------------------------
 // COMPUTATION OF PER_VERTEX PROPERTIES
 // -----------------------------------------------------------------------------
 namespace yocto {
 
 // Compute per-vertex normals/tangents for lines/triangles/quads.
-vector<vec3f> compute_tangents(
+vector<vec3f> lines_tangents(
     const vector<vec2i>& lines, const vector<vec3f>& positions);
-vector<vec3f> compute_normals(
+vector<vec3f> triangles_normals(
     const vector<vec3i>& triangles, const vector<vec3f>& positions);
-vector<vec3f> compute_normals(
+vector<vec3f> quads_normals(
     const vector<vec4i>& quads, const vector<vec3f>& positions);
 // Update normals and tangents
-void update_tangents(vector<vec3f>& tangents, const vector<vec2i>& lines,
+void lines_tangents(vector<vec3f>& tangents, const vector<vec2i>& lines,
     const vector<vec3f>& positions);
-void update_normals(vector<vec3f>& normals, const vector<vec3i>& triangles,
+void triangles_normals(vector<vec3f>& normals, const vector<vec3i>& triangles,
     const vector<vec3f>& positions);
-void update_normals(vector<vec3f>& normals, const vector<vec4i>& quads,
+void quads_normals(vector<vec3f>& normals, const vector<vec4i>& quads,
     const vector<vec3f>& positions);
 
 // Compute per-vertex tangent space for triangle meshes.
@@ -89,26 +223,68 @@ void update_normals(vector<vec3f>& normals, const vector<vec4i>& quads,
 // The first three components are the tangent with respect to the u texcoord.
 // The fourth component is the sign of the tangent wrt the v texcoord.
 // Tangent frame is useful in normal mapping.
-vector<vec4f> compute_tangent_spaces(const vector<vec3i>& triangles,
+vector<vec4f> triangle_tangent_spaces(const vector<vec3i>& triangles,
     const vector<vec3f>& positions, const vector<vec3f>& normals,
     const vector<vec2f>& texcoords);
 
 // Apply skinning to vertex position and normals.
-pair<vector<vec3f>, vector<vec3f>> compute_skinning(
+pair<vector<vec3f>, vector<vec3f>> skin_vertices(const vector<vec3f>& positions,
+    const vector<vec3f>& normals, const vector<vec4f>& weights,
+    const vector<vec4i>& joints, const vector<frame3f>& xforms);
+// Apply skinning as specified in Khronos glTF.
+pair<vector<vec3f>, vector<vec3f>> skin_matrices(const vector<vec3f>& positions,
+    const vector<vec3f>& normals, const vector<vec4f>& weights,
+    const vector<vec4i>& joints, const vector<mat4f>& xforms);
+// Update skinning
+void skin_vertices(vector<vec3f>& skinned_positions,
+    vector<vec3f>& skinned_normals, const vector<vec3f>& positions,
+    const vector<vec3f>& normals, const vector<vec4f>& weights,
+    const vector<vec4i>& joints, const vector<frame3f>& xforms);
+void skin_matrices(vector<vec3f>& skinned_positions,
+    vector<vec3f>& skinned_normals, const vector<vec3f>& positions,
+    const vector<vec3f>& normals, const vector<vec4f>& weights,
+    const vector<vec4i>& joints, const vector<mat4f>& xforms);
+
+// Compute per-vertex normals/tangents for lines/triangles/quads.
+[[deprecated]] vector<vec3f> compute_tangents(
+    const vector<vec2i>& lines, const vector<vec3f>& positions);
+[[deprecated]] vector<vec3f> compute_normals(
+    const vector<vec3i>& triangles, const vector<vec3f>& positions);
+[[deprecated]] vector<vec3f> compute_normals(
+    const vector<vec4i>& quads, const vector<vec3f>& positions);
+// Update normals and tangents
+[[deprecated]] void update_tangents(vector<vec3f>& tangents,
+    const vector<vec2i>& lines, const vector<vec3f>& positions);
+[[deprecated]] void update_normals(vector<vec3f>& normals,
+    const vector<vec3i>& triangles, const vector<vec3f>& positions);
+[[deprecated]] void update_normals(vector<vec3f>& normals,
+    const vector<vec4i>& quads, const vector<vec3f>& positions);
+
+// Compute per-vertex tangent space for triangle meshes.
+// Tangent space is defined by a four component vector.
+// The first three components are the tangent with respect to the u texcoord.
+// The fourth component is the sign of the tangent wrt the v texcoord.
+// Tangent frame is useful in normal mapping.
+[[deprecated]] vector<vec4f> compute_tangent_spaces(
+    const vector<vec3i>& triangles, const vector<vec3f>& positions,
+    const vector<vec3f>& normals, const vector<vec2f>& texcoords);
+
+// Apply skinning to vertex position and normals.
+[[deprecated]] pair<vector<vec3f>, vector<vec3f>> compute_skinning(
     const vector<vec3f>& positions, const vector<vec3f>& normals,
     const vector<vec4f>& weights, const vector<vec4i>& joints,
     const vector<frame3f>& xforms);
 // Apply skinning as specified in Khronos glTF.
-pair<vector<vec3f>, vector<vec3f>> compute_matrix_skinning(
+[[deprecated]] pair<vector<vec3f>, vector<vec3f>> compute_matrix_skinning(
     const vector<vec3f>& positions, const vector<vec3f>& normals,
     const vector<vec4f>& weights, const vector<vec4i>& joints,
     const vector<mat4f>& xforms);
 // Update skinning
-void udpate_skinning(vector<vec3f>& skinned_positions,
+[[deprecated]] void udpate_skinning(vector<vec3f>& skinned_positions,
     vector<vec3f>& skinned_normals, const vector<vec3f>& positions,
     const vector<vec3f>& normals, const vector<vec4f>& weights,
     const vector<vec4i>& joints, const vector<frame3f>& xforms);
-void update_matrix_skinning(vector<vec3f>& skinned_positions,
+[[deprecated]] void update_matrix_skinning(vector<vec3f>& skinned_positions,
     vector<vec3f>& skinned_normals, const vector<vec3f>& positions,
     const vector<vec3f>& normals, const vector<vec4f>& weights,
     const vector<vec4i>& joints, const vector<mat4f>& xforms);
@@ -116,7 +292,7 @@ void update_matrix_skinning(vector<vec3f>& skinned_positions,
 }  // namespace yocto
 
 // -----------------------------------------------------------------------------
-// COMPUTATION OF PER_VERTEX PROPETIES
+// COMPUTATION OF VERTEX PROPETIES
 // -----------------------------------------------------------------------------
 namespace yocto {
 
@@ -368,6 +544,14 @@ std::tuple<vector<vec4i>, vector<vec3f>, vector<vec3f>, vector<vec2f>>
 split_facevarying(const vector<vec4i>& quadspos, const vector<vec4i>& quadsnorm,
     const vector<vec4i>& quadstexcoord, const vector<vec3f>& positions,
     const vector<vec3f>& normals, const vector<vec2f>& texcoords);
+// Convert face varying data to single primitives. Returns the quads indices
+// and filled vectors for pos, norm and texcoord.
+void split_facevarying(vector<vec4i>& split_quads,
+    vector<vec3f>& split_positions, vector<vec3f>& split_normals,
+    vector<vec2f>& split_texcoords, const vector<vec4i>& quadspos,
+    const vector<vec4i>& quadsnorm, const vector<vec4i>& quadstexcoord,
+    const vector<vec3f>& positions, const vector<vec3f>& normals,
+    const vector<vec2f>& texcoords);
 
 // Split primitives per id
 vector<vector<vec2i>> ungroup_lines(
@@ -484,25 +668,30 @@ namespace yocto {
 int           sample_points(int npoints, float re);
 int           sample_points(const vector<float>& cdf, float re);
 vector<float> sample_points_cdf(int npoints);
+void          sample_points_cdf(vector<float>& cdf, int npoints);
 
 // Pick a point on lines uniformly.
 pair<int, float> sample_lines(const vector<float>& cdf, float re, float ru);
 vector<float>    sample_lines_cdf(
        const vector<vec2i>& lines, const vector<vec3f>& positions);
+void sample_lines_cdf(vector<float>& cdf, const vector<vec2i>& lines,
+    const vector<vec3f>& positions);
 
 // Pick a point on a triangle mesh uniformly.
 pair<int, vec2f> sample_triangles(
     const vector<float>& cdf, float re, const vec2f& ruv);
 vector<float> sample_triangles_cdf(
     const vector<vec3i>& triangles, const vector<vec3f>& positions);
+void sample_triangles_cdf(vector<float>& cdf, const vector<vec3i>& triangles,
+    const vector<vec3f>& positions);
 
 // Pick a point on a quad mesh uniformly.
 pair<int, vec2f> sample_quads(
     const vector<float>& cdf, float re, const vec2f& ruv);
-pair<int, vec2f> sample_quads(const vector<vec4i>& quads,
-    const vector<float>& cdf, float re, const vec2f& ruv);
-vector<float>    sample_quads_cdf(
-       const vector<vec4i>& quads, const vector<vec3f>& positions);
+vector<float> sample_quads_cdf(
+    const vector<vec4i>& quads, const vector<vec3f>& positions);
+void sample_quads_cdf(vector<float>& cdf, const vector<vec4i>& quads,
+    const vector<vec3f>& positions);
 
 // Samples a set of points over a triangle/quad mesh uniformly. Returns pos,
 // norm and texcoord of the sampled points.
@@ -520,199 +709,90 @@ void sample_quads(vector<vec3f>& sampled_positions,
 }  // namespace yocto
 
 // -----------------------------------------------------------------------------
-// SHAPE IO FUNCTIONS
-// -----------------------------------------------------------------------------
-namespace yocto {
-
-// Generic indexed shape usd for IO
-struct generic_shape {
-  vector<int>   points        = {};
-  vector<vec2i> lines         = {};
-  vector<vec3i> triangles     = {};
-  vector<vec4i> quads         = {};
-  vector<vec4i> quadspos      = {};
-  vector<vec4i> quadsnorm     = {};
-  vector<vec4i> quadstexcoord = {};
-  vector<vec3f> positions     = {};
-  vector<vec3f> normals       = {};
-  vector<vec2f> texcoords     = {};
-  vector<vec4f> colors        = {};
-  vector<float> radius        = {};
-};
-
-// Load/save a shape
-bool load_shape(const string& filename, generic_shape& shape, string& error,
-    bool facevarying = false, bool flip_texcoords = true);
-bool save_shape(const string& filename, const generic_shape& shape,
-    string& error, bool facevarying = false, bool flip_texcoords = true,
-    bool ascii = false);
-
-// Load/save a shape
-bool load_shape(const string& filename, vector<int>& points,
-    vector<vec2i>& lines, vector<vec3i>& triangles, vector<vec4i>& quads,
-    vector<vec4i>& quadspos, vector<vec4i>& quadsnorm,
-    vector<vec4i>& quadstexcoord, vector<vec3f>& positions,
-    vector<vec3f>& normals, vector<vec2f>& texcoords, vector<vec4f>& colors,
-    vector<float>& radius, string& error, bool facevarying = false,
-    bool flip_texcoords = true);
-bool save_shape(const string& filename, const vector<int>& points,
-    const vector<vec2i>& lines, const vector<vec3i>& triangles,
-    const vector<vec4i>& quads, const vector<vec4i>& quadspos,
-    const vector<vec4i>& quadsnorm, const vector<vec4i>& quadstexcoord,
-    const vector<vec3f>& positions, const vector<vec3f>& normals,
-    const vector<vec2f>& texcoords, const vector<vec4f>& colors,
-    const vector<float>& radius, string& error, bool facevarying = false,
-    bool flip_texcoords = true, bool ascii = false);
-
-}  // namespace yocto
-
-// -----------------------------------------------------------------------------
-// SHAPE STATS AND VALIDATION
-// -----------------------------------------------------------------------------
-namespace yocto {
-
-// Get mesh statistics for printing
-vector<string> shape_stats(const generic_shape& shape, bool verbose = false);
-
-// Get mesh statistics for printing
-vector<string> shape_stats(const vector<int>& points,
-    const vector<vec2i>& lines, const vector<vec3i>& triangles,
-    const vector<vec4i>& quads, const vector<vec4i>& quadspos,
-    const vector<vec4i>& quadsnorm, const vector<vec4i>& quadstexcoord,
-    const vector<vec3f>& positions, const vector<vec3f>& normals,
-    const vector<vec2f>& texcoords, const vector<vec4f>& colors,
-    const vector<float>& radius, bool verbose = false);
-
-}  // namespace yocto
-
-// -----------------------------------------------------------------------------
 // SHAPE EXAMPLES
 // -----------------------------------------------------------------------------
 namespace yocto {
 
-// Data returns by the make_shape functions
-struct quads_shape {
-  vector<vec4i> quads     = {};
-  vector<vec3f> positions = {};
-  vector<vec3f> normals   = {};
-  vector<vec2f> texcoords = {};
-};
-
-// Data returns by the make_shape functions
-struct triangles_shape {
-  vector<vec3i> triangles = {};
-  vector<vec3f> positions = {};
-  vector<vec3f> normals   = {};
-  vector<vec2f> texcoords = {};
-};
-
-// Data returns by the make_fvshape functions
-struct quads_fvshape {
-  vector<vec4i> quadspos      = {};
-  vector<vec4i> quadsnorm     = {};
-  vector<vec4i> quadstexcoord = {};
-  vector<vec3f> positions     = {};
-  vector<vec3f> normals       = {};
-  vector<vec2f> texcoords     = {};
-};
-
-// Data returns by the make_lines functions
-struct lines_shape {
-  vector<vec2i> lines     = {};
-  vector<vec3f> positions = {};
-  vector<vec3f> normals   = {};
-  vector<vec2f> texcoords = {};
-  vector<float> radius    = {};
-};
-
-// Data returns by the make_lines functions
-struct points_shape {
-  vector<int>   points    = {};
-  vector<vec3f> positions = {};
-  vector<vec3f> normals   = {};
-  vector<vec2f> texcoords = {};
-  vector<float> radius    = {};
-};
-
 // Make a plane.
-quads_shape make_rect(const vec2i& steps = {1, 1}, const vec2f& scale = {1, 1},
+shape_data make_rect(const vec2i& steps = {1, 1}, const vec2f& scale = {1, 1},
     const vec2f& uvscale = {1, 1});
-quads_shape make_bulged_rect(const vec2i& steps = {1, 1},
+shape_data make_bulged_rect(const vec2i& steps = {1, 1},
     const vec2f& scale = {1, 1}, const vec2f& uvscale = {1, 1},
     float radius = 0.3);
 // Make a plane in the xz plane.
-quads_shape make_recty(const vec2i& steps = {1, 1}, const vec2f& scale = {1, 1},
+shape_data make_recty(const vec2i& steps = {1, 1}, const vec2f& scale = {1, 1},
     const vec2f& uvscale = {1, 1});
-quads_shape make_bulged_recty(const vec2i& steps = {1, 1},
+shape_data make_bulged_recty(const vec2i& steps = {1, 1},
     const vec2f& scale = {1, 1}, const vec2f& uvscale = {1, 1},
     float radius = 0.3);
 // Make a box.
-quads_shape make_box(const vec3i& steps = {1, 1, 1},
+shape_data make_box(const vec3i& steps = {1, 1, 1},
     const vec3f& scale = {1, 1, 1}, const vec3f& uvscale = {1, 1, 1});
-quads_shape make_rounded_box(const vec3i& steps = {1, 1, 1},
+shape_data make_rounded_box(const vec3i& steps = {1, 1, 1},
     const vec3f& scale = {1, 1, 1}, const vec3f& uvscale = {1, 1, 1},
     float radius = 0.3);
 // Make a quad stack
-quads_shape make_rect_stack(const vec3i& steps = {1, 1, 1},
+shape_data make_rect_stack(const vec3i& steps = {1, 1, 1},
     const vec3f& scale = {1, 1, 1}, const vec2f& uvscale = {1, 1});
 // Make a floor.
-quads_shape make_floor(const vec2i& steps = {1, 1},
+shape_data make_floor(const vec2i& steps = {1, 1},
     const vec2f& scale = {10, 10}, const vec2f& uvscale = {10, 10});
-quads_shape make_bent_floor(const vec2i& steps = {1, 1},
+shape_data make_bent_floor(const vec2i& steps = {1, 1},
     const vec2f& scale = {10, 10}, const vec2f& uvscale = {10, 10},
     float bent = 0.5);
 // Make a sphere.
-quads_shape make_sphere(int steps = 32, float scale = 1, float uvscale = 1);
+shape_data make_sphere(int steps = 32, float scale = 1, float uvscale = 1);
 // Make a sphere.
-quads_shape make_uvsphere(const vec2i& steps = {32, 32}, float scale = 1,
+shape_data make_uvsphere(const vec2i& steps = {32, 32}, float scale = 1,
     const vec2f& uvscale = {1, 1});
 // Make a sphere with slipped caps.
-quads_shape make_capped_uvsphere(const vec2i& steps = {32, 32}, float scale = 1,
+shape_data make_capped_uvsphere(const vec2i& steps = {32, 32}, float scale = 1,
     const vec2f& uvscale = {1, 1}, float height = 0.3);
 // Make a disk
-quads_shape make_disk(int steps = 32, float scale = 1, float uvscale = 1);
+shape_data make_disk(int steps = 32, float scale = 1, float uvscale = 1);
 // Make a bulged disk
-quads_shape make_bulged_disk(
+shape_data make_bulged_disk(
     int steps = 32, float scale = 1, float uvscale = 1, float height = 0.3);
 // Make a uv disk
-quads_shape make_uvdisk(const vec2i& steps = {32, 32}, float scale = 1,
+shape_data make_uvdisk(const vec2i& steps = {32, 32}, float scale = 1,
     const vec2f& uvscale = {1, 1});
 // Make a uv cylinder
-quads_shape make_uvcylinder(const vec3i& steps = {32, 32, 32},
+shape_data make_uvcylinder(const vec3i& steps = {32, 32, 32},
     const vec2f& scale = {1, 1}, const vec3f& uvscale = {1, 1, 1});
 // Make a rounded uv cylinder
-quads_shape make_rounded_uvcylinder(const vec3i& steps = {32, 32, 32},
+shape_data make_rounded_uvcylinder(const vec3i& steps = {32, 32, 32},
     const vec2f& scale = {1, 1}, const vec3f& uvscale = {1, 1, 1},
     float radius = 0.3);
 
 // Make a facevarying rect
-quads_fvshape make_fvrect(const vec2i& steps = {1, 1},
+fvshape_data make_fvrect(const vec2i& steps = {1, 1},
     const vec2f& scale = {1, 1}, const vec2f& uvscale = {1, 1});
 // Make a facevarying box
-quads_fvshape make_fvbox(const vec3i& steps = {1, 1, 1},
+fvshape_data make_fvbox(const vec3i& steps = {1, 1, 1},
     const vec3f& scale = {1, 1, 1}, const vec3f& uvscale = {1, 1, 1});
 // Make a facevarying sphere
-quads_fvshape make_fvsphere(int steps = 32, float scale = 1, float uvscale = 1);
+fvshape_data make_fvsphere(int steps = 32, float scale = 1, float uvscale = 1);
 
 // Generate lines set along a quad. Returns lines, pos, norm, texcoord, radius.
-lines_shape make_lines(const vec2i& steps = {4, 65536},
+shape_data make_lines(const vec2i& steps = {4, 65536},
     const vec2f& scale = {1, 1}, const vec2f& uvscale = {1, 1},
     const vec2f& radius = {0.001, 0.001});
 
 // Make point primitives. Returns points, pos, norm, texcoord, radius.
-points_shape make_point(float radius = 0.001);
-points_shape make_points(
+shape_data make_point(float radius = 0.001);
+shape_data make_points(
     int num = 65536, float uvscale = 1, float radius = 0.001);
-points_shape make_random_points(int num = 65536, const vec3f& size = {1, 1, 1},
+shape_data make_random_points(int num = 65536, const vec3f& size = {1, 1, 1},
     float uvscale = 1, float radius = 0.001, uint64_t seed = 17);
 
 // Predefined meshes
-quads_shape     make_monkey(float scale = 1);
-quads_shape     make_quad(float scale = 1);
-quads_shape     make_quady(float scale = 1);
-quads_shape     make_cube(float scale = 1);
-quads_fvshape   make_fvcube(float scale = 1);
-triangles_shape make_geosphere(float scale = 1);
+shape_data   make_monkey(float scale = 1);
+shape_data   make_quad(float scale = 1);
+shape_data   make_quady(float scale = 1);
+shape_data   make_cube(float scale = 1);
+fvshape_data make_fvcube(float scale = 1);
+shape_data   make_geosphere(float scale = 1);
+shape_data   make_bunny(float scale = 1, bool align_middle = true);
 
 // Make a hair ball around a shape.
 // length: minimum and maximum length
@@ -720,12 +800,7 @@ triangles_shape make_geosphere(float scale = 1);
 // noise: noise added to hair (strength/scale)
 // clump: clump added to hair (strength/number)
 // rotation: rotation added to hair (angle/strength)
-lines_shape make_hair(const triangles_shape& shape,
-    const vec2i& steps = {8, 65536}, const vec2f& length = {0.1, 0.1},
-    const vec2f& rad = {0.001, 0.001}, const vec2f& noise = {0, 10},
-    const vec2f& clump = {0, 128}, const vec2f& rotation = {0, 0},
-    int seed = 7);
-lines_shape make_hair(const quads_shape& shape, const vec2i& steps = {8, 65536},
+shape_data make_hair(const shape_data& shape, const vec2i& steps = {8, 65536},
     const vec2f& length = {0.1, 0.1}, const vec2f& rad = {0.001, 0.001},
     const vec2f& noise = {0, 10}, const vec2f& clump = {0, 128},
     const vec2f& rotation = {0, 0}, int seed = 7);
@@ -737,9 +812,15 @@ void make_shell(vector<vec4i>& quads, vector<vec3f>& positions,
     vector<vec3f>& normals, vector<vec2f>& texcoords, float thickness);
 
 // Make a heightfield mesh.
-void make_heightfield(vector<vec4i>& quads, vector<vec3f>& positions,
-    vector<vec3f>& normals, vector<vec2f>& texcoords, const vec2i& size,
-    const vector<float>& height);
+shape_data make_heightfield(const vec2i& size, const vector<float>& height);
+shape_data make_heightfield(const vec2i& size, const vector<vec4f>& color);
+
+// Backward compatibility (mostly)
+using quads_shape     = shape_data;
+using triangles_shape = shape_data;
+using lines_shape     = shape_data;
+using points_shape    = shape_data;
+using quads_fvshape   = fvshape_data;
 
 }  // namespace yocto
 

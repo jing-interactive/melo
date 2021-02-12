@@ -1,5 +1,5 @@
 //
-// #Yocto / Image : Image utilities
+// # Yocto/Image : Image utilities
 //
 // Yocto/Image is a collection of image utilities useful when writing rendering
 // algorithms. These include a simple image data structure, color conversion
@@ -55,6 +55,211 @@ namespace yocto {
 // using directives
 using std::string;
 using std::vector;
+
+}  // namespace yocto
+
+// -----------------------------------------------------------------------------
+// IMAGE DATA AND UTILITIES
+// -----------------------------------------------------------------------------
+namespace yocto {
+
+// Image contains
+struct image_data {
+  int           width   = 0;
+  int           height  = 0;
+  bool          linear  = false;
+  vector<vec4f> pixelsf = {};
+  vector<vec4b> pixelsb = {};
+};
+
+// image creation
+image_data make_image(int width, int height, bool linear, bool as_byte);
+image_data make_image(int width, int height, bool linear, const vec4f* data);
+image_data make_image(int width, int height, bool linear, const vec4b* data);
+
+// equality
+bool operator==(const image_data& a, const image_data& b);
+bool operator!=(const image_data& a, const image_data& b);
+
+// swap
+void swap(image_data& a, image_data& b);
+
+// pixel access
+vec4f get_pixel(const image_data& image, int i, int j);
+void  set_pixel(image_data& image, int i, int j, const vec4f& pixel);
+
+// data acess
+const float* get_dataf(const image_data& image);
+const byte*  get_datab(const image_data& image);
+const vec4f* get_data4f(const image_data& image);
+const vec4b* get_data4b(const image_data& image);
+
+// conversions
+image_data convert_image(const image_data& image, bool linear, bool as_byte);
+void       convert_image(image_data& result, const image_data& image);
+
+// Evaluates an image at a point `uv`.
+vec4f eval_image(const image_data& image, const vec2f& uv,
+    bool as_linear = false, bool no_interpolation = false,
+    bool clamp_to_edge = false);
+
+// Apply tone mapping returning a float or byte image.
+image_data tonemap_image(const image_data& image, float exposure,
+    bool filmic = false, bool as_byte = false);
+
+// Apply tone mapping. If the input image is an ldr, does nothing.
+void tonemap_image(image_data& ldr, const image_data& image, float exposure,
+    bool filmic = false);
+// Apply tone mapping using multithreading for speed.
+void tonemap_image_mt(image_data& ldr, const image_data& image, float exposure,
+    bool filmic = false);
+
+// Resize an image.
+image_data resize_image(const image_data& image, int width, int height);
+
+// set/get region
+void set_region(image_data& image, const image_data& region, int x, int y);
+void get_region(image_data& region, const image_data& image, int x, int y,
+    int width, int height);
+
+// Compute the difference between two images.
+image_data image_difference(
+    const image_data& image_a, const image_data& image_b, bool display_diff);
+
+}  // namespace yocto
+
+// -----------------------------------------------------------------------------
+// IMAGE IO
+// -----------------------------------------------------------------------------
+namespace yocto {
+
+// Check if an image is HDR or LDR based on filename.
+bool is_hdr_filename(const string& filename);
+bool is_ldr_filename(const string& filename);
+
+// Loads/saves a 4 channels float/byte image in linear/srgb color space.
+bool load_image(const string& filename, image_data& img, string& error);
+bool save_image(const string& filename, const image_data& img, string& error);
+
+// Make presets. Supported mostly in IO.
+bool make_image_preset(image_data& image, const string& type, string& error);
+
+}  // namespace yocto
+
+// -----------------------------------------------------------------------------
+// COLOR GRADING
+// -----------------------------------------------------------------------------
+namespace yocto {
+
+// minimal color grading
+struct colorgrade_params {
+  float exposure         = 0;
+  vec3f tint             = {1, 1, 1};
+  float lincontrast      = 0.5;
+  float logcontrast      = 0.5;
+  float linsaturation    = 0.5;
+  bool  filmic           = false;
+  bool  srgb             = true;
+  float contrast         = 0.5;
+  float saturation       = 0.5;
+  float shadows          = 0.5;
+  float midtones         = 0.5;
+  float highlights       = 0.5;
+  vec3f shadows_color    = {1, 1, 1};
+  vec3f midtones_color   = {1, 1, 1};
+  vec3f highlights_color = {1, 1, 1};
+};
+
+// Apply color grading from a linear or srgb color to an srgb color.
+vec4f colorgrade(
+    const vec4f& color, bool linear, const colorgrade_params& params);
+
+// Color grade an hsr or ldr image to an ldr image.
+image_data colorgrade_image(const image_data& image,
+    const colorgrade_params& params, bool as_byte = false);
+
+// Color grade an hsr or ldr image to an ldr image.
+// Uses multithreading for speed.
+void colorgrade_image(image_data& result, const image_data& image,
+    const colorgrade_params& params);
+
+// Color grade an hsr or ldr image to an ldr image.
+// Uses multithreading for speed.
+void colorgrade_image_mt(image_data& result, const image_data& image,
+    const colorgrade_params& params);
+
+// determine white balance colors
+vec4f compute_white_balance(const image_data& image);
+
+}  // namespace yocto
+
+// -----------------------------------------------------------------------------
+// EXAMPLE IMAGES
+// -----------------------------------------------------------------------------
+namespace yocto {
+
+// Make a grid image.
+image_data make_grid(int width, int height, float scale = 1,
+    const vec4f& color0 = vec4f{0.2, 0.2, 0.2, 1},
+    const vec4f& color1 = vec4f{0.5, 0.5, 0.5, 1});
+// Make a checker image.
+image_data make_checker(int width, int height, float scale = 1,
+    const vec4f& color0 = vec4f{0.2, 0.2, 0.2, 1},
+    const vec4f& color1 = vec4f{0.5, 0.5, 0.5, 1});
+// Make a bump map.
+image_data make_bumps(int width, int height, float scale = 1,
+    const vec4f& color0 = vec4f{0, 0, 0, 1},
+    const vec4f& color1 = vec4f{1, 1, 1, 1});
+// Make a ramp
+image_data make_ramp(int width, int height, float scale = 1,
+    const vec4f& color0 = vec4f{0, 0, 0, 1},
+    const vec4f& color1 = vec4f{1, 1, 1, 1});
+// Make a gamma ramp.
+image_data make_gammaramp(int width, int height, float scale = 1,
+    const vec4f& color0 = vec4f{0, 0, 0, 1},
+    const vec4f& color1 = vec4f{1, 1, 1, 1});
+// Make a uv ramp
+image_data make_uvramp(int width, int height, float scale = 1);
+// Make a uv grid
+image_data make_uvgrid(
+    int width, int height, float scale = 1, bool colored = true);
+// Make blackbody ramp.
+image_data make_blackbodyramp(int width, int height, float scale = 1,
+    float from = 1000, float to = 12000);
+// Make color map ramp.
+image_data make_colormapramp(int width, int height, float scale = 1);
+// Make a noise image. Noise parameters: lacunarity, gain, octaves, offset.
+image_data make_noisemap(int width, int height, float scale = 1,
+    const vec4f& color0 = {0, 0, 0, 1}, const vec4f& color1 = {1, 1, 1, 1});
+image_data make_fbmmap(int width, int height, float scale = 1,
+    const vec4f& noise = {2, 0.5, 8, 1}, const vec4f& color0 = {0, 0, 0, 1},
+    const vec4f& color1 = {1, 1, 1, 1});
+image_data make_turbulencemap(int width, int height, float scale = 1,
+    const vec4f& noise = {2, 0.5, 8, 1}, const vec4f& color0 = {0, 0, 0, 1},
+    const vec4f& color1 = {1, 1, 1, 1});
+image_data make_ridgemap(int width, int height, float scale = 1,
+    const vec4f& noise = {2, 0.5, 8, 1}, const vec4f& color0 = {0, 0, 0, 1},
+    const vec4f& color1 = {1, 1, 1, 1});
+
+// Make a sunsky HDR model with sun at sun_angle elevation in [0,pif/2],
+// turbidity in [1.7,10] with or without sun. The sun can be enabled or
+// disabled with has_sun. The sun parameters can be slightly modified by
+// changing the sun intensity and temperature. Has a convention, a temperature
+// of 0 sets the eath sun defaults (ignoring intensity too).
+image_data make_sunsky(int width, int height, float sun_angle,
+    float turbidity = 3, bool has_sun = false, float sun_intensity = 1,
+    float sun_radius = 1, const vec3f& ground_albedo = {0.2, 0.2, 0.2});
+// Make an image of multiple lights.
+image_data make_lights(int width, int height, const vec3f& le = {1, 1, 1},
+    int nlights = 4, float langle = pif / 4, float lwidth = pif / 16,
+    float lheight = pif / 16);
+
+// Comvert a bump map to a normal map. All linear color spaces.
+image_data bump_to_normal(const image_data& image, float scale = 1);
+
+// Add a border to an image
+image_data add_border(
+    const image_data& img, float width, const vec4f& color = {0, 0, 0, 1});
 
 }  // namespace yocto
 
@@ -151,10 +356,6 @@ image<vec4f> byte_to_float(const image<vec4b>& bt);
 image<vec4b> float_to_byte(const image<vec4f>& fl);
 image<vec3f> byte_to_float(const image<vec3b>& bt);
 image<vec3b> float_to_byte(const image<vec3f>& fl);
-image<float> byte_to_float(const image<byte>& bt);
-image<byte>  float_to_byte(const image<float>& fl);
-image<vec4f> ushort_to_float(const image<vec4s>& bt);
-image<vec4s> float_to_ushort(const image<vec4f>& fl);
 
 // Conversion between linear and gamma-encoded images.
 image<vec4f> srgb_to_rgb(const image<vec4f>& srgb);
@@ -165,24 +366,12 @@ image<vec3f> srgb_to_rgb(const image<vec3f>& srgb);
 image<vec3f> rgb_to_srgb(const image<vec3f>& rgb);
 image<vec3f> srgb_to_rgb(const image<vec3b>& srgb);
 image<vec3b> rgb_to_srgbb(const image<vec3f>& rgb);
-image<float> srgb_to_rgb(const image<float>& srgb);
-image<float> rgb_to_srgb(const image<float>& rgb);
-image<float> srgb_to_rgb(const image<byte>& srgb);
-image<byte>  rgb_to_srgbb(const image<float>& rgb);
 
 // Conversion between number of channels.
 image<vec4f> rgb_to_rgba(const image<vec3f>& rgb);
 image<vec3f> rgba_to_rgb(const image<vec4f>& rgba);
 image<vec4b> rgb_to_rgba(const image<vec3b>& rgb);
 image<vec3b> rgba_to_rgb(const image<vec4b>& rgba);
-image<vec4f> red_to_rgba(const image<float>& red);
-image<float> rgba_to_red(const image<vec4f>& rgba);
-image<vec4b> red_to_rgba(const image<byte>& red);
-image<byte>  rgba_to_red(const image<vec4b>& rgba);
-image<vec4f> gray_to_rgba(const image<float>& gray);
-image<float> rgba_to_gray(const image<vec4f>& rgba);
-image<vec4b> gray_to_rgba(const image<byte>& gray);
-image<byte>  rgba_to_gray(const image<vec4b>& rgba);
 
 // Apply tone mapping
 image<vec4f> tonemap_image(const image<vec4f>& hdr, float exposure,
@@ -195,25 +384,6 @@ void tonemap_image_mt(image<vec4f>& ldr, const image<vec4f>& hdr,
     float exposure, bool filmic = false, bool srgb = true);
 void tonemap_image_mt(image<vec4b>& ldr, const image<vec4f>& hdr,
     float exposure, bool filmic = false, bool srgb = true);
-
-// minimal color grading
-struct colorgrade_params {
-  float exposure         = 0;
-  vec3f tint             = {1, 1, 1};
-  float lincontrast      = 0.5;
-  float logcontrast      = 0.5;
-  float linsaturation    = 0.5;
-  bool  filmic           = false;
-  bool  srgb             = true;
-  float contrast         = 0.5;
-  float saturation       = 0.5;
-  float shadows          = 0.5;
-  float midtones         = 0.5;
-  float highlights       = 0.5;
-  vec3f shadows_color    = {1, 1, 1};
-  vec3f midtones_color   = {1, 1, 1};
-  vec3f highlights_color = {1, 1, 1};
-};
 
 // Apply color grading from a linear or srgb color to an srgb color.
 vec3f colorgrade(
@@ -252,24 +422,11 @@ image<vec4f> image_difference(
 // -----------------------------------------------------------------------------
 namespace yocto {
 
-// Check if an image is HDR based on filename.
-bool is_hdr_filename(const string& filename);
-
 // Loads/saves a 4 channels float/byte image in linear/srgb color space.
 bool load_image(const string& filename, image<vec4f>& img, string& error);
 bool save_image(const string& filename, const image<vec4f>& img, string& error);
 bool load_image(const string& filename, image<vec4b>& img, string& error);
 bool save_image(const string& filename, const image<vec4b>& img, string& error);
-
-// Load/saves a 16 bit image in linear color space.
-bool load_image(const string& filename, image<vec4s>& img, string& error);
-bool save_image(const string& filename, const image<vec4s>& img, string& error);
-
-// Loads/saves a  channel float/byte image in linear/srgb color space.
-bool load_image(const string& filename, image<vec4f>& imgf, image<vec4b>& imgb,
-    string& error);
-bool save_image(const string& filename, const image<vec4f>& imgf,
-    const image<vec4b>& imgb, string& error);
 
 }  // namespace yocto
 
@@ -341,13 +498,6 @@ image<vec4f> bump_to_normal(const image<vec4f>& img, float scale = 1);
 image<vec4f> add_border(
     const image<vec4f>& img, float width, const vec4f& color = {0, 0, 0, 1});
 
-// Make logo images. Image is resized to proper size.
-image<vec4b> make_logo(const string& name);
-image<vec4f> add_logo(
-    const image<vec4f>& img, const string& name = "logo-medium");
-image<vec4b> add_logo(
-    const image<vec4b>& img, const string& name = "logo-medium");
-
 }  // namespace yocto
 
 // -----------------------------------------------------------------------------
@@ -416,7 +566,7 @@ inline void swap(volume<T>& a, volume<T>& b);
 namespace yocto {
 
 // Evaluates a color image at a point `uv`.
-float eval_volume(const image<float>& img, const vec3f& uvw,
+float eval_volume(const volume<float>& img, const vec3f& uvw,
     bool no_interpolation = false, bool clamp_to_edge = false);
 
 }  // namespace yocto

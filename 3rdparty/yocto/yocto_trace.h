@@ -48,6 +48,7 @@
 #include "yocto_image.h"
 #include "yocto_math.h"
 #include "yocto_sampling.h"
+#include "yocto_scene.h"
 
 // -----------------------------------------------------------------------------
 // USING DIRECTIVES
@@ -82,113 +83,29 @@ namespace yocto {
 // 2.4:1  on 35 mm:  0.036 x 0.015   or 0.05760 x 0.024 (approx. 2.39 : 1)
 // To compute good apertures, one can use the F-stop number from photography
 // and set the aperture to focal length over f-stop.
-struct trace_camera {
-  frame3f frame        = identity3x4f;
-  bool    orthographic = false;
-  float   lens         = 0.050;
-  float   film         = 0.036;
-  float   aspect       = 1.500;
-  float   focus        = 10000;
-  float   aperture     = 0;
-};
+using trace_camera = scene_camera;
 
 // Texture containing either an LDR or HDR image. HdR images are encoded
 // in linear color space, while LDRs are encoded as sRGB.
-struct trace_texture {
-  image<vec4f> hdr = {};
-  image<vec4b> ldr = {};
-};
+using trace_texture = scene_texture;
 
 // Material for surfaces, lines and triangles.
 // For surfaces, uses a microfacet model with thin sheet transmission.
 // The model is based on OBJ, but contains glTF compatibility.
 // For the documentation on the values, please see the OBJ format.
-struct trace_material {
-  // material
-  vec3f emission     = {0, 0, 0};
-  vec3f color        = {0, 0, 0};
-  float specular     = 0;
-  float roughness    = 0;
-  float metallic     = 0;
-  float ior          = 1.5;
-  vec3f spectint     = {1, 1, 1};
-  float coat         = 0;
-  float transmission = 0;
-  float translucency = 0;
-  vec3f scattering   = {0, 0, 0};
-  float scanisotropy = 0;
-  float trdepth      = 0.01;
-  float opacity      = 1;
-  bool  thin         = true;
-
-  // textures
-  trace_texture* emission_tex     = nullptr;
-  trace_texture* color_tex        = nullptr;
-  trace_texture* specular_tex     = nullptr;
-  trace_texture* metallic_tex     = nullptr;
-  trace_texture* roughness_tex    = nullptr;
-  trace_texture* transmission_tex = nullptr;
-  trace_texture* translucency_tex = nullptr;
-  trace_texture* spectint_tex     = nullptr;
-  trace_texture* scattering_tex   = nullptr;
-  trace_texture* coat_tex         = nullptr;
-  trace_texture* opacity_tex      = nullptr;
-  trace_texture* normal_tex       = nullptr;
-};
+using trace_material = scene_material;
 
 // Shape data represented as indexed meshes of elements.
 // May contain either points, lines, triangles and quads.
 // Additionally, we support face-varying primitives where
 // each vertex data has its own topology.
-struct trace_shape {
-  // primitives
-  vector<int>   points    = {};
-  vector<vec2i> lines     = {};
-  vector<vec3i> triangles = {};
-  vector<vec4i> quads     = {};
-
-  // face-varying primitives
-  vector<vec4i> quadspos      = {};
-  vector<vec4i> quadsnorm     = {};
-  vector<vec4i> quadstexcoord = {};
-
-  // vertex data
-  vector<vec3f> positions = {};
-  vector<vec3f> normals   = {};
-  vector<vec2f> texcoords = {};
-  vector<vec4f> colors    = {};
-  vector<float> radius    = {};
-  vector<vec4f> tangents  = {};
-
-  // subdivision data [experimental]
-  int  subdivisions = 0;
-  bool catmullclark = true;
-  bool smooth       = true;
-
-  // displacement data [experimental]
-  float          displacement     = 0;
-  trace_texture* displacement_tex = nullptr;
-
-  // shape is assigned at creation
-  int shape_id = -1;
-};
+using trace_shape = scene_shape;
 
 // Object.
-struct trace_instance {
-  frame3f         frame    = identity3x4f;
-  trace_shape*    shape    = nullptr;
-  trace_material* material = nullptr;
-
-  // instance id assigned at creation
-  int instance_id = -1;
-};
+using trace_instance = scene_instance;
 
 // Environment map.
-struct trace_environment {
-  frame3f        frame        = identity3x4f;
-  vec3f          emission     = {0, 0, 0};
-  trace_texture* emission_tex = nullptr;
-};
+using trace_environment = scene_environment;
 
 // Scene comprised an array of objects whose memory is owened by the scene.
 // All members are optional,Scene objects (camera, instances, environments)
@@ -197,145 +114,7 @@ struct trace_environment {
 // environment. In that case, the element transforms are computed from
 // the hierarchy. Animation is also optional, with keyframe data that
 // updates node transformations only if defined.
-struct trace_scene {
-  // scene elements
-  vector<trace_camera*>      cameras      = {};
-  vector<trace_instance*>    instances    = {};
-  vector<trace_environment*> environments = {};
-  vector<trace_shape*>       shapes       = {};
-  vector<trace_texture*>     textures     = {};
-  vector<trace_material*>    materials    = {};
-
-  // cleanup
-  ~trace_scene();
-};
-
-}  // namespace yocto
-
-// -----------------------------------------------------------------------------
-// SCENE CREATION
-// -----------------------------------------------------------------------------
-namespace yocto {
-
-// add element to a scene
-trace_camera*      add_camera(trace_scene* scene);
-trace_environment* add_environment(trace_scene* scene);
-trace_instance*    add_instance(trace_scene* scene);
-trace_material*    add_material(trace_scene* scene);
-trace_shape*       add_shape(trace_scene* scene);
-trace_texture*     add_texture(trace_scene* scene);
-trace_instance*    add_complete_instance(trace_scene* scene);
-
-}  // namespace yocto
-
-// -----------------------------------------------------------------------------
-// EVALUATION OF SCENE PROPERTIES
-// -----------------------------------------------------------------------------
-namespace yocto {
-
-// Generates a ray from a camera.
-ray3f eval_camera(
-    const trace_camera* camera, const vec2f& image_uv, const vec2f& lens_uv);
-
-// Evaluates a texture
-vec2i texture_size(const trace_texture* texture);
-vec4f lookup_texture(
-    const trace_texture* texture, const vec2i& ij, bool ldr_as_linear = false);
-vec4f eval_texture(const trace_texture* texture, const vec2f& uv,
-    bool ldr_as_linear = false, bool no_interpolation = false,
-    bool clamp_to_edge = false);
-
-// Evaluate instance properties
-vec3f eval_position(
-    const trace_instance* instance, int element, const vec2f& uv);
-vec3f eval_element_normal(const trace_instance* instance, int element);
-vec3f eval_normal(const trace_instance* instance, int element, const vec2f& uv);
-vec2f eval_texcoord(
-    const trace_instance* instance, int element, const vec2f& uv);
-pair<vec3f, vec3f> eval_element_tangents(
-    const trace_instance* instance, int element);
-vec3f eval_normalmap(
-    const trace_instance* instance, int element, const vec2f& uv);
-vec3f eval_shading_normal(const trace_instance* instance, int element,
-    const vec2f& uv, const vec3f& outgoing);
-vec4f eval_color(const trace_instance* instance, int element, const vec2f& uv);
-
-// Environment
-vec3f eval_environment(
-    const trace_environment* environment, const vec3f& direction);
-vec3f eval_environment(const trace_scene* scene, const vec3f& direction);
-
-// Material sample
-struct trace_material_sample {
-  vec3f emission     = {0, 0, 0};
-  vec3f color        = {0, 0, 0};
-  float specular     = 0;
-  float roughness    = 0;
-  float metallic     = 0;
-  float ior          = 1.5;
-  vec3f spectint     = {1, 1, 1};
-  float coat         = 0;
-  float transmission = 0;
-  float translucency = 0;
-  vec3f scattering   = {0, 0, 0};
-  float scanisotropy = 0;
-  float trdepth      = 0.01;
-  float opacity      = 1;
-  bool  thin         = true;
-  vec3f normalmap    = {0, 0, 1};
-};
-
-// Evaluates material and textures
-trace_material_sample eval_material(
-    const trace_material* material, const vec2f& texcoord);
-
-// Material Bsdf parameters
-struct trace_bsdf {
-  // brdf lobes
-  vec3f diffuse      = {0, 0, 0};
-  vec3f specular     = {0, 0, 0};
-  vec3f metal        = {0, 0, 0};
-  vec3f coat         = {0, 0, 0};
-  vec3f transmission = {0, 0, 0};
-  vec3f translucency = {0, 0, 0};
-  vec3f refraction   = {0, 0, 0};
-  float roughness    = 0;
-  float ior          = 1;
-  vec3f meta         = {0, 0, 0};
-  vec3f metak        = {0, 0, 0};
-  // weights
-  float diffuse_pdf      = 0;
-  float specular_pdf     = 0;
-  float metal_pdf        = 0;
-  float coat_pdf         = 0;
-  float transmission_pdf = 0;
-  float translucency_pdf = 0;
-  float refraction_pdf   = 0;
-};
-
-// Eval material to obtain emission, brdf and opacity.
-vec3f eval_emission(const trace_instance* instance, int element,
-    const vec2f& uv, const vec3f& normal, const vec3f& outgoing);
-// Eval material to obatain emission, brdf and opacity.
-trace_bsdf eval_bsdf(const trace_instance* instance, int element,
-    const vec2f& uv, const vec3f& normal, const vec3f& outgoing);
-float eval_opacity(const trace_instance* instance, int element, const vec2f& uv,
-    const vec3f& normal, const vec3f& outgoing);
-// check if a brdf is a delta
-bool is_delta(const trace_bsdf& bsdf);
-
-// Material volume parameters
-struct trace_vsdf {
-  vec3f density    = {0, 0, 0};
-  vec3f scatter    = {0, 0, 0};
-  float anisotropy = 0;
-};
-
-// check if we have a volume
-bool has_volume(const trace_instance* instance);
-// evaluate volume
-trace_vsdf eval_vsdf(
-    const trace_instance* instance, int element, const vec2f& uv);
+using trace_scene = scene_scene;
 
 }  // namespace yocto
 
@@ -370,8 +149,7 @@ enum struct trace_sampler_type {
 enum struct trace_falsecolor_type {
   // clang-format off
   position, normal, frontfacing, gnormal, gfrontfacing, texcoord, color,
-  emission, diffuse, specular, coat, metal, transmission, translucency,
-  refraction, roughness, opacity, ior, instance, element, highlight
+  emission, roughness, opacity, instance, shape, material, element, highlight
   // clang-format on
 };
 
@@ -380,9 +158,10 @@ const auto trace_default_seed = 961748941ull;
 
 // Options for trace functions
 struct trace_params {
+  int                   camera     = 0;
   int                   resolution = 1280;
   trace_sampler_type    sampler    = trace_sampler_type::path;
-  trace_falsecolor_type falsecolor = trace_falsecolor_type::diffuse;
+  trace_falsecolor_type falsecolor = trace_falsecolor_type::color;
   int                   samples    = 512;
   int                   bounces    = 8;
   float                 clamp      = 100;
@@ -396,58 +175,14 @@ struct trace_params {
   float                 exposure   = 0;
 };
 
-const auto trace_sampler_labels = vector<pair<trace_sampler_type, string>>{
-    {trace_sampler_type::path, "path"}, {trace_sampler_type::naive, "naive"},
-    {trace_sampler_type::eyelight, "eyelight"},
-    {trace_sampler_type::falsecolor, "falsecolor"},
-    {trace_sampler_type::albedo, "albedo"},
-    {trace_sampler_type::normal, "normal"}};
-
-const auto trace_falsecolor_labels =
-    vector<pair<trace_falsecolor_type, string>>{
-        {trace_falsecolor_type::position, "position"},
-        {trace_falsecolor_type::normal, "normal"},
-        {trace_falsecolor_type::frontfacing, "frontfacing"},
-        {trace_falsecolor_type::gnormal, "gnormal"},
-        {trace_falsecolor_type::gfrontfacing, "gfrontfacing"},
-        {trace_falsecolor_type::texcoord, "texcoord"},
-        {trace_falsecolor_type::color, "color"},
-        {trace_falsecolor_type::emission, "emission"},
-        {trace_falsecolor_type::diffuse, "diffuse"},
-        {trace_falsecolor_type::specular, "specular"},
-        {trace_falsecolor_type::coat, "coat"},
-        {trace_falsecolor_type::metal, "metal"},
-        {trace_falsecolor_type::transmission, "transmission"},
-        {trace_falsecolor_type::translucency, "translucency"},
-        {trace_falsecolor_type::refraction, "refraction"},
-        {trace_falsecolor_type::roughness, "roughness"},
-        {trace_falsecolor_type::opacity, "opacity"},
-        {trace_falsecolor_type::ior, "ior"},
-        {trace_falsecolor_type::instance, "instance"},
-        {trace_falsecolor_type::element, "element"},
-        {trace_falsecolor_type::highlight, "highlight"}};
-
-const auto trace_bvh_labels = vector<pair<trace_bvh_type, string>>{
-    {trace_bvh_type::default_, "default"},
-    {trace_bvh_type::highquality, "highquality"},
-    {trace_bvh_type::middle, "middle"},
-    {trace_bvh_type::balanced, "balanced"},
-#ifdef YOCTO_EMBREE
-    {trace_bvh_type::embree_default, "embree-default"},
-    {trace_bvh_type::embree_highquality, "embree-highquality"},
-    {trace_bvh_type::embree_compact, "embree-compact"},
-#endif
-};
-
-const auto trace_sampler_names = std::vector<std::string>{
+inline const auto trace_sampler_names = std::vector<std::string>{
     "path", "naive", "eyelight", "falsecolor", "dalbedo", "dnormal"};
 
-const auto trace_falsecolor_names = vector<string>{"position", "normal",
+inline const auto trace_falsecolor_names = vector<string>{"position", "normal",
     "frontfacing", "gnormal", "gfrontfacing", "texcoord", "color", "emission",
-    "diffuse", "specular", "coat", "metal", "transmission", "translucency",
-    "refraction", "roughness", "opacity", "ior", "instance", "element",
+    "roughness", "opacity", "instance", "shape", "material", "element",
     "highlight"};
-const auto trace_bvh_names        = vector<string>{
+const auto        trace_bvh_names        = vector<string>{
     "default", "highquality", "middle", "balanced",
 #ifdef YOCTO_EMBREE
     "embree-default", "embree-highquality", "embree-compact"
@@ -461,15 +196,10 @@ using progress_callback =
 using image_callback =
     function<void(const image<vec4f>& render, int current, int total)>;
 
-// Apply subdivision and displacement rules.
-void tesselate_shapes(
-    trace_scene* scene, const progress_callback& progress_cb = {});
-void tesselate_shape(trace_scene* shape);
-
 // Progressively computes an image.
-image<vec4f> trace_image(const trace_scene* scene, const trace_camera* camera,
-    const trace_params& params, const progress_callback& progress_cb = {},
-    const image_callback& image_cb = {});
+image<vec4f> trace_image(const scene_scene& scene, const trace_params& params,
+    const progress_callback& progress_cb = {},
+    const image_callback&    image_cb    = {});
 
 }  // namespace yocto
 
@@ -480,41 +210,38 @@ namespace yocto {
 
 // Scene lights used during rendering. These are created automatically.
 struct trace_light {
-  trace_instance*    instance     = nullptr;
-  trace_environment* environment  = nullptr;
+  instance_handle    instance     = invalid_handle;
+  environment_handle environment  = invalid_handle;
   vector<float>      elements_cdf = {};
 };
 
 // Scene lights
 struct trace_lights {
-  // light elements
-  vector<trace_light*> lights = {};
-
-  // cleanup
-  ~trace_lights();
+  vector<trace_light> lights = {};
 };
 
 // Initialize lights.
-void init_lights(trace_lights* lights, const trace_scene* scene,
+void init_lights(trace_lights& lights, const scene_scene& scene,
     const trace_params& params, const progress_callback& progress_cb = {});
 
 // Define BVH
 using trace_bvh = bvh_scene;
 
 // Build the bvh acceleration structure.
-void init_bvh(trace_bvh* bvh, const trace_scene* scene,
+void init_bvh(trace_bvh& bvh, const scene_scene& scene,
     const trace_params& params, const progress_callback& progress_cb = {});
 
 // Refit bvh data
-void update_bvh(trace_bvh* bvh, const trace_scene* scene,
+void update_bvh(trace_bvh& bvh, const scene_scene& scene,
     const vector<trace_instance*>& updated_instances,
-    const vector<trace_shape*>& updated_shapes, const trace_params& params);
+    const vector<trace_shape*>& updated_shapes, const trace_params& params,
+    const progress_callback& progress_cb = {});
 
 // Progressively computes an image.
-image<vec4f> trace_image(const trace_scene* scene, const trace_camera* camera,
-    const trace_bvh* bvh, const trace_lights* lights,
-    const trace_params& params, const progress_callback& progress_cb = {},
-    const image_callback& image_cb = {});
+image<vec4f> trace_image(const scene_scene& scene, const trace_bvh& bvh,
+    const trace_lights& lights, const trace_params& params,
+    const progress_callback& progress_cb = {},
+    const image_callback&    image_cb    = {});
 
 // Check is a sampler requires lights
 bool is_sampler_lit(const trace_params& params);
@@ -535,32 +262,11 @@ using async_callback = function<void(
 
 // [experimental] Asynchronous interface
 struct trace_state;
-void trace_start(trace_state* state, const trace_scene* scene,
-    const trace_camera* camera, const trace_bvh* bvh,
-    const trace_lights* lights, const trace_params& params,
-    const progress_callback& progress_cb = {},
+void trace_start(trace_state& state, const scene_scene& scene,
+    const trace_bvh& bvh, const trace_lights& lights,
+    const trace_params& params, const progress_callback& progress_cb = {},
     const image_callback& image_cb = {}, const async_callback& async_cb = {});
-void trace_stop(trace_state* state);
-
-}  // namespace yocto
-
-// -----------------------------------------------------------------------------
-// TRACE IO
-// -----------------------------------------------------------------------------
-namespace yocto {
-
-// Serialize value to json
-enum struct json_mode;
-struct json_value;
-void serialize_value(json_mode mode, json_value& json, trace_params& value,
-    const string& description);
-
-// Serialize enum to json
-const vector<pair<trace_bvh_type, string>>& json_enum_labels(trace_bvh_type);
-const vector<pair<trace_falsecolor_type, string>>& json_enum_labels(
-    trace_falsecolor_type);
-const vector<pair<trace_sampler_type, string>>& json_enum_labels(
-    trace_sampler_type);
+void trace_stop(trace_state& state);
 
 }  // namespace yocto
 

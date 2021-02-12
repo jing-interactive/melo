@@ -113,8 +113,8 @@
   <ItemGroup />
   <ItemGroup />
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\..\..\yocto-gl\libs\yocto\yocto_scene.h" />
     <ClInclude Include="..\..\..\..\Cinder-VNM\ui\ImGuizmo\ImGuizmo.h" />
-    <ClInclude Include="..\..\..\3rdparty\cgltf\cgltf.h" />
     <ClInclude Include="..\..\..\3rdparty\flythrough_camera\flythrough_camera.h" />
     <ClInclude Include="..\..\..\3rdparty\tinygltf\json.hpp" />
     <ClInclude Include="..\..\..\3rdparty\tinygltf\stb_image.h" />
@@ -136,7 +136,6 @@
     <ClInclude Include="..\..\..\3rdparty\yocto\yocto_commonio.h" />
     <ClInclude Include="..\..\..\3rdparty\yocto\yocto_geometry.h" />
     <ClInclude Include="..\..\..\3rdparty\yocto\yocto_image.h" />
-    <ClInclude Include="..\..\..\3rdparty\yocto\yocto_json.h" />
     <ClInclude Include="..\..\..\3rdparty\yocto\yocto_math.h" />
     <ClInclude Include="..\..\..\3rdparty\yocto\yocto_matht.h" />
     <ClInclude Include="..\..\..\3rdparty\yocto\yocto_mesh.h" />
@@ -149,7 +148,6 @@
     <ClInclude Include="..\..\..\3rdparty\yocto\yocto_shape.h" />
     <ClInclude Include="..\..\..\3rdparty\yocto\yocto_trace.h" />
     <ClInclude Include="..\..\..\include\FirstPersonCamera.h" />
-    <ClInclude Include="..\..\..\include\GltfNode.h" />
     <ClInclude Include="..\..\..\include\melo.h" />
     <ClInclude Include="..\..\..\include\Node.h" />
     <ClInclude Include="..\..\..\include\cigltf.h" />
@@ -180,10 +178,11 @@
     <ClInclude Include="..\src\ShadowMap.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\..\..\yocto-gl\libs\yocto\yocto_commonio.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\yocto-gl\libs\yocto\yocto_scene.cpp" />
     <ClCompile Include="..\..\..\..\Cinder-VNM\ui\CinderGuizmo.cpp" />
     <ClCompile Include="..\..\..\..\Cinder-VNM\ui\DearLogger.cpp" />
     <ClCompile Include="..\..\..\..\Cinder-VNM\ui\ImGuizmo\ImGuizmo.cpp" />
-    <ClCompile Include="..\..\..\3rdparty\cgltf\cgltf.cpp" />
     <ClCompile Include="..\..\..\3rdparty\tinygltf\tiny_gltf.cc" />
     <ClCompile Include="..\..\..\3rdparty\tinyobjloader\tiny_obj_loader.cc" />
     <ClCompile Include="..\..\..\3rdparty\tinyply\tinyply.cpp" />
@@ -192,15 +191,12 @@
     <ClCompile Include="..\..\..\3rdparty\yocto\ext\stb_image.cpp" />
     <ClCompile Include="..\..\..\3rdparty\yocto\ext\tinyexr.cpp" />
     <ClCompile Include="..\..\..\3rdparty\yocto\yocto_bvh.cpp" />
-    <ClCompile Include="..\..\..\3rdparty\yocto\yocto_commonio.cpp" />
     <ClCompile Include="..\..\..\3rdparty\yocto\yocto_image.cpp" />
-    <ClCompile Include="..\..\..\3rdparty\yocto\yocto_json.cpp" />
     <ClCompile Include="..\..\..\3rdparty\yocto\yocto_mesh.cpp" />
     <ClCompile Include="..\..\..\3rdparty\yocto\yocto_modelio.cpp" />
     <ClCompile Include="..\..\..\3rdparty\yocto\yocto_sceneio.cpp" />
     <ClCompile Include="..\..\..\3rdparty\yocto\yocto_shape.cpp" />
     <ClCompile Include="..\..\..\3rdparty\yocto\yocto_trace.cpp" />
-    <ClCompile Include="..\..\..\src\GltfNode.cpp" />
     <ClCompile Include="..\..\..\src\melo.cpp" />
     <ClCompile Include="..\..\..\src\Node.cpp" />
     <ClCompile Include="..\..\..\src\cigltf.cpp" />
