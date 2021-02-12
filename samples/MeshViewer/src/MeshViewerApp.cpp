@@ -58,10 +58,8 @@ struct GltfMaterial
 
     void bind()
     {
-        glsl->uniform("u_LightDirection", vec3(1.0f, 1.0f, 1.0f));
-        glsl->uniform("u_LightColor", vec3(1.0f, 1.0f, 1.0f));
-
-        glsl->uniform("u_MetallicRoughnessValues", vec2(property.metallic, property.roughness));
+        glsl->uniform("u_MetallicFactor", property.metallic);
+        glsl->uniform("u_RoughnessFactor", property.roughness);
         glsl->uniform("u_BaseColorFactor", vec4{ property.color.x, property.color.y, property.color.z, 1.0f });
         glsl->uniform("u_NormalScale", 1.0f);
         glsl->uniform("u_EmissiveFactor", (vec3&)property.emission);
@@ -104,6 +102,11 @@ struct GltfNode : melo::Node
     void draw(melo::DrawOrder order = melo::DRAW_SOLID) override
     {
         CI_ASSERT(material);
+
+        material->glsl->uniform("u_LightDirection", lightDirection);
+        material->glsl->uniform("u_LightColor", lightColor);
+        material->glsl->uniform("u_Camera", cameraPosition);
+
         material->bind();
         gl::draw(mesh);
         material->unbind();
@@ -225,18 +228,27 @@ GltfMaterial::Ref GltfMaterial::create(GltfSceneRef scene, yocto::scene_material
 
     auto fmt = gl::GlslProg::Format();
     fmt.define("HAS_NORMALS");
-    fmt.define("HAS_UV");
-    if (ref->color_tex)
-        fmt.define("HAS_BASECOLORMAP");
-    if (ref->roughness_tex)
-        fmt.define("HAS_METALROUGHNESSMAP");
-    if (ref->emission_tex)
-        fmt.define("HAS_EMISSIVEMAP");
-    if (ref->normal_tex)
-        fmt.define("HAS_NORMALMAP");
+    fmt.define("HAS_UV_SET1");
+    if (property.type == yocto::material_type::metallic)
+        fmt.define("MATERIAL_METALLICROUGHNESS");
+    else if (property.type == yocto::material_type::subsurface)
+        fmt.define("MATERIAL_SUBSURFACE");
+    else
+        fmt.define("MATERIAL_UNLIT");
 
-    fmt.vertex(DataSourcePath::create(app::getAssetPath("pbr.vert")));
-    fmt.fragment(DataSourcePath::create(app::getAssetPath("pbr.frag")));
+    if (ref->color_tex)
+        fmt.define("HAS_BASE_COLOR_MAP");
+    if (ref->roughness_tex)
+        fmt.define("HAS_METALLIC_ROUGHNESS_MAP");
+    if (ref->emission_tex)
+        fmt.define("HAS_EMISSIVE_MAP");
+    if (ref->normal_tex)
+        fmt.define("HAS_NORMAL_MAP");
+    if (ref->scattering_tex)
+        fmt.define("HAS_SUBSURFACE_COLOR_MAP"); // TODO: ??
+
+    fmt.vertex(DataSourcePath::create(app::getAssetPath("pbr/primitive.vert")));
+    fmt.fragment(DataSourcePath::create(app::getAssetPath("pbr/pbr.frag")));
     fmt.label("pbr.vert/pbr.frag");
 
     try

@@ -25,9 +25,6 @@
     <Filter Include="Blocks\vnm\include">
       <UniqueIdentifier>{4AC6FC6B-6529-4495-BFF9-6D6A97BEB257}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Blocks\3rdparty">
-      <UniqueIdentifier>{1d1b5c93-1cda-429f-b42e-14a5a3539052}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Blocks\melo">
       <UniqueIdentifier>{6aa2cfb5-7479-4425-87bb-56104f08facb}</UniqueIdentifier>
     </Filter>
@@ -178,9 +175,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\include\Node.h">
       <Filter>Blocks\melo</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\3rdparty\flythrough_camera\flythrough_camera.h">
-      <Filter>Blocks\3rdparty</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\3rdparty\vox\read_vox.h">
       <Filter>Blocks\melo</Filter>
