@@ -213,8 +213,11 @@ struct MeloViewer : public App
         mLightNode = melo::DirectionalLightNode::create(1, { 0.5, 0.5, 0.5 });
         mLightNode->setPosition({ 10,10,10 });
         mScene->addChild(mLightNode);
-
-        auto ref = GltfData::create(app::getAssetPath("gta5/scene.gltf"));
+        
+        if (CGLTF_ENABLED)
+        {
+            auto ref = GltfData::create(app::getAssetPath("gta5/scene.gltf"));
+        }
     }
 
     void deletePickedNode()

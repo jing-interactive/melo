@@ -8,23 +8,32 @@ namespace fs = std::filesystem;
 
 typedef std::shared_ptr<struct GltfData> GltfDataRef;
 
+struct GltfSubMesh
+{
+    typedef std::shared_ptr<GltfSubMesh> Ref;
+
+    static Ref create(GltfDataRef data, const cgltf_primitive& property);
+
+    cgltf_primitive property;
+};
+
 struct GltfMesh
 {
     typedef std::shared_ptr<GltfMesh> Ref;
 
-    static Ref create(GltfDataRef dataRef, const cgltf_mesh& property)
-    {
-        auto ref = std::make_shared<GltfMesh>();
+    static Ref create(GltfDataRef data, const cgltf_mesh& property);
+    
+    cgltf_mesh property;
 
-        return ref;
-    }
+    std::vector<GltfSubMesh::Ref> subMeshes;
 };
 
 struct GltfTexture
 {
     typedef std::shared_ptr<GltfTexture> Ref;
 
-    static Ref create(GltfDataRef dataRef, const cgltf_texture& property);
+    static Ref create(GltfDataRef data, const cgltf_texture& property);
+    virtual ~GltfTexture();
     
     cgltf_texture property;
 
@@ -37,7 +46,7 @@ struct GltfTexture
 struct GltfAccessor
 {
     typedef std::shared_ptr<GltfAccessor> Ref;
-    static Ref create(GltfDataRef dataRef, const cgltf_accessor& property)
+    static Ref create(GltfDataRef data, const cgltf_accessor& property)
     {
         auto ref = std::make_shared<GltfAccessor>();
 
@@ -48,29 +57,25 @@ struct GltfAccessor
 struct GltfBuffer
 {
     typedef std::shared_ptr<GltfBuffer> Ref;
-    static Ref create(GltfDataRef dataRef, const cgltf_buffer& property)
-    {
-        auto ref = std::make_shared<GltfBuffer>();
+    static Ref create(GltfDataRef data, const cgltf_buffer& property);
 
-        return ref;
-    }
+    uint8_t* data = nullptr;
+    int size;
 };
 
 struct GltfBufferView
 {
     typedef std::shared_ptr<GltfBufferView> Ref;
-    static Ref create(GltfDataRef dataRef, const cgltf_buffer_view& property)
-    {
-        auto ref = std::make_shared<GltfBufferView>();
+    static Ref create(GltfDataRef data, const cgltf_buffer_view& property);
 
-        return ref;
-    }
+    cgltf_buffer_view property;
+    GltfBuffer::Ref buffer;
 };
 
 struct GltfMaterial
 {
     typedef std::shared_ptr<GltfMaterial> Ref;
-    static Ref create(GltfDataRef dataRef, const cgltf_material& property)
+    static Ref create(GltfDataRef data, const cgltf_material& property)
     {
         auto ref = std::make_shared<GltfMaterial>();
 
@@ -81,12 +86,19 @@ struct GltfMaterial
 struct GltfNode : melo::Node
 {
     typedef std::shared_ptr<GltfNode> Ref;
-    static Ref create(GltfDataRef dataRef, const cgltf_node& property)
-    {
-        auto ref = std::make_shared<GltfNode>();
+    static Ref create(GltfDataRef data, const cgltf_node& property);
 
-        return ref;
-    }
+    void setup() override;
+
+    GltfMesh::Ref mesh;
+    cgltf_node property;
+    GltfDataRef data;
+};
+
+struct GltfScene : GltfNode
+{
+    typedef std::shared_ptr<GltfScene> Ref;
+    static Ref create(GltfDataRef data, const cgltf_scene& property);
 };
 
 struct GltfData : melo::Node
@@ -95,17 +107,20 @@ struct GltfData : melo::Node
 
     virtual ~GltfData()
     {
-        if (data)
-            cgltf_free(data);
+        if (property)
+            cgltf_free(property);
     }
 
-    cgltf_data* data = nullptr;
-    fs::path meshPath;
+    cgltf_data* property = nullptr;
+    fs::path path;
 
     std::vector<GltfMaterial::Ref> materials;
     std::vector<GltfAccessor::Ref> accessors;
     std::vector<GltfBuffer::Ref> buffers;
     std::vector<GltfBufferView::Ref> bufferViews;
+    std::vector<GltfSubMesh::Ref> subMeshes;
     std::vector<GltfMesh::Ref> meshes;
     std::vector<GltfTexture::Ref> textures;
+
+    std::vector<GltfNode::Ref> nodes;
 };
