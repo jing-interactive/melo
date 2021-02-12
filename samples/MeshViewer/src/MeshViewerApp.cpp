@@ -44,28 +44,76 @@ using namespace std;
 
 typedef shared_ptr<struct GltfScene> GltfSceneRef;
 
-struct GltfNode : melo::Node
+struct GltfMaterial
 {
-    typedef shared_ptr<GltfNode> Ref;
-    static Ref create(GltfSceneRef scene, yocto::scene_instance& property);
+    typedef shared_ptr<GltfMaterial> Ref;
+    static Ref create(GltfSceneRef scene, yocto::scene_material& property);
 
-    gl::VboMeshRef vboMesh;
+    yocto::scene_material property;
 
-    void draw(melo::DrawOrder order = melo::DRAW_SOLID) override
-    {
-        if (color_tex)
-            color_tex->bind(0);
-        gl::draw(vboMesh);
-        if (color_tex)
-            color_tex->unbind();
-    }
-
-    yocto::scene_material material;
     gl::Texture2dRef emission_tex;
     gl::Texture2dRef color_tex;
     gl::Texture2dRef roughness_tex;
     gl::Texture2dRef scattering_tex;
     gl::Texture2dRef normal_tex;
+
+    void bind()
+    {
+        glsl->uniform("u_LightDirection", vec3(1.0f, 1.0f, 1.0f));
+        glsl->uniform("u_LightColor", vec3(1.0f, 1.0f, 1.0f));
+
+#if 0
+        glsl->uniform("u_MetallicRoughnessValues", vec2(property.metallic, property.roughness));
+        glsl->uniform("u_BaseColorFactor", vec4{ property.color.x, property.color.y, property.color.z, 1.0f });
+#else
+        glsl->uniform("u_MetallicRoughnessValues", vec2(1, 1));
+        glsl->uniform("u_BaseColorFactor", vec4(1,1,1,1));
+#endif
+        glsl->uniform("u_NormalScale", 1.0f);
+        glsl->uniform("u_EmissiveFactor", (vec3&)property.emission);
+
+        if (glsl)
+            glsl->bind();
+        if (color_tex)
+            color_tex->bind(0);
+        if (normal_tex)
+            normal_tex->bind(1);
+        if (emission_tex)
+            emission_tex->bind(2);
+        if (roughness_tex)
+            roughness_tex->bind(3);
+    }
+
+    void unbind()
+    {
+        if (color_tex)
+            color_tex->unbind();
+        if (normal_tex)
+            normal_tex->unbind();
+        if (emission_tex)
+            emission_tex->unbind();
+        if (roughness_tex)
+            roughness_tex->unbind();
+    }
+
+    gl::GlslProgRef glsl;
+};
+
+struct GltfNode : melo::Node
+{
+    typedef shared_ptr<GltfNode> Ref;
+    static Ref create(GltfSceneRef scene, yocto::scene_instance& property);
+
+    gl::VboMeshRef mesh;
+    GltfMaterial::Ref material;
+
+    void draw(melo::DrawOrder order = melo::DRAW_SOLID) override
+    {
+        CI_ASSERT(material);
+        material->bind();
+        gl::draw(mesh);
+        material->unbind();
+    }
 };
 
 struct GltfScene : melo::Node
@@ -87,6 +135,21 @@ struct GltfScene : melo::Node
             return {};
         }
 
+        for (auto& shape : ref->property.shapes)
+        {
+            ref->meshes.emplace_back(ref->createMesh(shape));
+        }
+
+        for (auto& texture : ref->property.textures)
+        {
+            ref->textures.emplace_back(ref->createTexture(texture));
+        }
+
+        for (auto& material : ref->property.materials)
+        {
+            ref->materials.emplace_back(GltfMaterial::create(ref, material));
+        }
+
         for (auto& instance : ref->property.instances)
         {
             ref->addChild(GltfNode::create(ref, instance));
@@ -96,17 +159,41 @@ struct GltfScene : melo::Node
     }
 
     fs::path path;
+    vector<gl::VboMeshRef> meshes;
+    vector<gl::Texture2dRef> textures;
+    vector<GltfMaterial::Ref> materials;
 
     yocto::scene_scene property;
-};
 
-GltfNode::Ref GltfNode::create(GltfSceneRef scene, yocto::scene_instance& property)
-{
-    auto ref = make_shared<GltfNode>();
-
-    if (property.shape != yocto::invalid_handle)
+    gl::Texture2dRef getTexture(yocto::texture_handle handle)
     {
-        auto& shape = scene->property.shapes[property.shape];
+        if (handle == yocto::invalid_handle) return {};
+        return textures[handle];
+    }
+
+    gl::VboMeshRef getMesh(yocto::shape_handle handle)
+    {
+        if (handle == yocto::invalid_handle) return {};
+        return meshes[handle];
+    }
+
+    GltfMaterial::Ref getMaterial(yocto::material_handle handle)
+    {
+        if (handle == yocto::invalid_handle) return {};
+        return materials[handle];
+    }
+
+private:
+
+    gl::Texture2dRef createTexture(const yocto::scene_texture& texture)
+    {
+        CI_ASSERT(texture.hdr.empty());
+        return gl::Texture2d::create(texture.ldr.data(),
+            GL_RGBA, texture.ldr.width(), texture.ldr.height());
+    }
+
+    gl::VboMeshRef createMesh(const yocto::scene_shape& shape)
+    {
         TriMesh::Format fmt;
         if (!shape.positions.empty()) fmt.positions();
         if (!shape.normals.empty()) fmt.normals();
@@ -128,20 +215,67 @@ GltfNode::Ref GltfNode::create(GltfSceneRef scene, yocto::scene_instance& proper
         if (!shape.colors.empty())
             triMesh.appendColors((ColorA*)shape.colors.data(), shape.colors.size());
 
-        ref->vboMesh = gl::VboMesh::create(triMesh);
-
-        auto transform = yocto::frame_to_mat(property.frame);
-        ref->setConstantTransform(glm::make_mat4((const float*)&transform.x));
+        return gl::VboMesh::create(triMesh);
     }
+};
+
+GltfMaterial::Ref GltfMaterial::create(GltfSceneRef scene, yocto::scene_material& property)
+{
+    auto ref = make_shared<GltfMaterial>();
+    ref->color_tex = scene->getTexture(property.color_tex);
+    ref->normal_tex = scene->getTexture(property.normal_tex);
+    ref->roughness_tex = scene->getTexture(property.roughness_tex);
+    ref->emission_tex = scene->getTexture(property.emission_tex);
+    ref->scattering_tex = scene->getTexture(property.scattering_tex);
+
+    auto fmt = gl::GlslProg::Format();
+    fmt.define("HAS_NORMALS");
+    fmt.define("HAS_UV");
+    if (ref->color_tex)
+        fmt.define("HAS_BASECOLORMAP");
+    if (ref->roughness_tex)
+        fmt.define("HAS_METALROUGHNESSMAP");
+    if (ref->emission_tex)
+        fmt.define("HAS_EMISSIVEMAP");
+    if (ref->normal_tex)
+        fmt.define("HAS_NORMALMAP");
+
+    fmt.vertex(DataSourcePath::create(app::getAssetPath("pbr.vert")));
+    fmt.fragment(DataSourcePath::create(app::getAssetPath("pbr.frag")));
+    fmt.label("pbr.vert/pbr.frag");
+
+    try
+    {
+        ref->glsl = gl::GlslProg::create(fmt);
+
+        if (ref->color_tex)
+            ref->glsl->uniform("u_BaseColorSampler", 0);
+        if (ref->normal_tex)
+            ref->glsl->uniform("u_NormalSampler", 1);
+        if (ref->emission_tex)
+            ref->glsl->uniform("u_EmissiveSampler", 2);
+        ref->glsl->uniform("u_MetallicRoughnessSampler", 3);
+    }
+    catch (Exception& e)
+    {
+        CI_LOG_E("Create shader failed, reason: \n" << e.what());
+    }
+
+    return ref;
+}
+
+GltfNode::Ref GltfNode::create(GltfSceneRef scene, yocto::scene_instance& property)
+{
+    auto ref = make_shared<GltfNode>();
+
+    auto transform = yocto::frame_to_mat(property.frame);
+    ref->setConstantTransform(glm::make_mat4((const float*)&transform.x));
+
+    ref->mesh = scene->getMesh(property.shape);
 
     if (property.material != yocto::invalid_handle)
     {
-        auto& material = scene->property.materials[property.material];
-        if (material.color_tex != yocto::invalid_handle)
-        {
-            auto& texData = scene->property.textures[material.color_tex];
-            //ref->color_tex = 
-        }
+        ref->material = scene->getMaterial(property.material);
     }
 
     return ref;
@@ -323,7 +457,7 @@ struct MeloViewer : public App
         
         if (CGLTF_ENABLED)
         {
-            auto ref = GltfScene::create(app::getAssetPath("polly/project_polly.gltf"));
+            auto ref = GltfScene::create(app::getAssetPath("gta5/scene.gltf"));
             mScene->addChild(ref);
         }
     }
