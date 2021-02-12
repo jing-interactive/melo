@@ -8,6 +8,8 @@
 #include <cinder/FileWatcher.h>
 #include <cinder/Timer.h>
 
+#include "../../3rdparty/yocto/yocto_sceneio.h"
+
 #include "miniz/miniz.h"
 
 // vnm
@@ -19,7 +21,7 @@
 // melo
 #include "melo.h"
 #include "cigltf.h"
-#include "GltfNode.h"
+//#include "GltfNode.h"
 #include "NodeExt.h"
 #include "FirstPersonCamera.h"
 
@@ -39,6 +41,25 @@
 using namespace ci;
 using namespace ci::app;
 using namespace std;
+
+struct YoctoNode : melo::Node
+{
+    typedef shared_ptr<YoctoNode> Ref;
+
+    static Ref create(const fs::path& path)
+    {
+        auto ref = make_shared<YoctoNode>();
+        ref->path = path;
+        string error;
+        if (!load_scene(path.string(), &ref->scene, error))
+            return {};
+
+        return ref;
+    }
+
+    fs::path path;
+    yocto::sceneio_scene scene;
+};
 
 struct AAPass
 {
@@ -216,7 +237,7 @@ struct MeloViewer : public App
         
         if (CGLTF_ENABLED)
         {
-            auto ref = GltfData::create(app::getAssetPath("gta5/scene.gltf"));
+            auto ref = YoctoNode::create(app::getAssetPath("gta5/scene.gltf"));
         }
     }
 

@@ -40,6 +40,9 @@
     <Filter Include="Blocks\miniz">
       <UniqueIdentifier>{b00341a0-5244-46ce-a36d-d49b763466a1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Blocks\yocto">
+      <UniqueIdentifier>{de19712f-d78b-43e8-94e8-592536a7f8e5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\MeshViewerApp.cpp">
@@ -159,6 +162,42 @@
     <ClCompile Include="..\..\..\src\GltfNode.cpp">
       <Filter>Blocks\melo</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\yocto\ext\cgltf.cpp">
+      <Filter>Blocks\yocto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\yocto\ext\tinyexr.cpp">
+      <Filter>Blocks\yocto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\yocto\yocto_bvh.cpp">
+      <Filter>Blocks\yocto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\yocto\yocto_commonio.cpp">
+      <Filter>Blocks\yocto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\yocto\yocto_image.cpp">
+      <Filter>Blocks\yocto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\yocto\yocto_json.cpp">
+      <Filter>Blocks\yocto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\yocto\yocto_mesh.cpp">
+      <Filter>Blocks\yocto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\yocto\yocto_modelio.cpp">
+      <Filter>Blocks\yocto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\yocto\yocto_sceneio.cpp">
+      <Filter>Blocks\yocto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\yocto\yocto_shape.cpp">
+      <Filter>Blocks\yocto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\yocto\yocto_trace.cpp">
+      <Filter>Blocks\yocto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\yocto\ext\stb_image.cpp">
+      <Filter>Blocks\yocto</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Resources.h">
@@ -235,6 +274,81 @@
     </ClInclude>
     <ClInclude Include="..\..\..\include\GltfNode.h">
       <Filter>Blocks\melo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\yocto\ext\cgltf.h">
+      <Filter>Blocks\yocto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\yocto\ext\cgltf_write.h">
+      <Filter>Blocks\yocto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\yocto\ext\json.hpp">
+      <Filter>Blocks\yocto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\yocto\ext\stb_image.h">
+      <Filter>Blocks\yocto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\yocto\ext\stb_image_resize.h">
+      <Filter>Blocks\yocto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\yocto\ext\stb_image_write.h">
+      <Filter>Blocks\yocto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\yocto\ext\tinyexr.h">
+      <Filter>Blocks\yocto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\yocto\yocto_bvh.h">
+      <Filter>Blocks\yocto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\yocto\yocto_color.h">
+      <Filter>Blocks\yocto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\yocto\yocto_common.h">
+      <Filter>Blocks\yocto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\yocto\yocto_commonio.h">
+      <Filter>Blocks\yocto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\yocto\yocto_geometry.h">
+      <Filter>Blocks\yocto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\yocto\yocto_image.h">
+      <Filter>Blocks\yocto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\yocto\yocto_json.h">
+      <Filter>Blocks\yocto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\yocto\yocto_math.h">
+      <Filter>Blocks\yocto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\yocto\yocto_matht.h">
+      <Filter>Blocks\yocto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\yocto\yocto_mesh.h">
+      <Filter>Blocks\yocto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\yocto\yocto_modelio.h">
+      <Filter>Blocks\yocto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\yocto\yocto_noise.h">
+      <Filter>Blocks\yocto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\yocto\yocto_parallel.h">
+      <Filter>Blocks\yocto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\yocto\yocto_sampling.h">
+      <Filter>Blocks\yocto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\yocto\yocto_sceneio.h">
+      <Filter>Blocks\yocto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\yocto\yocto_shading.h">
+      <Filter>Blocks\yocto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\yocto\yocto_shape.h">
+      <Filter>Blocks\yocto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\yocto\yocto_trace.h">
+      <Filter>Blocks\yocto</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
