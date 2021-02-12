@@ -20,7 +20,6 @@
 
 // melo
 #include "melo.h"
-#include "cigltf.h"
 //#include "GltfNode.h"
 #include "NodeExt.h"
 #include "FirstPersonCamera.h"
@@ -434,7 +433,7 @@ struct MeloViewer : public App
     melo::NodeRef mGridNode;
 
     melo::NodeRef mPickedNode, mMouseHitNode;
-    AnimationGLTF::Ref mPickedAnimation;
+    //AnimationGLTF::Ref mPickedAnimation;
     mat4 mPickedTransform;
 
     FileWatcher mFileWatcher;
@@ -454,12 +453,6 @@ struct MeloViewer : public App
         mLightNode = melo::DirectionalLightNode::create(1, { 0.5, 0.5, 0.5 });
         mLightNode->setPosition({ 10,10,10 });
         mScene->addChild(mLightNode);
-        
-        if (CGLTF_ENABLED)
-        {
-            auto ref = GltfScene::create(app::getAssetPath("gta5/scene.gltf"));
-            mScene->addChild(ref);
-        }
     }
 
     void deletePickedNode()
@@ -608,6 +601,7 @@ struct MeloViewer : public App
                     }
                 }
 
+#if 0
                 ImGui::NewLine();
                 ImGui::Text("Animation");
                 if (mPickedNode->getName().find(".gltf") != string::npos)
@@ -645,6 +639,7 @@ struct MeloViewer : public App
                         mPickedTransform = mPickedNode->getWorldTransform();
                     }
                 }
+#endif
                 ImGui::EndTabItem();
             }
             ImGui::EndTabBar();
@@ -1034,7 +1029,7 @@ struct MeloViewer : public App
             melo::Node::brdfLUTTexture = am::texture2d(BRDF_LUT_TEX);
         }
 
-        auto newModel = melo::createMeshNode(path);
+        auto newModel = GltfScene::create(path);
         if (newModel)
         {
             mScene->addChild(newModel);

@@ -80,11 +80,14 @@ namespace melo
 
         auto ext = meshPath.extension().string();
         std::transform(ext.begin(), ext.end(), ext.begin(), static_cast<int(*)(int)>(tolower));
+
+#if 0
         if (ext == ".obj")
             return ModelObj::create(realPath);
 
         if (ext == ".gltf" || realPath.extension() == ".glb")
             return ModelGLTF::create(realPath);
+#endif
 
         return {};
     }

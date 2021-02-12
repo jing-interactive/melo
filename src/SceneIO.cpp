@@ -5,6 +5,10 @@ using namespace std;
 
 namespace melo
 {
+#if 1
+    NodeRef loadScene(const std::string& filename) { return {}; }
+    bool writeScene(NodeRef scene, const std::string& filename) { return true; }
+#else
     NodeRef loadScene(const std::string& filename)
     {
         NodeRef root;
@@ -79,4 +83,5 @@ namespace melo
 
         return result;
     }
+#endif
 }

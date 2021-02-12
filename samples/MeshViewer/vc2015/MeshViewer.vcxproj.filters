@@ -105,23 +105,8 @@
     <ClCompile Include="..\..\..\..\Cinder-VNM\src\MiniConfig.cpp">
       <Filter>Blocks\vnm\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\cigltf.cpp">
-      <Filter>Blocks\melo</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\ciobj.cpp">
-      <Filter>Blocks\melo</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\Node.cpp">
       <Filter>Blocks\melo</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\3rdparty\tinygltf\tiny_gltf.cc">
-      <Filter>Blocks\3rdparty</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\3rdparty\tinyobjloader\tiny_obj_loader.cc">
-      <Filter>Blocks\3rdparty</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\3rdparty\tinyply\tinyply.cpp">
-      <Filter>Blocks\3rdparty</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\3rdparty\vox\read_vox.cpp">
       <Filter>Blocks\melo</Filter>
@@ -180,9 +165,6 @@
     <ClCompile Include="..\..\..\3rdparty\yocto\yocto_shape.cpp">
       <Filter>Blocks\yocto</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\3rdparty\yocto\yocto_trace.cpp">
-      <Filter>Blocks\yocto</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\3rdparty\yocto\ext\stb_image.cpp">
       <Filter>Blocks\yocto</Filter>
     </ClCompile>
@@ -197,12 +179,6 @@
     <ClInclude Include="..\include\Resources.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\cigltf.h">
-      <Filter>Blocks\melo</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\include\ciobj.h">
-      <Filter>Blocks\melo</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\include\FirstPersonCamera.h">
       <Filter>Blocks\melo</Filter>
     </ClInclude>
@@ -210,24 +186,6 @@
       <Filter>Blocks\melo</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\3rdparty\flythrough_camera\flythrough_camera.h">
-      <Filter>Blocks\3rdparty</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\3rdparty\tinygltf\json.hpp">
-      <Filter>Blocks\3rdparty</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\3rdparty\tinygltf\stb_image.h">
-      <Filter>Blocks\3rdparty</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\3rdparty\tinygltf\stb_image_write.h">
-      <Filter>Blocks\3rdparty</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\3rdparty\tinygltf\tiny_gltf.h">
-      <Filter>Blocks\3rdparty</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\3rdparty\tinyobjloader\tiny_obj_loader.h">
-      <Filter>Blocks\3rdparty</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\3rdparty\tinyply\tinyply.h">
       <Filter>Blocks\3rdparty</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\3rdparty\vox\read_vox.h">
@@ -330,9 +288,6 @@
       <Filter>Blocks\yocto</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\3rdparty\yocto\yocto_shape.h">
-      <Filter>Blocks\yocto</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\3rdparty\yocto\yocto_trace.h">
       <Filter>Blocks\yocto</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\..\..\yocto-gl\libs\yocto\yocto_scene.h">
