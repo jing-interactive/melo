@@ -42,33 +42,110 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-struct YoctoNode : melo::Node
-{
-    typedef shared_ptr<YoctoNode> Ref;
+typedef shared_ptr<struct GltfScene> GltfSceneRef;
 
+struct GltfNode : melo::Node
+{
+    typedef shared_ptr<GltfNode> Ref;
+    static Ref create(GltfSceneRef scene, yocto::scene_instance& property);
+
+    gl::VboMeshRef vboMesh;
+
+    void draw(melo::DrawOrder order = melo::DRAW_SOLID) override
+    {
+        if (color_tex)
+            color_tex->bind(0);
+        gl::draw(vboMesh);
+        if (color_tex)
+            color_tex->unbind();
+    }
+
+    yocto::scene_material material;
+    gl::Texture2dRef emission_tex;
+    gl::Texture2dRef color_tex;
+    gl::Texture2dRef roughness_tex;
+    gl::Texture2dRef scattering_tex;
+    gl::Texture2dRef normal_tex;
+};
+
+struct GltfScene : melo::Node
+{
     static void progress_callback(const string& message, int current, int total)
     {
         CI_LOG_V(message << ": " << current << '/' << total);
     }
 
-    static Ref create(const fs::path& path)
+    static GltfSceneRef create(const fs::path& path)
     {
-        auto ref = make_shared<YoctoNode>();
+        auto ref = make_shared<GltfScene>();
         ref->path = path;
         string error;
 
-        if (!load_scene(path.string(), ref->scene, error, progress_callback))
+        if (!load_scene(path.string(), ref->property, error, progress_callback))
         {
             CI_LOG_E(error);
             return {};
+        }
+
+        for (auto& instance : ref->property.instances)
+        {
+            ref->addChild(GltfNode::create(ref, instance));
         }
 
         return ref;
     }
 
     fs::path path;
-    yocto::scene_scene scene;
+
+    yocto::scene_scene property;
 };
+
+GltfNode::Ref GltfNode::create(GltfSceneRef scene, yocto::scene_instance& property)
+{
+    auto ref = make_shared<GltfNode>();
+
+    if (property.shape != yocto::invalid_handle)
+    {
+        auto& shape = scene->property.shapes[property.shape];
+        TriMesh::Format fmt;
+        if (!shape.positions.empty()) fmt.positions();
+        if (!shape.normals.empty()) fmt.normals();
+        if (!shape.tangents.empty()) fmt.tangents();
+        if (!shape.texcoords.empty()) fmt.texCoords0();
+        if (!shape.colors.empty()) fmt.colors();
+
+        TriMesh triMesh(fmt);
+        if (!shape.triangles.empty())
+            triMesh.appendIndices((uint32_t*)shape.triangles.data(), shape.triangles.size() * 3);
+        if (!shape.positions.empty())
+            triMesh.appendPositions((vec3*)shape.positions.data(), shape.positions.size());
+        if (!shape.tangents.empty())
+            triMesh.appendTangents((vec3*)shape.tangents.data(), shape.tangents.size());
+        if (!shape.normals.empty())
+            triMesh.appendNormals((vec3*)shape.normals.data(), shape.normals.size());
+        if (!shape.texcoords.empty())
+            triMesh.appendTexCoords0((vec2*)shape.texcoords.data(), shape.texcoords.size());
+        if (!shape.colors.empty())
+            triMesh.appendColors((ColorA*)shape.colors.data(), shape.colors.size());
+
+        ref->vboMesh = gl::VboMesh::create(triMesh);
+
+        auto transform = yocto::frame_to_mat(property.frame);
+        ref->setConstantTransform(glm::make_mat4((const float*)&transform.x));
+    }
+
+    if (property.material != yocto::invalid_handle)
+    {
+        auto& material = scene->property.materials[property.material];
+        if (material.color_tex != yocto::invalid_handle)
+        {
+            auto& texData = scene->property.textures[material.color_tex];
+            //ref->color_tex = 
+        }
+    }
+
+    return ref;
+}
 
 struct AAPass
 {
@@ -246,7 +323,8 @@ struct MeloViewer : public App
         
         if (CGLTF_ENABLED)
         {
-            auto ref = YoctoNode::create(app::getAssetPath("polly/project_polly.gltf"));
+            auto ref = GltfScene::create(app::getAssetPath("polly/project_polly.gltf"));
+            mScene->addChild(ref);
         }
     }
 
