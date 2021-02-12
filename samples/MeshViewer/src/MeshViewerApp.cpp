@@ -61,13 +61,8 @@ struct GltfMaterial
         glsl->uniform("u_LightDirection", vec3(1.0f, 1.0f, 1.0f));
         glsl->uniform("u_LightColor", vec3(1.0f, 1.0f, 1.0f));
 
-#if 0
         glsl->uniform("u_MetallicRoughnessValues", vec2(property.metallic, property.roughness));
         glsl->uniform("u_BaseColorFactor", vec4{ property.color.x, property.color.y, property.color.z, 1.0f });
-#else
-        glsl->uniform("u_MetallicRoughnessValues", vec2(1, 1));
-        glsl->uniform("u_BaseColorFactor", vec4(1,1,1,1));
-#endif
         glsl->uniform("u_NormalScale", 1.0f);
         glsl->uniform("u_EmissiveFactor", (vec3&)property.emission);
 
@@ -221,6 +216,7 @@ private:
 GltfMaterial::Ref GltfMaterial::create(GltfSceneRef scene, yocto::scene_material& property)
 {
     auto ref = make_shared<GltfMaterial>();
+    ref->property = property;
     ref->color_tex = scene->getTexture(property.color_tex);
     ref->normal_tex = scene->getTexture(property.normal_tex);
     ref->roughness_tex = scene->getTexture(property.roughness_tex);

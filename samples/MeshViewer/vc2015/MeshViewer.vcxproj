@@ -117,14 +117,11 @@
     <ClInclude Include="..\..\..\..\Cinder-VNM\ui\ImGuizmo\ImGuizmo.h" />
     <ClInclude Include="..\..\..\3rdparty\flythrough_camera\flythrough_camera.h" />
     <ClInclude Include="..\..\..\3rdparty\vox\read_vox.h" />
-    <ClInclude Include="..\..\..\3rdparty\yocto\ext\cgltf.h" />
-    <ClInclude Include="..\..\..\3rdparty\yocto\ext\cgltf_write.h" />
     <ClInclude Include="..\..\..\3rdparty\yocto\ext\json.hpp" />
     <ClInclude Include="..\..\..\3rdparty\yocto\ext\stb_image.h" />
     <ClInclude Include="..\..\..\3rdparty\yocto\ext\stb_image_resize.h" />
     <ClInclude Include="..\..\..\3rdparty\yocto\ext\stb_image_write.h" />
     <ClInclude Include="..\..\..\3rdparty\yocto\ext\tinyexr.h" />
-    <ClInclude Include="..\..\..\3rdparty\yocto\yocto_bvh.h" />
     <ClInclude Include="..\..\..\3rdparty\yocto\yocto_color.h" />
     <ClInclude Include="..\..\..\3rdparty\yocto\yocto_common.h" />
     <ClInclude Include="..\..\..\3rdparty\yocto\yocto_commonio.h" />
@@ -175,10 +172,8 @@
     <ClCompile Include="..\..\..\..\Cinder-VNM\ui\DearLogger.cpp" />
     <ClCompile Include="..\..\..\..\Cinder-VNM\ui\ImGuizmo\ImGuizmo.cpp" />
     <ClCompile Include="..\..\..\3rdparty\vox\read_vox.cpp" />
-    <ClCompile Include="..\..\..\3rdparty\yocto\ext\cgltf.cpp" />
     <ClCompile Include="..\..\..\3rdparty\yocto\ext\stb_image.cpp" />
     <ClCompile Include="..\..\..\3rdparty\yocto\ext\tinyexr.cpp" />
-    <ClCompile Include="..\..\..\3rdparty\yocto\yocto_bvh.cpp" />
     <ClCompile Include="..\..\..\3rdparty\yocto\yocto_image.cpp" />
     <ClCompile Include="..\..\..\3rdparty\yocto\yocto_mesh.cpp" />
     <ClCompile Include="..\..\..\3rdparty\yocto\yocto_modelio.cpp" />

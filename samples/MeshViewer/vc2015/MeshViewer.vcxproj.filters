@@ -141,13 +141,7 @@
     <ClCompile Include="..\src\miniz\miniz.c">
       <Filter>Blocks\miniz</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\3rdparty\yocto\ext\cgltf.cpp">
-      <Filter>Blocks\yocto</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\3rdparty\yocto\ext\tinyexr.cpp">
-      <Filter>Blocks\yocto</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\3rdparty\yocto\yocto_bvh.cpp">
       <Filter>Blocks\yocto</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\3rdparty\yocto\yocto_image.cpp">
@@ -221,12 +215,6 @@
     <ClInclude Include="..\src\ShadowMap.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\3rdparty\yocto\ext\cgltf.h">
-      <Filter>Blocks\yocto</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\3rdparty\yocto\ext\cgltf_write.h">
-      <Filter>Blocks\yocto</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\3rdparty\yocto\ext\json.hpp">
       <Filter>Blocks\yocto</Filter>
     </ClInclude>
@@ -240,9 +228,6 @@
       <Filter>Blocks\yocto</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\3rdparty\yocto\ext\tinyexr.h">
-      <Filter>Blocks\yocto</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\3rdparty\yocto\yocto_bvh.h">
       <Filter>Blocks\yocto</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\3rdparty\yocto\yocto_color.h">
