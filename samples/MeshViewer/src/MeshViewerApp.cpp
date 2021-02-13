@@ -132,6 +132,7 @@ struct GltfScene : melo::Node
             return {};
         }
 
+        ref->setName(ref->property.asset.name);
         for (auto& shape : ref->property.shapes)
         {
             ref->meshes.emplace_back(ref->createMesh(shape));
@@ -247,14 +248,27 @@ GltfMaterial::Ref GltfMaterial::create(GltfSceneRef scene, yocto::scene_material
     if (ref->scattering_tex)
         fmt.define("HAS_SUBSURFACE_COLOR_MAP"); // TODO: ??
 
+    fmt.attrib(geom::POSITION, "a_Position");
+    fmt.attrib(geom::NORMAL, "a_Normal");
+    fmt.attrib(geom::TEX_COORD_0, "a_UV1");
+    fmt.attrib(geom::TEX_COORD_1, "a_UV2");
+    fmt.attrib(geom::COLOR, "a_Color");
+
+    fmt.uniform(gl::UNIFORM_VIEW_PROJECTION, "u_ViewProjectionMatrix");
+    fmt.uniform(gl::UNIFORM_MODEL_MATRIX, "u_ModelMatrix");
+    fmt.uniform(gl::UNIFORM_NORMAL_MATRIX, "u_NormalMatrix");
+
     fmt.vertex(DataSourcePath::create(app::getAssetPath("pbr/primitive.vert")));
     fmt.fragment(DataSourcePath::create(app::getAssetPath("pbr/pbr.frag")));
-    fmt.label("pbr.vert/pbr.frag");
+    fmt.label("khronos-pbr");
 
     try
     {
+#if 1
         ref->glsl = gl::GlslProg::create(fmt);
-
+#else
+        ref->glsl = am::glslProg("lambert texture");
+#endif
         if (ref->color_tex)
             ref->glsl->uniform("u_BaseColorSampler", 0);
         if (ref->normal_tex)

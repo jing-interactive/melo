@@ -1,14 +1,14 @@
 #include <animation.glsl>
 
-in vec4 ciPosition;
+in vec3 a_Position;
 out vec3 v_Position;
 
 #ifdef HAS_NORMALS
-in vec3 ciNormal;
+in vec3 a_Normal;
 #endif
 
 #ifdef HAS_TANGENTS
-in vec4 ciTangent;
+in vec4 a_Tangent;
 #endif
 
 #ifdef HAS_NORMALS
@@ -20,33 +20,33 @@ out vec3 v_Normal;
 #endif
 
 #ifdef HAS_UV_SET1
-in vec2 ciTexCoord0;
+in vec2 a_UV1;
 #endif
 
 #ifdef HAS_UV_SET2
-in vec2 ciTexCoord1;
+in vec2 a_UV2;
 #endif
 
 out vec2 v_UVCoord1;
 out vec2 v_UVCoord2;
 
 #ifdef HAS_VERTEX_COLOR_VEC3
-in vec3 ciColor;
+in vec3 a_Color;
 out vec3 v_Color;
 #endif
 
 #ifdef HAS_VERTEX_COLOR_VEC4
-in vec4 ciColor;
+in vec4 a_Color;
 out vec4 v_Color;
 #endif
 
-uniform mat4 ciViewProjection;
-uniform mat4 ciModelMatrix;
-uniform mat4 ciNormalMatrix;
+uniform mat4 u_ViewProjectionMatrix;
+uniform mat4 u_ModelMatrix;
+uniform mat4 u_NormalMatrix;
 
 vec4 getPosition()
 {
-    vec4 pos = vec4(ciPosition.xyz, 1.0);
+    vec4 pos = vec4(a_Position, 1.0);
 
 #ifdef USE_MORPHING
     pos += getTargetPosition();
@@ -62,7 +62,7 @@ vec4 getPosition()
 #ifdef HAS_NORMALS
 vec3 getNormal()
 {
-    vec3 normal = ciNormal;
+    vec3 normal = a_Normal;
 
 #ifdef USE_MORPHING
     normal += getTargetNormal();
@@ -79,7 +79,7 @@ vec3 getNormal()
 #ifdef HAS_TANGENTS
 vec3 getTangent()
 {
-    vec3 tangent = ciTangent.xyz;
+    vec3 tangent = a_Tangent.xyz;
 
 #ifdef USE_MORPHING
     tangent += getTargetTangent();
@@ -95,18 +95,18 @@ vec3 getTangent()
 
 void main()
 {
-    vec4 pos = ciModelMatrix * getPosition();
+    vec4 pos = u_ModelMatrix * getPosition();
     v_Position = vec3(pos.xyz) / pos.w;
 
     #ifdef HAS_NORMALS
     #ifdef HAS_TANGENTS
         vec3 tangent = getTangent();
-        vec3 normalW = normalize(vec3(ciNormalMatrix * vec4(getNormal(), 0.0)));
-        vec3 tangentW = normalize(vec3(ciModelMatrix * vec4(tangent, 0.0)));
-        vec3 bitangentW = cross(normalW, tangentW) * ciTangent.w;
+        vec3 normalW = normalize(vec3(u_NormalMatrix * vec4(getNormal(), 0.0)));
+        vec3 tangentW = normalize(vec3(u_ModelMatrix * vec4(tangent, 0.0)));
+        vec3 bitangentW = cross(normalW, tangentW) * a_Tangent.w;
         v_TBN = mat3(tangentW, bitangentW, normalW);
     #else // !HAS_TANGENTS
-        v_Normal = normalize(vec3(ciNormalMatrix * vec4(getNormal(), 0.0)));
+        v_Normal = normalize(vec3(u_NormalMatrix * vec4(getNormal(), 0.0)));
     #endif
     #endif // !HAS_NORMALS
 
@@ -114,16 +114,16 @@ void main()
     v_UVCoord2 = vec2(0.0, 0.0);
 
     #ifdef HAS_UV_SET1
-        v_UVCoord1 = ciTexCoord0;
+        v_UVCoord1 = a_UV1;
     #endif
 
     #ifdef HAS_UV_SET2
-        v_UVCoord2 = ciTexCoord1;
+        v_UVCoord2 = a_UV2;
     #endif
 
     #if defined(HAS_VERTEX_COLOR_VEC3) || defined(HAS_VERTEX_COLOR_VEC4)
-        v_Color = ciColor;
+        v_Color = a_Color;
     #endif
 
-    gl_Position = ciViewProjection * pos;
+    gl_Position = u_ViewProjectionMatrix * pos;
 }
