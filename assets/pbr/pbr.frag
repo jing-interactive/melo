@@ -19,15 +19,16 @@
 //     https://github.com/KhronosGroup/glTF/pull/1766
 // [8] "KHR_materials_thinfilm"
 //     https://github.com/ux3d/glTF/tree/extensions/KHR_materials_thinfilm/extensions/2.0/Khronos/KHR_materials_thinfilm
+#version 130
 
 precision highp float;
 
-#include <tonemapping.glsl>
-#include <textures.glsl>
-#include <functions.glsl>
-#include <brdf.glsl>
-#include <punctual.glsl>
-#include <ibl.glsl>
+#include "tonemapping.glsl"
+#include "textures.glsl"
+#include "functions.glsl"
+#include "brdf.glsl"
+#include "punctual.glsl"
+#include "ibl.glsl"
 
 out vec4 g_finalColor;
 
@@ -184,7 +185,7 @@ NormalInfo getNormalInfo(vec3 v)
     b = normalize(cross(ng, t));
 
     // Compute pertubed normals:
-    #ifdef HAS_NORMAL_MAP
+    #if 1
         n = texture(u_NormalSampler, UV).rgb * 2.0 - vec3(1.0);
         n *= vec3(u_NormalScale, u_NormalScale, 1.0);
         n = mat3(t, b, ng) * normalize(n);

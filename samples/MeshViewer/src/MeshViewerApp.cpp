@@ -229,6 +229,7 @@ GltfMaterial::Ref GltfMaterial::create(GltfSceneRef scene, yocto::scene_material
 
     auto fmt = gl::GlslProg::Format();
     fmt.define("HAS_NORMALS");
+    //fmt.define("HAS_TANGENTS");
     fmt.define("HAS_UV_SET1");
     if (property.type == yocto::material_type::metallic)
         fmt.define("MATERIAL_METALLICROUGHNESS");
@@ -250,6 +251,7 @@ GltfMaterial::Ref GltfMaterial::create(GltfSceneRef scene, yocto::scene_material
 
     fmt.attrib(geom::POSITION, "a_Position");
     fmt.attrib(geom::NORMAL, "a_Normal");
+    fmt.attrib(geom::TANGENT, "a_Tangent");
     fmt.attrib(geom::TEX_COORD_0, "a_UV1");
     fmt.attrib(geom::TEX_COORD_1, "a_UV2");
     fmt.attrib(geom::COLOR, "a_Color");
@@ -258,8 +260,11 @@ GltfMaterial::Ref GltfMaterial::create(GltfSceneRef scene, yocto::scene_material
     fmt.uniform(gl::UNIFORM_MODEL_MATRIX, "u_ModelMatrix");
     fmt.uniform(gl::UNIFORM_NORMAL_MATRIX, "u_NormalMatrix");
 
+    fmt.fragDataLocation(0, "g_finalColor");
+
     fmt.vertex(DataSourcePath::create(app::getAssetPath("pbr/primitive.vert")));
     fmt.fragment(DataSourcePath::create(app::getAssetPath("pbr/pbr.frag")));
+    fmt.version(430);
     fmt.label("khronos-pbr");
 
     try
@@ -751,7 +756,7 @@ struct MeloViewer : public App
         if (RENDER_DOC_ENABLED)
             mRdc.setup();
 
-        log::makeLogger<log::LoggerFileRotating>(fs::path(), "IG.%Y.%m.%d.log");
+        log::makeLogger<log::LoggerFileRotating>(fs::path(), "melo-%Y-%m-%d.log");
         mUiLogger = log::makeLogger<ImGui::DearLogger>();
 
         am::addAssetDirectory(getAppPath() / "../assets");
