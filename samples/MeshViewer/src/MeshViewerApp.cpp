@@ -1016,6 +1016,7 @@ struct MeloViewer : public App
 
             mShadowMapPass.mLight.camera.lookAt(mLightNode->getPosition(), { 0,0,0 });
 
+#if 0
             Frustumf frustrum(*mCurrentCam);
 
             for (auto& child : mScene->getChildren())
@@ -1023,7 +1024,7 @@ struct MeloViewer : public App
                 //mModel->flipV = FLIP_V;
                 child->setVisible(child->isInsideFrustrum(frustrum));
             }
-
+#endif
             if (GUI_VISIBLE)
             {
                 drawGUI();
