@@ -53,9 +53,9 @@ const int LightType_Spot = 2;
     ENTRY(DEBUG_ALPHA, Alpha) \
     ENTRY(DEBUG_NORMAL, Normal) \
     ENTRY(DEBUG_TANGENT, Tangent) \
+    ENTRY(DEBUG_BITANGENT, Bitangent) \
     ENTRY(DEBUG_METALLIC, Metallic) \
     ENTRY(DEBUG_ROUGHNESS, Roughness) \
-    ENTRY(DEBUG_BITANGENT, Bitangent) \
     ENTRY(DEBUG_OCCLUSION, Occulussion) \
     ENTRY(DEBUG_F0, F0) \
     ENTRY(DEBUG_FEMISSIVE, Emissive) \
@@ -82,7 +82,7 @@ struct GltfLight
     float range = { 999 };
 
     vec3 color = { 0.5, 0.5, 0.5 };
-    float intensity = 10;
+    float intensity = 1;
 
     vec3 position;
     float innerConeCos = 0.1;
@@ -1229,7 +1229,7 @@ void GltfScene::update(double elapsed)
     auto app = (MeloViewer*)App::get();
     for (auto& light : lights)
     {
-        light.direction = glm::normalize(app->mLightNode->getPosition());
+        light.direction = - glm::normalize(app->mLightNode->getPosition());
         light.color= app->mLightNode->color;
     }
 
