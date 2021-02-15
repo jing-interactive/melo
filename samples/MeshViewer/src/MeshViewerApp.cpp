@@ -47,6 +47,35 @@ const int LightType_Directional = 0;
 const int LightType_Point = 1;
 const int LightType_Spot = 2;
 
+#define DebugTypeList \
+    ENTRY(DEBUG_NONE, None) \
+    ENTRY(DEBUG_BASECOLOR, BaseColor) \
+    ENTRY(DEBUG_ALPHA, Alpha) \
+    ENTRY(DEBUG_NORMAL, Normal) \
+    ENTRY(DEBUG_TANGENT, Tangent) \
+    ENTRY(DEBUG_METALLIC, Metallic) \
+    ENTRY(DEBUG_ROUGHNESS, Roughness) \
+    ENTRY(DEBUG_BITANGENT, Bitangent) \
+    ENTRY(DEBUG_OCCLUSION, Occulussion) \
+    ENTRY(DEBUG_F0, F0) \
+    ENTRY(DEBUG_FEMISSIVE, Emissive) \
+    ENTRY(DEBUG_FSPECULAR, Specular) \
+    ENTRY(DEBUG_FDIFFUSE, Diffuse) \
+    ENTRY(DEBUG_FSHEEN, Sheen) \
+    ENTRY(DEBUG_FCLEARCOAT, ClearCoat) \
+    ENTRY(DEBUG_FSUBSURFACE, Subsurface) \
+    ENTRY(DEBUG_THICKNESS, Thickness) \
+    ENTRY(DEBUG_FTRANSMISSION, Transmission)
+
+#define ENTRY(flag, name) flag,
+enum DebugType
+{
+    DebugTypeList
+
+    DEBUG_COUNT,
+};
+#undef ENTRY
+
 struct GltfLight
 {
     vec3 direction = { 0,1.0f, 0 };
@@ -67,7 +96,7 @@ struct GltfLight
 struct GltfMaterial
 {
     typedef shared_ptr<GltfMaterial> Ref;
-    static Ref create(GltfSceneRef scene, yocto::scene_material& property);
+    static Ref create(GltfScene* scene, yocto::scene_material& property, DebugType debugType = DEBUG_NONE);
 
     yocto::scene_material property;
 
@@ -115,14 +144,16 @@ struct GltfMaterial
 struct GltfNode : melo::Node
 {
     typedef shared_ptr<GltfNode> Ref;
-    static Ref create(GltfSceneRef scene, yocto::scene_instance& property);
+    static Ref create(GltfScene* scene, yocto::scene_instance& property);
 
     gl::VboMeshRef mesh;
     GltfMaterial::Ref material;
 
     void draw(melo::DrawOrder order) override;
+    void reloadMaterial();
 
-    GltfSceneRef scene;
+    GltfScene* scene;
+    yocto::scene_instance property;
 };
 
 struct GltfScene : melo::Node
@@ -155,14 +186,11 @@ struct GltfScene : melo::Node
             ref->textures.emplace_back(ref->createTexture(texture));
         }
 
-        for (auto& material : ref->property.materials)
-        {
-            ref->materials.emplace_back(GltfMaterial::create(ref, material));
-        }
+        ref->createMaterials();
 
         for (auto& instance : ref->property.instances)
         {
-            ref->addChild(GltfNode::create(ref, instance));
+            ref->addChild(GltfNode::create(ref.get(), instance));
         }
 
         return ref;
@@ -176,6 +204,16 @@ struct GltfScene : melo::Node
     vector<GltfMaterial::Ref> materials;
 
     yocto::scene_scene property;
+
+    void createMaterials(DebugType debugType = DEBUG_NONE)
+    {
+        materials.clear();
+        for (auto& material : property.materials)
+        {
+            materials.emplace_back(GltfMaterial::create(this, material, debugType));
+        }
+        isMaterialDirty = true;
+    }
 
     gl::Texture2dRef getTexture(yocto::texture_handle handle)
     {
@@ -196,6 +234,8 @@ struct GltfScene : melo::Node
     }
 
     void update(double elapsed) override;
+
+    bool isMaterialDirty = false;
 
 private:
 
@@ -233,7 +273,7 @@ private:
     }
 };
 
-GltfMaterial::Ref GltfMaterial::create(GltfSceneRef scene, yocto::scene_material& property)
+GltfMaterial::Ref GltfMaterial::create(GltfScene* scene, yocto::scene_material& property, DebugType debugType)
 {
     auto ref = make_shared<GltfMaterial>();
     ref->property = property;
@@ -267,27 +307,14 @@ GltfMaterial::Ref GltfMaterial::create(GltfSceneRef scene, yocto::scene_material
     if (ref->scattering_tex)
         fmt.define("HAS_SUBSURFACE_COLOR_MAP"); // TODO: ??
 
-#if 0
-    fmt.define("DEBUG_OUTPUT");
-    fmt.define("DEBUG_NORMAL");
-    // DEBUG_BASECOLOR
-    // DEBUG_ALPHA
-    // DEBUG_NORMAL
-    // DEBUG_TANGENT
-    // DEBUG_METALLIC
-    // DEBUG_ROUGHNESS
-    // DEBUG_BITANGENT
-    // DEBUG_OCCLUSION
-    // DEBUG_F0
-    // DEBUG_FEMISSIVE
-    // DEBUG_FSPECULAR
-    // DEBUG_FDIFFUSE
-    // DEBUG_FSHEEN
-    // DEBUG_FCLEARCOAT
-    // DEBUG_FSUBSURFACE
-    // DEBUG_THICKNESS
-    // DEBUG_FTRANSMISSION
-#endif
+    if (debugType != DEBUG_NONE)
+    {
+        fmt.define("DEBUG_OUTPUT");
+        
+#define ENTRY(flag, name) if (debugType == flag) fmt.define(#flag);
+        DebugTypeList
+#undef ENTRY
+    }
 
     fmt.attrib(geom::POSITION, "a_Position");
     fmt.attrib(geom::NORMAL, "a_Normal");
@@ -304,7 +331,6 @@ GltfMaterial::Ref GltfMaterial::create(GltfSceneRef scene, yocto::scene_material
 
     fmt.vertex(DataSourcePath::create(app::getAssetPath("pbr/primitive.vert")));
     fmt.fragment(DataSourcePath::create(app::getAssetPath("pbr/pbr.frag")));
-    fmt.version(430);
     fmt.label("khronos-pbr");
 
     try
@@ -330,20 +356,26 @@ GltfMaterial::Ref GltfMaterial::create(GltfSceneRef scene, yocto::scene_material
     return ref;
 }
 
-GltfNode::Ref GltfNode::create(GltfSceneRef scene, yocto::scene_instance& property)
+void GltfNode::reloadMaterial()
+{
+    if (property.material != yocto::invalid_handle)
+    {
+        material = scene->getMaterial(property.material);
+    }
+}
+
+GltfNode::Ref GltfNode::create(GltfScene* scene, yocto::scene_instance& property)
 {
     auto ref = make_shared<GltfNode>();
 
     ref->scene = scene;
+    ref->property = property;
     auto transform = yocto::frame_to_mat(property.frame);
     ref->setConstantTransform(glm::make_mat4((const float*)&transform.x));
 
     ref->mesh = scene->getMesh(property.shape);
 
-    if (property.material != yocto::invalid_handle)
-    {
-        ref->material = scene->getMaterial(property.material);
-    }
+    ref->reloadMaterial();
 
     return ref;
 }
@@ -585,6 +617,21 @@ struct MeloViewer : public App
                 }
 
                 ImGui::Separator();
+
+                static int debugType = DEBUG_NONE;
+#define ENTRY(flag, name) #name,
+                vector<string> debugTypes = {
+                    DebugTypeList
+                };
+#undef ENTRY
+                if (ImGui::Combo("Debug Type", &debugType, debugTypes))
+                {
+                    if (mPickedNode)
+                    {
+                        auto gltfScene = (GltfScene*)mPickedNode.get();
+                        gltfScene->createMaterials((DebugType)debugType);
+                    }
+                }
 
                 // selectable list
                 ImGui::SetNextItemOpen(true, ImGuiCond_Once);
@@ -1097,6 +1144,7 @@ struct MeloViewer : public App
         if (newModel)
         {
             mScene->addChild(newModel);
+            setPickedNode(newModel);
         }
         CI_LOG_I(path << " loaded in " << timer.getSeconds() << " seconds");
     }
@@ -1184,14 +1232,23 @@ void GltfScene::update(double elapsed)
         light.direction = glm::normalize(app->mLightNode->getPosition());
         light.color= app->mLightNode->color;
     }
+
+    if (isMaterialDirty)
+        App::get()->dispatchAsync([this] {
+        isMaterialDirty = false;
+    });
 }
 
 void GltfNode::draw(melo::DrawOrder order)
 {
+    auto app = (MeloViewer*)App::get();
+    if (scene->isMaterialDirty)
+    {
+       reloadMaterial();
+    }
     CI_ASSERT(material);
     CI_ASSERT(material->glsl);
 
-    auto app = (MeloViewer*)App::get();
     material->glsl->uniform("u_Camera", app->mCurrentCam->getEyePoint());
     material->glsl->uniform("u_Exposure", EXPOSURE);
     material->glsl->uniform("u_Lights[0].direction", scene->lights[0].direction);
@@ -1219,7 +1276,7 @@ void preSettings(App::Settings* settings)
 }
 
 #if !defined(NDEBUG) && defined(CINDER_MSW)
-auto gfxOption = RendererGl::Options().msaa(0).debug().debugLog(GL_DEBUG_SEVERITY_MEDIUM).debugBreak(GL_DEBUG_SEVERITY_HIGH);
+auto gfxOption = RendererGl::Options().msaa(0).debug().debugLog(GL_DEBUG_SEVERITY_MEDIUM);// .debugBreak(GL_DEBUG_SEVERITY_HIGH);
 #else
 auto gfxOption = RendererGl::Options().msaa(0);
 #endif

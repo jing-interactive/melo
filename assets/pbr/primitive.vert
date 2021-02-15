@@ -103,12 +103,12 @@ void main()
     #ifdef HAS_NORMALS
     #ifdef HAS_TANGENTS
         vec3 tangent = getTangent();
-        vec3 normalW = normalize(u_NormalMatrix * getNormal());
+        vec3 normalW = normalize(vec3(u_ModelMatrix * vec4(getNormal(), 0.0)));
         vec3 tangentW = normalize(vec3(u_ModelMatrix * vec4(tangent, 0.0)));
         vec3 bitangentW = cross(normalW, tangentW) * a_Tangent.w;
         v_TBN = mat3(tangentW, bitangentW, normalW);
     #else // !HAS_TANGENTS
-        v_Normal = normalize(u_NormalMatrix * getNormal());
+        v_Normal = normalize(vec3(u_ModelMatrix * vec4(getNormal(), 0.0)));
     #endif
     #endif // !HAS_NORMALS
 
