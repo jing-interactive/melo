@@ -185,7 +185,7 @@ NormalInfo getNormalInfo(vec3 v)
     b = normalize(cross(ng, t));
 
     // Compute pertubed normals:
-    #if 1
+    #ifdef HAS_NORMAL_MAP
         n = texture(u_NormalSampler, UV).rgb * 2.0 - vec3(1.0);
         n *= vec3(u_NormalScale, u_NormalScale, 1.0);
         n = mat3(t, b, ng) * normalize(n);

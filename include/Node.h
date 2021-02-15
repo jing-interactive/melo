@@ -229,11 +229,6 @@ namespace melo
 
         glm::vec3 mBoundBoxMin, mBoundBoxMax;
 
-        // TODO: remove the hack
-        glm::vec3 cameraPosition = { 1,1,1 };
-        glm::vec3 lightDirection = { 1,1,1 };
-        glm::vec3 lightColor = { 1,1,1 };
-
 #ifndef CINDER_LESS
         static ci::gl::TextureCubeMapRef radianceTexture;
         static ci::gl::TextureCubeMapRef irradianceTexture;

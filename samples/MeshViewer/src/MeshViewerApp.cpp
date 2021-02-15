@@ -43,6 +43,27 @@ using namespace std;
 
 typedef shared_ptr<struct GltfScene> GltfSceneRef;
 
+const int LightType_Directional = 0;
+const int LightType_Point = 1;
+const int LightType_Spot = 2;
+
+struct GltfLight
+{
+    vec3 direction = { 0,1.0f, 0 };
+    float range = { 999 };
+
+    vec3 color = { 0.5, 0.5, 0.5 };
+    float intensity = 10;
+
+    vec3 position;
+    float innerConeCos = 0.1;
+
+    float outerConeCos = 0.5;
+    int type = LightType_Directional;
+
+    vec2 padding;
+};
+
 struct GltfMaterial
 {
     typedef shared_ptr<GltfMaterial> Ref;
@@ -99,18 +120,9 @@ struct GltfNode : melo::Node
     gl::VboMeshRef mesh;
     GltfMaterial::Ref material;
 
-    void draw(melo::DrawOrder order = melo::DRAW_SOLID) override
-    {
-        CI_ASSERT(material);
+    void draw(melo::DrawOrder order) override;
 
-        material->glsl->uniform("u_LightDirection", lightDirection);
-        material->glsl->uniform("u_LightColor", lightColor);
-        material->glsl->uniform("u_Camera", cameraPosition);
-
-        material->bind();
-        gl::draw(mesh);
-        material->unbind();
-    }
+    GltfSceneRef scene;
 };
 
 struct GltfScene : melo::Node
@@ -157,6 +169,8 @@ struct GltfScene : melo::Node
     }
 
     fs::path path;
+
+    GltfLight lights[1] = {};
     vector<gl::VboMeshRef> meshes;
     vector<gl::Texture2dRef> textures;
     vector<GltfMaterial::Ref> materials;
@@ -180,6 +194,8 @@ struct GltfScene : melo::Node
         if (handle == yocto::invalid_handle) return {};
         return materials[handle];
     }
+
+    void update(double elapsed) override;
 
 private:
 
@@ -231,6 +247,8 @@ GltfMaterial::Ref GltfMaterial::create(GltfSceneRef scene, yocto::scene_material
     fmt.define("HAS_NORMALS");
     //fmt.define("HAS_TANGENTS");
     fmt.define("HAS_UV_SET1");
+    fmt.define("USE_PUNCTUAL");
+    fmt.define("LIGHT_COUNT", "1");
     if (property.type == yocto::material_type::metallic)
         fmt.define("MATERIAL_METALLICROUGHNESS");
     else if (property.type == yocto::material_type::subsurface)
@@ -248,6 +266,28 @@ GltfMaterial::Ref GltfMaterial::create(GltfSceneRef scene, yocto::scene_material
         fmt.define("HAS_NORMAL_MAP");
     if (ref->scattering_tex)
         fmt.define("HAS_SUBSURFACE_COLOR_MAP"); // TODO: ??
+
+#if 0
+    fmt.define("DEBUG_OUTPUT");
+    fmt.define("DEBUG_NORMAL");
+    // DEBUG_BASECOLOR
+    // DEBUG_ALPHA
+    // DEBUG_NORMAL
+    // DEBUG_TANGENT
+    // DEBUG_METALLIC
+    // DEBUG_ROUGHNESS
+    // DEBUG_BITANGENT
+    // DEBUG_OCCLUSION
+    // DEBUG_F0
+    // DEBUG_FEMISSIVE
+    // DEBUG_FSPECULAR
+    // DEBUG_FDIFFUSE
+    // DEBUG_FSHEEN
+    // DEBUG_FCLEARCOAT
+    // DEBUG_FSUBSURFACE
+    // DEBUG_THICKNESS
+    // DEBUG_FTRANSMISSION
+#endif
 
     fmt.attrib(geom::POSITION, "a_Position");
     fmt.attrib(geom::NORMAL, "a_Normal");
@@ -294,6 +334,7 @@ GltfNode::Ref GltfNode::create(GltfSceneRef scene, yocto::scene_instance& proper
 {
     auto ref = make_shared<GltfNode>();
 
+    ref->scene = scene;
     auto transform = yocto::frame_to_mat(property.frame);
     ref->setConstantTransform(glm::make_mat4((const float*)&transform.x));
 
@@ -933,10 +974,6 @@ struct MeloViewer : public App
             for (auto& child : mScene->getChildren())
             {
                 //mModel->flipV = FLIP_V;
-                child->cameraPosition = mCurrentCam->getEyePoint();
-                child->lightDirection = glm::normalize(mLightNode->getPosition());
-                child->lightColor = mLightNode->color;
-
                 child->setVisible(child->isInsideFrustrum(frustrum));
             }
 
@@ -1138,6 +1175,38 @@ struct MeloViewer : public App
         }
     }
 };
+
+void GltfScene::update(double elapsed)
+{
+    auto app = (MeloViewer*)App::get();
+    for (auto& light : lights)
+    {
+        light.direction = glm::normalize(app->mLightNode->getPosition());
+        light.color= app->mLightNode->color;
+    }
+}
+
+void GltfNode::draw(melo::DrawOrder order)
+{
+    CI_ASSERT(material);
+    CI_ASSERT(material->glsl);
+
+    auto app = (MeloViewer*)App::get();
+    material->glsl->uniform("u_Camera", app->mCurrentCam->getEyePoint());
+    material->glsl->uniform("u_Exposure", EXPOSURE);
+    material->glsl->uniform("u_Lights[0].direction", scene->lights[0].direction);
+    material->glsl->uniform("u_Lights[0].range", scene->lights[0].range);
+    material->glsl->uniform("u_Lights[0].color", scene->lights[0].color);
+    material->glsl->uniform("u_Lights[0].intensity", scene->lights[0].intensity);
+    material->glsl->uniform("u_Lights[0].position", scene->lights[0].position);
+    material->glsl->uniform("u_Lights[0].innerConeCos", scene->lights[0].innerConeCos);
+    material->glsl->uniform("u_Lights[0].outerConeCos", scene->lights[0].outerConeCos);
+    material->glsl->uniform("u_Lights[0].type", scene->lights[0].type);
+
+    material->bind();
+    gl::draw(mesh);
+    material->unbind();
+}
 
 void preSettings(App::Settings* settings)
 {
