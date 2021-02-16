@@ -3770,16 +3770,50 @@ static bool load_gltf_scene(const string& filename, scene_scene& scene,
         material.emission = gmaterial.value("emissiveFactor", vec3f{0, 0, 0});
         material.emission_tex = get_texture(gmaterial, "emissiveTexture");
         material.normal_tex   = get_texture(gmaterial, "normalTexture");
+        // vinjn-start
+        auto alphaMode = gmaterial.value("alphaMode", "OPAQUE");
+        if (alphaMode == "OPAQUE")
+            material.opacity = 1;
+        else if (alphaMode == "BLEND")
+            material.opacity = 0;
+        else if (alphaMode == "MASK")
+        {
+            auto alphaCutoff = gmaterial.value("alphaCutoff", 0.5f);
+            material.opacity = -alphaCutoff;
+        }
+        // vinjn-end
+
         if (gmaterial.contains("pbrMetallicRoughness")) {
           auto& gpbr         = gmaterial.at("pbrMetallicRoughness");
           auto  base         = gpbr.value("baseColorFactor", vec4f{1, 1, 1, 1});
           material.color     = xyz(base);
-          material.opacity   = base.w;
+          //material.opacity   = base.w;
           material.metallic  = gpbr.value("metallicFactor", 1.0f);
           material.roughness = gpbr.value("roughnessFactor", 1.0f);
           material.color_tex = get_texture(gpbr, "baseColorTexture");
           material.roughness_tex = get_texture(
               gpbr, "metallicRoughnessTexture");
+
+          // vinjn-start
+          if (gmaterial.contains("extensions")) {
+              auto& extensions = gmaterial.at("extensions");
+              if (extensions.contains("KHR_materials_subsurface")) {
+                  material.type = material_type::subsurface;
+                  auto& subsurface = extensions.at("KHR_materials_subsurface");
+                  material.scattering = subsurface.value("colorFactor", vec3f{ 1, 1, 1});
+                  material.scattering_tex = get_texture(subsurface, "thicknessTexture");
+              }
+              else if (extensions.contains("KHR_materials_clearcoat")) {
+                  material.type = material_type::metal;
+                  auto& clearcoat = extensions.at("KHR_materials_clearcoat");
+                  //"clearcoatTexture";
+                  material.scanisotropy = clearcoat.value("clearcoatFactor", 0.0f);
+                  material.ior = clearcoat.value("clearcoatRoughnessFactor", 0.0f);
+                  material.scattering_tex = get_texture(clearcoat, "clearcoatRoughnessTexture");
+                  //"clearcoatNormalTexture";
+              }
+          }
+          // vinjn-end
         }
       }
     } catch (...) {

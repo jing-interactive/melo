@@ -165,9 +165,6 @@
     <ClCompile Include="..\..\..\3rdparty\yocto\yocto_shape.cpp">
       <Filter>Blocks\yocto</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\3rdparty\yocto\yocto_trace.cpp">
-      <Filter>Blocks\yocto</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Resources.h">
@@ -270,9 +267,6 @@
       <Filter>Blocks\yocto</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\3rdparty\yocto\yocto_shape.h">
-      <Filter>Blocks\yocto</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\3rdparty\yocto\yocto_trace.h">
       <Filter>Blocks\yocto</Filter>
     </ClInclude>
   </ItemGroup>

@@ -82,7 +82,7 @@ struct GltfLight
     float range = { 999 };
 
     vec3 color = { 0.5, 0.5, 0.5 };
-    float intensity = 1;
+    float intensity = 10;
 
     vec3 position;
     float innerConeCos = 0.1;
@@ -113,6 +113,31 @@ struct GltfMaterial
         glsl->uniform("u_BaseColorFactor", vec4{ property.color.x, property.color.y, property.color.z, 1.0f });
         glsl->uniform("u_NormalScale", 1.0f);
         glsl->uniform("u_EmissiveFactor", (vec3&)property.emission);
+        if (property.type == yocto::material_type::subsurface)
+        {
+            glsl->uniform("u_SubsurfaceScale", 5.0f);
+            glsl->uniform("u_SubsurfaceDistortion", 0.2f);
+            glsl->uniform("u_SubsurfacePower", 4.0f);
+            glsl->uniform("u_SubsurfaceColorFactor", (vec3&)property.scattering);
+            glsl->uniform("u_SubsurfaceThicknessFactor", 1.0f);
+            glsl->uniform("u_SubsurfaceThicknessSampler", 4);
+        }
+        else if (property.type == yocto::material_type::metal)
+        {
+            glsl->uniform("u_ClearcoatFactor", property.scanisotropy);
+            glsl->uniform("u_ClearcoatRoughnessFactor", property.ior);
+            glsl->uniform("u_ClearcoatRoughnessSampler", 4);
+        }
+
+        if (property.opacity == 0)
+        {
+            gl::enableAlphaBlending();
+        }
+        else if (property.opacity < 0)
+        {
+            auto alphaCutoff = -property.opacity;
+            glsl->uniform("u_ClearcoatRoughnessSampler", alphaCutoff);
+        }
 
         if (glsl)
             glsl->bind();
@@ -124,6 +149,8 @@ struct GltfMaterial
             emission_tex->bind(2);
         if (roughness_tex)
             roughness_tex->bind(3);
+        if (scattering_tex)
+            scattering_tex->bind(4);
     }
 
     void unbind()
@@ -136,6 +163,13 @@ struct GltfMaterial
             emission_tex->unbind();
         if (roughness_tex)
             roughness_tex->unbind();
+        if (scattering_tex)
+            scattering_tex->unbind();
+
+        if (property.opacity == 0)
+        {
+            gl::disableAlphaBlending();
+        }
     }
 
     gl::GlslProgRef glsl;
@@ -292,7 +326,19 @@ GltfMaterial::Ref GltfMaterial::create(GltfScene* scene, yocto::scene_material& 
     if (property.type == yocto::material_type::metallic)
         fmt.define("MATERIAL_METALLICROUGHNESS");
     else if (property.type == yocto::material_type::subsurface)
+    {
+        fmt.define("MATERIAL_METALLICROUGHNESS");
         fmt.define("MATERIAL_SUBSURFACE");
+        if (ref->scattering_tex)
+            fmt.define("HAS_SUBSURFACE_THICKNESS_MAP"); // TODO: HAS_SUBSURFACE_COLOR_MAP
+    }
+    else if (property.type == yocto::material_type::metal)
+    {
+        fmt.define("MATERIAL_METALLICROUGHNESS");
+        fmt.define("MATERIAL_CLEARCOAT");
+        if (ref->scattering_tex)
+            fmt.define("HAS_CLEARCOAT_ROUGHNESS_MAP"); // TODO: HAS_SUBSURFACE_COLOR_MAP
+    }
     else
         fmt.define("MATERIAL_UNLIT");
 
@@ -304,9 +350,12 @@ GltfMaterial::Ref GltfMaterial::create(GltfScene* scene, yocto::scene_material& 
         fmt.define("HAS_EMISSIVE_MAP");
     if (ref->normal_tex)
         fmt.define("HAS_NORMAL_MAP");
-    if (ref->scattering_tex)
-        fmt.define("HAS_SUBSURFACE_COLOR_MAP"); // TODO: ??
-
+    
+    if (property.opacity > 0)
+        fmt.define("ALPHAMODE_OPAQUE");
+    else if (property.opacity < 0)
+        fmt.define("ALPHAMODE_MASK");
+        
     if (debugType != DEBUG_NONE)
     {
         fmt.define("DEBUG_OUTPUT");
@@ -346,7 +395,8 @@ GltfMaterial::Ref GltfMaterial::create(GltfScene* scene, yocto::scene_material& 
             ref->glsl->uniform("u_NormalSampler", 1);
         if (ref->emission_tex)
             ref->glsl->uniform("u_EmissiveSampler", 2);
-        ref->glsl->uniform("u_MetallicRoughnessSampler", 3);
+        if (ref->roughness_tex)
+            ref->glsl->uniform("u_MetallicRoughnessSampler", 3);
     }
     catch (Exception& e)
     {
@@ -967,7 +1017,6 @@ struct MeloViewer : public App
                 bool isImageType = find(imageExts.begin(), imageExts.end(), ext) != imageExts.end();
                 if (isImageType)
                 {
-                    TEX0_NAME = filePath.string();
                     break;
                 }
             }
@@ -1218,7 +1267,6 @@ struct MeloViewer : public App
                 if (args.size() > 3)
                 {
                     // MeloViewer.exe file.obj snapshot.png new_shining_texture.png
-                    TEX0_NAME = args[3];
                 }
             }
         }

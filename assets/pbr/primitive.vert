@@ -44,7 +44,7 @@ out vec4 v_Color;
 
 uniform mat4 u_ViewProjectionMatrix;
 uniform mat4 u_ModelMatrix;
-uniform mat3 u_NormalMatrix;
+uniform mat4 u_NormalMatrix;
 
 vec4 getPosition()
 {
