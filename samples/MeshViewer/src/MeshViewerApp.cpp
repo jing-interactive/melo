@@ -1247,23 +1247,29 @@ void GltfNode::draw(melo::DrawOrder order)
     {
        reloadMaterial();
     }
-    CI_ASSERT(material);
-    CI_ASSERT(material->glsl);
+    if (material && material->glsl)
+    {
+        material->glsl->uniform("u_Camera", app->mCurrentCam->getEyePoint());
+        material->glsl->uniform("u_Exposure", EXPOSURE);
+        material->glsl->uniform("u_Lights[0].direction", scene->lights[0].direction);
+        material->glsl->uniform("u_Lights[0].range", scene->lights[0].range);
+        material->glsl->uniform("u_Lights[0].color", scene->lights[0].color);
+        material->glsl->uniform("u_Lights[0].intensity", scene->lights[0].intensity);
+        material->glsl->uniform("u_Lights[0].position", scene->lights[0].position);
+        material->glsl->uniform("u_Lights[0].innerConeCos", scene->lights[0].innerConeCos);
+        material->glsl->uniform("u_Lights[0].outerConeCos", scene->lights[0].outerConeCos);
+        material->glsl->uniform("u_Lights[0].type", scene->lights[0].type);
+        material->bind();
+        gl::draw(mesh);
+        material->unbind();
+    }
+    else
+    {
+        static auto glsl = am::glslProg("lambert");
+        gl::ScopedGlslProg scopedGlsl(glsl);
+        gl::draw(mesh);
+    }
 
-    material->glsl->uniform("u_Camera", app->mCurrentCam->getEyePoint());
-    material->glsl->uniform("u_Exposure", EXPOSURE);
-    material->glsl->uniform("u_Lights[0].direction", scene->lights[0].direction);
-    material->glsl->uniform("u_Lights[0].range", scene->lights[0].range);
-    material->glsl->uniform("u_Lights[0].color", scene->lights[0].color);
-    material->glsl->uniform("u_Lights[0].intensity", scene->lights[0].intensity);
-    material->glsl->uniform("u_Lights[0].position", scene->lights[0].position);
-    material->glsl->uniform("u_Lights[0].innerConeCos", scene->lights[0].innerConeCos);
-    material->glsl->uniform("u_Lights[0].outerConeCos", scene->lights[0].outerConeCos);
-    material->glsl->uniform("u_Lights[0].type", scene->lights[0].type);
-
-    material->bind();
-    gl::draw(mesh);
-    material->unbind();
 }
 
 void preSettings(App::Settings* settings)
