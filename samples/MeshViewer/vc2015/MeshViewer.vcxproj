@@ -113,7 +113,6 @@
   <ItemGroup />
   <ItemGroup />
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\..\..\yocto-gl\libs\yocto\yocto_scene.h" />
     <ClInclude Include="..\..\..\..\Cinder-VNM\ui\ImGuizmo\ImGuizmo.h" />
     <ClInclude Include="..\..\..\3rdparty\vox\read_vox.h" />
     <ClInclude Include="..\..\..\3rdparty\yocto\ext\json.hpp" />
@@ -121,21 +120,22 @@
     <ClInclude Include="..\..\..\3rdparty\yocto\ext\stb_image_resize.h" />
     <ClInclude Include="..\..\..\3rdparty\yocto\ext\stb_image_write.h" />
     <ClInclude Include="..\..\..\3rdparty\yocto\ext\tinyexr.h" />
+    <ClInclude Include="..\..\..\3rdparty\yocto\yocto_bvh.h" />
+    <ClInclude Include="..\..\..\3rdparty\yocto\yocto_cli.h" />
     <ClInclude Include="..\..\..\3rdparty\yocto\yocto_color.h" />
-    <ClInclude Include="..\..\..\3rdparty\yocto\yocto_common.h" />
-    <ClInclude Include="..\..\..\3rdparty\yocto\yocto_commonio.h" />
     <ClInclude Include="..\..\..\3rdparty\yocto\yocto_geometry.h" />
     <ClInclude Include="..\..\..\3rdparty\yocto\yocto_image.h" />
     <ClInclude Include="..\..\..\3rdparty\yocto\yocto_math.h" />
-    <ClInclude Include="..\..\..\3rdparty\yocto\yocto_matht.h" />
     <ClInclude Include="..\..\..\3rdparty\yocto\yocto_mesh.h" />
     <ClInclude Include="..\..\..\3rdparty\yocto\yocto_modelio.h" />
     <ClInclude Include="..\..\..\3rdparty\yocto\yocto_noise.h" />
     <ClInclude Include="..\..\..\3rdparty\yocto\yocto_parallel.h" />
     <ClInclude Include="..\..\..\3rdparty\yocto\yocto_sampling.h" />
+    <ClInclude Include="..\..\..\3rdparty\yocto\yocto_scene.h" />
     <ClInclude Include="..\..\..\3rdparty\yocto\yocto_sceneio.h" />
     <ClInclude Include="..\..\..\3rdparty\yocto\yocto_shading.h" />
     <ClInclude Include="..\..\..\3rdparty\yocto\yocto_shape.h" />
+    <ClInclude Include="..\..\..\3rdparty\yocto\yocto_trace.h" />
     <ClInclude Include="..\..\..\include\FirstPersonCamera.h" />
     <ClInclude Include="..\..\..\include\melo.h" />
     <ClInclude Include="..\..\..\include\Node.h" />
@@ -165,19 +165,20 @@
     <ClInclude Include="..\src\ShadowMap.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\..\..\yocto-gl\libs\yocto\yocto_commonio.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\yocto-gl\libs\yocto\yocto_scene.cpp" />
     <ClCompile Include="..\..\..\..\Cinder-VNM\ui\CinderGuizmo.cpp" />
     <ClCompile Include="..\..\..\..\Cinder-VNM\ui\DearLogger.cpp" />
     <ClCompile Include="..\..\..\..\Cinder-VNM\ui\ImGuizmo\ImGuizmo.cpp" />
     <ClCompile Include="..\..\..\3rdparty\vox\read_vox.cpp" />
     <ClCompile Include="..\..\..\3rdparty\yocto\ext\stb_image.cpp" />
     <ClCompile Include="..\..\..\3rdparty\yocto\ext\tinyexr.cpp" />
+    <ClCompile Include="..\..\..\3rdparty\yocto\yocto_bvh.cpp" />
     <ClCompile Include="..\..\..\3rdparty\yocto\yocto_image.cpp" />
     <ClCompile Include="..\..\..\3rdparty\yocto\yocto_mesh.cpp" />
     <ClCompile Include="..\..\..\3rdparty\yocto\yocto_modelio.cpp" />
+    <ClCompile Include="..\..\..\3rdparty\yocto\yocto_scene.cpp" />
     <ClCompile Include="..\..\..\3rdparty\yocto\yocto_sceneio.cpp" />
     <ClCompile Include="..\..\..\3rdparty\yocto\yocto_shape.cpp" />
+    <ClCompile Include="..\..\..\3rdparty\yocto\yocto_trace.cpp" />
     <ClCompile Include="..\..\..\src\melo.cpp" />
     <ClCompile Include="..\..\..\src\Node.cpp" />
     <ClCompile Include="..\..\..\src\NodeExt.cpp" />

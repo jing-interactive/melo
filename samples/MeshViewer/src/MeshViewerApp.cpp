@@ -241,9 +241,9 @@ private:
 
     gl::Texture2dRef createTexture(const yocto::scene_texture& texture)
     {
-        CI_ASSERT(texture.hdr.empty());
-        return gl::Texture2d::create(texture.ldr.data(),
-            GL_RGBA, texture.ldr.width(), texture.ldr.height());
+        CI_ASSERT(texture.pixelsf.empty());
+        return gl::Texture2d::create(texture.pixelsb.data(),
+            GL_RGBA, texture.width, texture.height);
     }
 
     gl::VboMeshRef createMesh(const yocto::scene_shape& shape)

@@ -138,7 +138,13 @@
     <ClCompile Include="..\src\miniz\miniz.c">
       <Filter>Blocks\miniz</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\yocto\ext\stb_image.cpp">
+      <Filter>Blocks\yocto</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\3rdparty\yocto\ext\tinyexr.cpp">
+      <Filter>Blocks\yocto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\yocto\yocto_bvh.cpp">
       <Filter>Blocks\yocto</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\3rdparty\yocto\yocto_image.cpp">
@@ -150,19 +156,16 @@
     <ClCompile Include="..\..\..\3rdparty\yocto\yocto_modelio.cpp">
       <Filter>Blocks\yocto</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\yocto\yocto_scene.cpp">
+      <Filter>Blocks\yocto</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\3rdparty\yocto\yocto_sceneio.cpp">
       <Filter>Blocks\yocto</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\3rdparty\yocto\yocto_shape.cpp">
       <Filter>Blocks\yocto</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\3rdparty\yocto\ext\stb_image.cpp">
-      <Filter>Blocks\yocto</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\yocto-gl\libs\yocto\yocto_scene.cpp">
-      <Filter>Blocks\yocto</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\yocto-gl\libs\yocto\yocto_commonio.cpp">
+    <ClCompile Include="..\..\..\3rdparty\yocto\yocto_trace.cpp">
       <Filter>Blocks\yocto</Filter>
     </ClCompile>
   </ItemGroup>
@@ -224,13 +227,13 @@
     <ClInclude Include="..\..\..\3rdparty\yocto\ext\tinyexr.h">
       <Filter>Blocks\yocto</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\yocto\yocto_bvh.h">
+      <Filter>Blocks\yocto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\yocto\yocto_cli.h">
+      <Filter>Blocks\yocto</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\3rdparty\yocto\yocto_color.h">
-      <Filter>Blocks\yocto</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\3rdparty\yocto\yocto_common.h">
-      <Filter>Blocks\yocto</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\3rdparty\yocto\yocto_commonio.h">
       <Filter>Blocks\yocto</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\3rdparty\yocto\yocto_geometry.h">
@@ -240,9 +243,6 @@
       <Filter>Blocks\yocto</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\3rdparty\yocto\yocto_math.h">
-      <Filter>Blocks\yocto</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\3rdparty\yocto\yocto_matht.h">
       <Filter>Blocks\yocto</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\3rdparty\yocto\yocto_mesh.h">
@@ -260,6 +260,9 @@
     <ClInclude Include="..\..\..\3rdparty\yocto\yocto_sampling.h">
       <Filter>Blocks\yocto</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\yocto\yocto_scene.h">
+      <Filter>Blocks\yocto</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\3rdparty\yocto\yocto_sceneio.h">
       <Filter>Blocks\yocto</Filter>
     </ClInclude>
@@ -269,7 +272,7 @@
     <ClInclude Include="..\..\..\3rdparty\yocto\yocto_shape.h">
       <Filter>Blocks\yocto</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\yocto-gl\libs\yocto\yocto_scene.h">
+    <ClInclude Include="..\..\..\3rdparty\yocto\yocto_trace.h">
       <Filter>Blocks\yocto</Filter>
     </ClInclude>
   </ItemGroup>

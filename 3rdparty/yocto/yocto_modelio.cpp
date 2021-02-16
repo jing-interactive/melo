@@ -38,7 +38,6 @@
 #include <utility>
 
 #include "yocto_color.h"
-#include "yocto_commonio.h"
 
 // -----------------------------------------------------------------------------
 // USING DIRECTIVES
@@ -54,11 +53,211 @@ using namespace std::string_literals;
 }  // namespace yocto
 
 // -----------------------------------------------------------------------------
+// PATH UTILITIES
+// -----------------------------------------------------------------------------
+namespace yocto {
+
+// Make a path from a utf8 string
+static std::filesystem::path make_path(const string& filename) {
+  return std::filesystem::u8path(filename);
+}
+
+// Get directory name (not including /)
+static string path_dirname(const string& filename) {
+  return make_path(filename).parent_path().generic_u8string();
+}
+
+// Get filename without directory.
+static string path_filename(const string& filename) {
+  return make_path(filename).filename().u8string();
+}
+
+// Joins paths
+static string path_join(const string& patha, const string& pathb) {
+  return (make_path(patha) / make_path(pathb)).generic_u8string();
+}
+
+// Replaces extensions
+static string replace_extension(const string& filename, const string& ext) {
+  return make_path(filename).replace_extension(ext).u8string();
+}
+
+// Check if a file can be opened for reading.
+static bool path_exists(const string& filename) {
+  return exists(make_path(filename));
+}
+
+}  // namespace yocto
+
+// -----------------------------------------------------------------------------
+// FILE IO
+// -----------------------------------------------------------------------------
+namespace yocto {
+
+// Safe wrapper for FILE stream
+struct file_stream {
+  // file parameters
+  string filename = "";
+  FILE*  fs       = nullptr;
+  bool   owned    = false;
+
+  // move-only type
+  file_stream(const file_stream&) = delete;
+  file_stream& operator=(const file_stream&) = delete;
+  ~file_stream() {
+    if (owned && fs) fclose(fs);
+  }
+
+  // operator bool to check for error
+  explicit operator bool() const { return fs != nullptr; }
+};
+
+// Open a file
+static file_stream open_file(const string& filename, const string& mode) {
+#ifdef _WIN32
+  auto path8 = std::filesystem::u8path(filename);
+  auto wmode = std::wstring(mode.begin(), mode.end());
+  auto fs    = _wfopen(path8.c_str(), wmode.c_str());
+#else
+  auto fs = fopen(filename.c_str(), mode.c_str());
+#endif
+  return {filename, fs, true};
+}
+
+// Close a file
+static void close_file(file_stream& fs) {
+  if (fs.owned && fs.fs) fclose(fs.fs);
+  fs.filename = "";
+  fs.fs       = nullptr;
+  fs.owned    = false;
+}
+
+// Read a line of text
+static bool read_line(file_stream& fs, char* buffer, size_t size) {
+  return fgets(buffer, (int)size, fs.fs);
+}
+
+// Write text to a file
+static bool write_text(file_stream& fs, const string& str) {
+  return fprintf(fs.fs, "%s", str.c_str()) >= 0;
+}
+
+// Read data from a file
+static bool read_data(file_stream& fs, void* buffer, size_t count) {
+  return fread(buffer, 1, count, fs.fs) == count;
+}
+
+// Write data from a file
+static bool write_data(file_stream& fs, const void* buffer, size_t count) {
+  return fwrite(buffer, 1, count, fs.fs) == count;
+}
+
+// Read a line of text
+template <size_t N>
+static bool read_line(file_stream& fs, array<char, N>& buffer) {
+  return read_line(fs, buffer.data(), buffer.size());
+}
+
+// Read data from a file
+template <typename T>
+static bool read_value(file_stream& fs, T& buffer) {
+  return read_data(fs, &buffer, sizeof(T));
+}
+
+// Write data from a file
+template <typename T>
+static bool write_value(file_stream& fs, const T& buffer) {
+  return write_data(fs, &buffer, sizeof(T));
+}
+
+// Read data from a file
+template <typename T>
+static bool read_values(file_stream& fs, T* buffer, size_t count) {
+  return read_data(fs, buffer, sizeof(T) * count);
+}
+
+// Write data from a file
+template <typename T>
+static bool write_values(file_stream& fs, const T* buffer, size_t count) {
+  return write_data(fs, buffer, sizeof(T) * count);
+}
+
+// Write data from a file
+template <typename T>
+static bool write_values(file_stream& fs, const vector<T>& values) {
+  return write_data(fs, values.data(), sizeof(T) * values.size());
+}
+
+template <typename T>
+static T swap_endian(T value) {
+  // https://stackoverflow.com/questions/105252/how-do-i-convert-between-big-endian-and-little-endian-values-in-c
+  static_assert(sizeof(char) == 1, "sizeof(char) == 1");
+  union {
+    T             value;
+    unsigned char bytes[sizeof(T)];
+  } source, dest;
+  source.value = value;
+  for (auto k = (size_t)0; k < sizeof(T); k++)
+    dest.bytes[k] = source.bytes[sizeof(T) - k - 1];
+  return dest.value;
+}
+
+template <typename T>
+static bool read_value(file_stream& fs, T& value, bool big_endian) {
+  if (!read_value(fs, value)) return false;
+  if (big_endian) value = swap_endian(value);
+  return true;
+}
+
+template <typename T>
+static bool write_value(file_stream& fs, const T& value_, bool big_endian) {
+  auto value = big_endian ? swap_endian(value_) : value_;
+  return write_value(fs, value);
+}
+
+}  // namespace yocto
+
+// -----------------------------------------------------------------------------
 // IMPLEMENTATION FOR UTILITIES
 // -----------------------------------------------------------------------------
 namespace yocto {
 
 // Formats values to string
+inline void format_value(string& str, const string& value) { str += value; }
+inline void format_value(string& str, int8_t value) {
+  str += std::to_string((int32_t)value);
+}
+inline void format_value(string& str, int16_t value) {
+  str += std::to_string(value);
+}
+inline void format_value(string& str, int32_t value) {
+  str += std::to_string(value);
+}
+inline void format_value(string& str, int64_t value) {
+  str += std::to_string(value);
+}
+inline void format_value(string& str, uint8_t value) {
+  str += std::to_string((uint32_t)value);
+}
+inline void format_value(string& str, uint16_t value) {
+  str += std::to_string(value);
+}
+inline void format_value(string& str, uint32_t value) {
+  str += std::to_string(value);
+}
+inline void format_value(string& str, uint64_t value) {
+  str += std::to_string(value);
+}
+inline void format_value(string& str, float value) {
+  auto buf = array<char, 256>{};
+  snprintf(buf.data(), buf.size(), "%g", value);
+  str += buf.data();
+}
+inline void format_value(string& str, double value) {
+  auto buf = array<char, 256>{};
+  snprintf(buf.data(), buf.size(), "%g", value);
+  str += buf.data();
+}
 inline void format_value(string& str, const vec2f& value) {
   for (auto i = 0; i < 2; i++) {
     if (i != 0) str += " ";
@@ -88,6 +287,36 @@ inline void format_value(string& str, const mat4f& value) {
     if (i != 0) str += " ";
     format_value(str, value[i]);
   }
+}
+
+// Foramt to file
+inline void format_values(string& str, const string& fmt) {
+  auto pos = fmt.find("{}");
+  if (pos != string::npos) throw std::invalid_argument("bad format string");
+  str += fmt;
+}
+template <typename Arg, typename... Args>
+inline void format_values(
+    string& str, const string& fmt, const Arg& arg, const Args&... args) {
+  auto pos = fmt.find("{}");
+  if (pos == string::npos) throw std::invalid_argument("bad format string");
+  str += fmt.substr(0, pos);
+  format_value(str, arg);
+  format_values(str, fmt.substr(pos + 2), args...);
+}
+
+template <typename... Args>
+inline bool format_values(
+    file_stream& fs, const string& fmt, const Args&... args) {
+  auto str = ""s;
+  format_values(str, fmt, args...);
+  return write_text(fs, str);
+}
+template <typename T>
+inline bool format_value(file_stream& fs, const T& value) {
+  auto str = ""s;
+  format_value(str, value);
+  return write_text(fs, str);
 }
 
 inline bool is_newline(char c) { return c == '\r' || c == '\n'; }
@@ -1261,7 +1490,7 @@ inline bool parse_value(string_view& str, obj_texture& info) {
 }
 
 // Read obj
-inline bool load_mtl(const string& filename, obj_scene& obj, string& error) {
+inline bool load_mtl(const string& filename, obj_model& obj, string& error) {
   // error helpers
   auto open_error = [filename, &error]() {
     error = filename + ": file not found";
@@ -1376,7 +1605,7 @@ inline bool load_mtl(const string& filename, obj_scene& obj, string& error) {
 }
 
 // Read obj
-inline bool load_obx(const string& filename, obj_scene& obj, string& error) {
+inline bool load_obx(const string& filename, obj_model& obj, string& error) {
   // error helpers
   auto open_error = [filename, &error]() {
     error = filename + ": file not found";
@@ -1485,7 +1714,7 @@ inline bool load_obx(const string& filename, obj_scene& obj, string& error) {
 }
 
 // Read obj
-bool load_obj(const string& filename, obj_scene& obj, string& error,
+bool load_obj(const string& filename, obj_model& obj, string& error,
     bool face_varying, bool split_materials) {
   // error helpers
   auto open_error = [filename, &error]() {
@@ -1561,7 +1790,13 @@ bool load_obj(const string& filename, obj_scene& obj, string& error,
       // grab shape and add element
       auto& shape   = *cur_shape;
       auto& element = shape.elements.emplace_back();
-      if (cur_material < 0) return material_error("default");
+      if (cur_material < 0) {
+        auto& material              = obj.materials.emplace_back();
+        material.name               = "__default__";
+        material.diffuse            = {0.8, 0.8, 0.8};
+        cur_material                = 0;
+        material_map[material.name] = 0;
+      }
       element.material = cur_material;
       element.etype    = etype;
       // parse vertices
@@ -1855,7 +2090,7 @@ inline void format_value(string& str, const obj_vertex& value) {
 
 // Save obj
 inline bool save_mtl(
-    const string& filename, const obj_scene& obj, string& error) {
+    const string& filename, const obj_model& obj, string& error) {
   // throw helpers
   // error helpers
   auto open_error = [filename, &error]() {
@@ -1950,7 +2185,7 @@ inline bool save_mtl(
 
 // Save obj
 inline bool save_obx(
-    const string& filename, const obj_scene& obj, string& error) {
+    const string& filename, const obj_model& obj, string& error) {
   // error helpers
   auto open_error = [filename, &error]() {
     error = filename + ": file not found";
@@ -2008,7 +2243,7 @@ inline bool save_obx(
 }
 
 // Save obj
-bool save_obj(const string& filename, const obj_scene& obj, string& error) {
+bool save_obj(const string& filename, const obj_model& obj, string& error) {
   // error helpers
   auto open_error = [filename, &error]() {
     error = filename + ": file not found";
@@ -4532,7 +4767,7 @@ struct pbrt_context {
 };
 
 // load pbrt
-inline bool load_pbrt(const string& filename, pbrt_scene& pbrt, string& error,
+inline bool load_pbrt(const string& filename, pbrt_model& pbrt, string& error,
     pbrt_context& ctx, unordered_map<string, int>& material_map,
     unordered_map<string, int>&           texture_map,
     unordered_map<string, pbrt_material>& named_materials,
@@ -4720,7 +4955,7 @@ inline bool load_pbrt(const string& filename, pbrt_scene& pbrt, string& error,
       if (!parse_params(str, command.values)) return parse_error();
       command.frame = ctx.stack.back().transform_start;
       command.frend = ctx.stack.back().transform_end;
-      auto& camera  = add_camera(pbrt);
+      auto& camera  = pbrt.cameras.emplace_back();
       if (!convert_camera(
               camera, command, ctx.film_resolution, filename, error))
         return false;
@@ -4771,7 +5006,7 @@ inline bool load_pbrt(const string& filename, pbrt_scene& pbrt, string& error,
       if (!parse_params(str, command.values)) return parse_error();
       command.frame  = ctx.stack.back().transform_start;
       command.frend  = ctx.stack.back().transform_end;
-      auto& shape    = add_shape(pbrt);
+      auto& shape    = pbrt.shapes.emplace_back();
       auto  alphamap = ""s;
       if (!convert_shape(shape, command, alphamap, named_textures, ply_dirname,
               ply_meshes, filename, error))
@@ -4779,7 +5014,7 @@ inline bool load_pbrt(const string& filename, pbrt_scene& pbrt, string& error,
       auto matkey = "?!!!?" + ctx.stack.back().material.name + "?!!!?" +
                     ctx.stack.back().arealight.name + "?!!!?" + alphamap;
       if (material_map.find(matkey) == material_map.end()) {
-        auto& material    = add_material(pbrt);
+        auto& material    = pbrt.materials.emplace_back();
         material          = ctx.stack.back().material;
         material.name     = "material" + std::to_string(pbrt.materials.size());
         material.emission = ctx.stack.back().arealight.emission;
@@ -4809,12 +5044,12 @@ inline bool load_pbrt(const string& filename, pbrt_scene& pbrt, string& error,
       command.frame = ctx.stack.back().transform_start;
       command.frend = ctx.stack.back().transform_end;
       if (command.type == "infinite") {
-        auto& environment = add_environment(pbrt);
+        auto& environment = pbrt.environments.emplace_back();
         if (!convert_environment(
                 environment, command, texture_map, filename, error))
           return false;
       } else {
-        auto& light = add_light(pbrt);
+        auto& light = pbrt.lights.emplace_back();
         if (!convert_light(light, command, filename, error)) return false;
       }
     } else if (cmd == "MakeNamedMedium") {
@@ -4847,22 +5082,9 @@ inline bool load_pbrt(const string& filename, pbrt_scene& pbrt, string& error,
   return true;
 }
 
-// Make pbrt
-pbrt_camera& add_camera(pbrt_scene& pbrt) {
-  return pbrt.cameras.emplace_back();
-}
-pbrt_shape& add_shape(pbrt_scene& pbrt) { return pbrt.shapes.emplace_back(); }
-pbrt_material& add_material(pbrt_scene& pbrt) {
-  return pbrt.materials.emplace_back();
-}
-pbrt_environment& add_environment(pbrt_scene& pbrt) {
-  return pbrt.environments.emplace_back();
-}
-pbrt_light& add_light(pbrt_scene& pbrt) { return pbrt.lights.emplace_back(); }
-
 // load pbrt
 bool load_pbrt(
-    const string& filename, pbrt_scene& pbrt, string& error, bool ply_meshes) {
+    const string& filename, pbrt_model& pbrt, string& error, bool ply_meshes) {
   auto ctx             = pbrt_context{};
   auto material_map    = unordered_map<string, int>{};
   auto texture_map     = unordered_map<string, int>{};
@@ -4956,7 +5178,7 @@ inline void format_value(string& str, const vector<pbrt_value>& values) {
   }
 }
 
-bool save_pbrt(const string& filename, const pbrt_scene& pbrt, string& error,
+bool save_pbrt(const string& filename, const pbrt_model& pbrt, string& error,
     bool ply_meshes) {
   // error helpers
   auto open_error = [filename, &error]() {
