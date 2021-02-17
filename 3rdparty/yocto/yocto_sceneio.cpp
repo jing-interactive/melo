@@ -3769,8 +3769,10 @@ static bool load_gltf_scene(const string& filename, scene_scene& scene,
         material.type     = material_type::metallic;
         material.emission = gmaterial.value("emissiveFactor", vec3f{0, 0, 0});
         material.emission_tex = get_texture(gmaterial, "emissiveTexture");
-        material.normal_tex   = get_texture(gmaterial, "normalTexture");
+        material.normal_tex = get_texture(gmaterial, "normalTexture");
         // vinjn-start
+        material.occulusion_tex = get_texture(gmaterial, "occlusionTexture");
+        material.occulusion_strength = 1.0f;//get_texture(gmaterial, "occlusionTexture");
         auto alphaMode = gmaterial.value("alphaMode", "OPAQUE");
         if (alphaMode == "OPAQUE")
             material.opacity = 1;

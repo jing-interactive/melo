@@ -140,14 +140,17 @@ struct scene_material {
   vec3f         scattering   = {0, 0, 0};
   float         scanisotropy = 0;
   float         trdepth      = 0.01;
-  float         opacity      = 1;
+  float         opacity = 1;
+
+  float         occulusion_strength = 1;
 
   // textures
   texture_handle emission_tex   = invalid_handle;
   texture_handle color_tex      = invalid_handle;
   texture_handle roughness_tex  = invalid_handle;
   texture_handle scattering_tex = invalid_handle;
-  texture_handle normal_tex     = invalid_handle;
+  texture_handle normal_tex = invalid_handle;
+  texture_handle occulusion_tex     = invalid_handle;
 };
 
 // Shape data represented as indexed meshes of elements.

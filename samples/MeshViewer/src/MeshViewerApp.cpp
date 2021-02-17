@@ -81,7 +81,7 @@ struct GltfLight
     vec3 direction = { 0,1.0f, 0 };
     float range = { 999 };
 
-    vec3 color = { 0.5, 0.5, 0.5 };
+    vec3 color = { 1, 1, 1};
     float intensity = 10;
 
     vec3 position;
@@ -105,6 +105,7 @@ struct GltfMaterial
     gl::Texture2dRef roughness_tex;
     gl::Texture2dRef scattering_tex;
     gl::Texture2dRef normal_tex;
+    gl::Texture2dRef occulusion_tex;
 
     void bind()
     {
@@ -113,6 +114,8 @@ struct GltfMaterial
         glsl->uniform("u_BaseColorFactor", vec4{ property.color.x, property.color.y, property.color.z, 1.0f });
         glsl->uniform("u_NormalScale", 1.0f);
         glsl->uniform("u_EmissiveFactor", (vec3&)property.emission);
+        if (occulusion_tex)
+            glsl->uniform("u_OcclusionStrength", property.occulusion_strength);
         if (property.type == yocto::material_type::subsurface)
         {
             glsl->uniform("u_SubsurfaceScale", 5.0f);
@@ -120,13 +123,13 @@ struct GltfMaterial
             glsl->uniform("u_SubsurfacePower", 4.0f);
             glsl->uniform("u_SubsurfaceColorFactor", (vec3&)property.scattering);
             glsl->uniform("u_SubsurfaceThicknessFactor", 1.0f);
-            glsl->uniform("u_SubsurfaceThicknessSampler", 4);
+            glsl->uniform("u_SubsurfaceThicknessSampler", 5);
         }
         else if (property.type == yocto::material_type::metal)
         {
             glsl->uniform("u_ClearcoatFactor", property.scanisotropy);
             glsl->uniform("u_ClearcoatRoughnessFactor", property.ior);
-            glsl->uniform("u_ClearcoatRoughnessSampler", 4);
+            glsl->uniform("u_ClearcoatRoughnessSampler", 5);
         }
 
         if (property.opacity < 0)
@@ -145,8 +148,10 @@ struct GltfMaterial
             emission_tex->bind(2);
         if (roughness_tex)
             roughness_tex->bind(3);
+        if (occulusion_tex)
+            occulusion_tex->bind(4);
         if (scattering_tex)
-            scattering_tex->bind(4);
+            scattering_tex->bind(5);
     }
 
     void unbind()
@@ -159,6 +164,8 @@ struct GltfMaterial
             emission_tex->unbind();
         if (roughness_tex)
             roughness_tex->unbind();
+        if (occulusion_tex)
+            occulusion_tex->unbind();
         if (scattering_tex)
             scattering_tex->unbind();
     }
@@ -307,6 +314,7 @@ GltfMaterial::Ref GltfMaterial::create(GltfScene* scene, yocto::scene_material& 
     ref->roughness_tex = scene->getTexture(property.roughness_tex);
     ref->emission_tex = scene->getTexture(property.emission_tex);
     ref->scattering_tex = scene->getTexture(property.scattering_tex);
+    ref->occulusion_tex = scene->getTexture(property.occulusion_tex);
 
     auto fmt = gl::GlslProg::Format();
     fmt.define("HAS_NORMALS");
@@ -341,7 +349,9 @@ GltfMaterial::Ref GltfMaterial::create(GltfScene* scene, yocto::scene_material& 
         fmt.define("HAS_EMISSIVE_MAP");
     if (ref->normal_tex)
         fmt.define("HAS_NORMAL_MAP");
-    
+    if (ref->occulusion_tex)
+        fmt.define("HAS_OCCLUSION_MAP");
+
     if (property.opacity > 0)
         fmt.define("ALPHAMODE_OPAQUE");
     else if (property.opacity < 0)
@@ -388,6 +398,8 @@ GltfMaterial::Ref GltfMaterial::create(GltfScene* scene, yocto::scene_material& 
             ref->glsl->uniform("u_EmissiveSampler", 2);
         if (ref->roughness_tex)
             ref->glsl->uniform("u_MetallicRoughnessSampler", 3);
+        if (ref->occulusion_tex)
+            ref->glsl->uniform("u_OcclusionSampler", 4);
     }
     catch (Exception& e)
     {
@@ -1273,6 +1285,7 @@ void GltfScene::update(double elapsed)
     {
         light.direction = - glm::normalize(app->mLightNode->getPosition());
         light.color= app->mLightNode->color;
+        light.intensity = LIGHT0_INTENSITY;
     }
 
     if (isMaterialDirty)
