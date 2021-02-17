@@ -129,14 +129,10 @@ struct GltfMaterial
             glsl->uniform("u_ClearcoatRoughnessSampler", 4);
         }
 
-        if (property.opacity == 0)
-        {
-            gl::enableAlphaBlending();
-        }
-        else if (property.opacity < 0)
+        if (property.opacity < 0)
         {
             auto alphaCutoff = -property.opacity;
-            glsl->uniform("u_ClearcoatRoughnessSampler", alphaCutoff);
+            glsl->uniform("u_AlphaCutoff", alphaCutoff);
         }
 
         if (glsl)
@@ -165,11 +161,6 @@ struct GltfMaterial
             roughness_tex->unbind();
         if (scattering_tex)
             scattering_tex->unbind();
-
-        if (property.opacity == 0)
-        {
-            gl::disableAlphaBlending();
-        }
     }
 
     gl::GlslProgRef glsl;
@@ -411,6 +402,8 @@ void GltfNode::reloadMaterial()
     if (property.material != yocto::invalid_handle)
     {
         material = scene->getMaterial(property.material);
+        if (material->property.opacity == 0)
+            mDrawOrder = melo::DRAW_TRANSPARENCY;
     }
 }
 
