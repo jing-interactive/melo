@@ -288,9 +288,12 @@ struct GltfScene : melo::Node
 
     void predraw(melo::DrawOrder order) override
     {
-        GltfScene::radianceTexture->bind(7);
-        GltfScene::irradianceTexture->bind(8);
-        GltfScene::brdfLUTTexture->bind(9);
+        if (GltfScene::brdfLUTTexture && GltfScene::irradianceTexture && GltfScene::radianceTexture)
+        {
+            GltfScene::radianceTexture->bind(7);
+            GltfScene::irradianceTexture->bind(8);
+            GltfScene::brdfLUTTexture->bind(9);
+        }
     }
 
     bool isMaterialDirty = false;
@@ -446,7 +449,6 @@ GltfMaterial::Ref GltfMaterial::create(GltfScene* scene, yocto::scene_material& 
 
         if (GltfScene::brdfLUTTexture && GltfScene::irradianceTexture && GltfScene::radianceTexture)
         {
-            ref->glsl->uniform("u_MipCount", 0);
             ref->glsl->uniform("u_LambertianEnvSampler", 7);
             ref->glsl->uniform("u_GGXEnvSampler", 8);
             ref->glsl->uniform("u_GGXLUT", 9);
@@ -1356,6 +1358,7 @@ void GltfNode::draw(melo::DrawOrder order)
     {
         material->glsl->uniform("u_Camera", app->mCurrentCam->getEyePoint());
         material->glsl->uniform("u_Exposure", EXPOSURE);
+        material->glsl->uniform("u_MipCount", IBL_MIP);
         material->glsl->uniform("u_Lights[0].direction", scene->lights[0].direction);
         material->glsl->uniform("u_Lights[0].range", scene->lights[0].range);
         material->glsl->uniform("u_Lights[0].color", scene->lights[0].color);

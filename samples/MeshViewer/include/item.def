@@ -17,6 +17,7 @@ ITEM_DEF(string, BRDF_LUT_TEX, "pbr/lut_ggx.png")
 ITEM_DEF(bool, IS_SMAA, true)
 ITEM_DEF_MINMAX(float, POINT_SIZE, 1, 0.001, 10)
 ITEM_DEF_MINMAX(float, EXPOSURE, 1, 0.01, 10)
+ITEM_DEF_MINMAX(int, IBL_MIP, 0, 0, 10)
 
 GROUP_DEF(Camera)
 ITEM_DEF(float, CAM_POS_X, 10)
