@@ -131,6 +131,13 @@ struct GltfMaterial
             glsl->uniform("u_ClearcoatRoughnessFactor", property.ior);
             glsl->uniform("u_ClearcoatRoughnessSampler", 5);
         }
+        else if (property.type == yocto::material_type::leaves)
+        {
+            glsl->uniform("u_SheenIntensityFactor", 1.0f);
+            glsl->uniform("u_SheenColorFactor", (vec3&)property.scattering);
+            glsl->uniform("u_SheenRoughness", property.ior);
+            glsl->uniform("u_SheenColorIntensitySampler", 5);
+        }
 
         if (property.opacity < 0)
         {
@@ -336,7 +343,14 @@ GltfMaterial::Ref GltfMaterial::create(GltfScene* scene, yocto::scene_material& 
         fmt.define("MATERIAL_METALLICROUGHNESS");
         fmt.define("MATERIAL_CLEARCOAT");
         if (ref->scattering_tex)
-            fmt.define("HAS_CLEARCOAT_ROUGHNESS_MAP"); // TODO: HAS_SUBSURFACE_COLOR_MAP
+            fmt.define("HAS_CLEARCOAT_ROUGHNESS_MAP");
+    }
+    else if (property.type == yocto::material_type::leaves)
+    {
+        fmt.define("MATERIAL_METALLICROUGHNESS");
+        fmt.define("MATERIAL_SHEEN");
+        if (ref->scattering_tex)
+            fmt.define("HAS_SHEEN_COLOR_INTENSITY_MAP");
     }
     else
         fmt.define("MATERIAL_UNLIT");

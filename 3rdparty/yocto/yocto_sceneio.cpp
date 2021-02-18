@@ -3801,17 +3801,26 @@ static bool load_gltf_scene(const string& filename, scene_scene& scene,
               auto& extensions = gmaterial.at("extensions");
               if (extensions.contains("KHR_materials_subsurface")) {
                   material.type = material_type::subsurface;
-                  auto& subsurface = extensions.at("KHR_materials_subsurface");
+                  const auto& subsurface = extensions.at("KHR_materials_subsurface");
                   material.scattering = subsurface.value("colorFactor", vec3f{ 1, 1, 1});
                   material.scattering_tex = get_texture(subsurface, "thicknessTexture");
               }
               else if (extensions.contains("KHR_materials_clearcoat")) {
                   material.type = material_type::metal;
-                  auto& clearcoat = extensions.at("KHR_materials_clearcoat");
+                  const auto& clearcoat = extensions.at("KHR_materials_clearcoat");
                   //"clearcoatTexture";
                   material.scanisotropy = clearcoat.value("clearcoatFactor", 0.0f);
                   material.ior = clearcoat.value("clearcoatRoughnessFactor", 0.0f);
                   material.scattering_tex = get_texture(clearcoat, "clearcoatRoughnessTexture");
+                  //"clearcoatNormalTexture";
+              }
+              else if (extensions.contains("KHR_materials_sheen")) {
+                  material.type = material_type::leaves;
+                  const auto& sheen = extensions.at("KHR_materials_sheen");
+                  //"clearcoatTexture";
+                  material.scattering = sheen.value("sheenColorFactor", vec3f{ 1, 1, 1 });
+                  material.ior = sheen.value("sheenRoughnessFactor", 0.0f);
+                  material.scattering_tex = get_texture(sheen, "sheenRoughnessTexture");
                   //"clearcoatNormalTexture";
               }
           }
