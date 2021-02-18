@@ -116,6 +116,7 @@ struct GltfMaterial
         glsl->uniform("u_EmissiveFactor", (vec3&)property.emission);
         if (occulusion_tex)
             glsl->uniform("u_OcclusionStrength", property.occulusion_strength);
+
         if (property.type == yocto::material_type::subsurface)
         {
             glsl->uniform("u_SubsurfaceScale", 5.0f);
@@ -285,6 +286,13 @@ struct GltfScene : melo::Node
 
     void update(double elapsed) override;
 
+    void predraw(melo::DrawOrder order) override
+    {
+        GltfScene::radianceTexture->bind(7);
+        GltfScene::irradianceTexture->bind(8);
+        GltfScene::brdfLUTTexture->bind(9);
+    }
+
     bool isMaterialDirty = false;
 
 private:
@@ -345,7 +353,13 @@ GltfMaterial::Ref GltfMaterial::create(GltfScene* scene, yocto::scene_material& 
     fmt.define("USE_PUNCTUAL");
     fmt.define("LIGHT_COUNT", "1");
     if (property.type == yocto::material_type::metallic)
+    {
         fmt.define("MATERIAL_METALLICROUGHNESS");
+        if (GltfScene::brdfLUTTexture && GltfScene::irradianceTexture && GltfScene::radianceTexture)
+        {
+            fmt.define("USE_IBL");
+        }
+    }
     else if (property.type == yocto::material_type::subsurface)
     {
         fmt.define("MATERIAL_METALLICROUGHNESS");
@@ -429,6 +443,14 @@ GltfMaterial::Ref GltfMaterial::create(GltfScene* scene, yocto::scene_material& 
             ref->glsl->uniform("u_MetallicRoughnessSampler", 3);
         if (ref->occulusion_tex)
             ref->glsl->uniform("u_OcclusionSampler", 4);
+
+        if (GltfScene::brdfLUTTexture && GltfScene::irradianceTexture && GltfScene::radianceTexture)
+        {
+            ref->glsl->uniform("u_MipCount", 0);
+            ref->glsl->uniform("u_LambertianEnvSampler", 7);
+            ref->glsl->uniform("u_GGXEnvSampler", 8);
+            ref->glsl->uniform("u_GGXLUT", 9);
+        }
     }
     catch (Exception& e)
     {
