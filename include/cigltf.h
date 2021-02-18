@@ -80,6 +80,15 @@ enum AttribGLTF
     NUM_ATTRIBS,
 };
 
+enum MaterialType
+{
+    MATERIAL_PBR_METAL_ROUGHNESS,
+    MATERIAL_PBR_SPEC_GLOSSINESS,
+    MATERIAL_UNLIT,
+
+    MATERIAL_COUNT,
+};
+
 // WeakBuffer doesn't own memory storage
 struct WeakBuffer
 {
@@ -286,7 +295,7 @@ struct MaterialGLTF
     glm::vec3 specularFactor = {1, 1, 1};
     float glossinessFactor = 1;
 
-    melo::MaterialType materialType;
+    MaterialType materialType;
 
     static Ref create(ModelGLTFRef modelGLTF, const tinygltf::Material& property);
 

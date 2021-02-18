@@ -1,6 +1,4 @@
 #include "melo.h"
-#include "cigltf.h"
-#include "ciobj.h"
 #include "NodeExt.h"
 #include "SkyNode.h"
 #include <cinder/GeomIo.h>
@@ -14,9 +12,11 @@ namespace melo
 {
     NodeRef create(const std::string& typeName)
     {
+#if 0
         if (typeName.find(".gltf") != std::string::npos) return createMeshNode(typeName);
         if (typeName.find(".glb") != std::string::npos) return createMeshNode(typeName);
         if (typeName.find(".obj") != std::string::npos) return createMeshNode(typeName);
+#endif
         if (typeName == "RootNode") return createRootNode();
         if (typeName == "GridNode") return createGridNode();
         if (typeName == "SkyNode") return createSkyNode("CathedralRadiance.dds");

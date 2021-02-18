@@ -30,21 +30,6 @@
 #include <string>
 
 #ifndef CINDER_LESS
- // forward declarations
-namespace cinder
-{
-    class AxisAlignedBox;
-    namespace app
-    {
-        class MouseEvent;
-        class KeyEvent;
-    } // namespace app
-    namespace gl {
-
-        typedef std::shared_ptr<class Texture2d>		Texture2dRef;
-        typedef std::shared_ptr<class TextureCubeMap>	TextureCubeMapRef;
-    }
-} // namespace cinder
 #include "cinder/gl/GlslProg.h"
 #include "cinder/Signals.h"
 #else
@@ -62,15 +47,6 @@ namespace melo
     typedef std::shared_ptr<const class Node> NodeConstRef;
     typedef std::weak_ptr<class Node> NodeWeakRef;
     typedef std::vector<NodeRef> NodeList;
-
-    enum MaterialType
-    {
-        MATERIAL_PBR_METAL_ROUGHNESS,
-        MATERIAL_PBR_SPEC_GLOSSINESS,
-        MATERIAL_UNLIT,
-
-        MATERIAL_COUNT,
-    };
 
     enum DrawOrder
     {
@@ -230,10 +206,6 @@ namespace melo
         glm::vec3 mBoundBoxMin, mBoundBoxMax;
 
 #ifndef CINDER_LESS
-        static ci::gl::TextureCubeMapRef radianceTexture;
-        static ci::gl::TextureCubeMapRef irradianceTexture;
-        static ci::gl::Texture2dRef brdfLUTTexture;
-
         bool isInsideFrustrum(const ci::Frustumf& viewFrustum);
 #endif
 

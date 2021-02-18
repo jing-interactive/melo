@@ -214,6 +214,13 @@ struct GltfScene : melo::Node
             return {};
         }
 
+        if (GltfScene::radianceTexture == nullptr)
+        {
+            GltfScene::radianceTexture = am::textureCubeMap(RADIANCE_TEX);
+            GltfScene::irradianceTexture = am::textureCubeMap(IRRADIANCE_TEX);
+            GltfScene::brdfLUTTexture = am::texture2d(BRDF_LUT_TEX);
+        }
+
         ref->setName(ref->property.asset.name);
         for (auto& shape : ref->property.shapes)
         {
@@ -243,6 +250,10 @@ struct GltfScene : melo::Node
     vector<GltfMaterial::Ref> materials;
 
     yocto::scene_scene property;
+
+    static gl::TextureCubeMapRef radianceTexture;
+    static gl::TextureCubeMapRef irradianceTexture;
+    static gl::Texture2dRef brdfLUTTexture;
 
     void createMaterials(DebugType debugType = DEBUG_NONE)
     {
@@ -311,6 +322,10 @@ private:
         return gl::VboMesh::create(triMesh);
     }
 };
+
+gl::TextureCubeMapRef GltfScene::radianceTexture;
+gl::TextureCubeMapRef GltfScene::irradianceTexture;
+gl::Texture2dRef GltfScene::brdfLUTTexture;
 
 GltfMaterial::Ref GltfMaterial::create(GltfScene* scene, yocto::scene_material& property, DebugType debugType)
 {
@@ -1202,12 +1217,12 @@ struct MeloViewer : public App
     void loadMeshFromFile(fs::path path)
     {
         Timer timer(true);
-        if (melo::Node::radianceTexture == nullptr)
-        {
-            melo::Node::radianceTexture = am::textureCubeMap(RADIANCE_TEX);
-            melo::Node::irradianceTexture = am::textureCubeMap(IRRADIANCE_TEX);
-            melo::Node::brdfLUTTexture = am::texture2d(BRDF_LUT_TEX);
-        }
+        //if (melo::Node::radianceTexture == nullptr)
+        //{
+        //    melo::Node::radianceTexture = am::textureCubeMap(RADIANCE_TEX);
+        //    melo::Node::irradianceTexture = am::textureCubeMap(IRRADIANCE_TEX);
+        //    melo::Node::brdfLUTTexture = am::texture2d(BRDF_LUT_TEX);
+        //}
 
         auto newModel = GltfScene::create(path);
         if (newModel)

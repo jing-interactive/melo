@@ -240,12 +240,6 @@ namespace melo
             child->invalidateTransform();
     }
 
-#ifndef CINDER_LESS
-    ci::gl::TextureCubeMapRef Node::radianceTexture;
-    ci::gl::TextureCubeMapRef Node::irradianceTexture;
-    ci::gl::Texture2dRef Node::brdfLUTTexture;
-#endif
-
     NodeRef Node::create()
     {
         return make_shared<Node>();
