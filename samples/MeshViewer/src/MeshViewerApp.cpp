@@ -314,7 +314,7 @@ private:
         if (!shape.normals.empty()) fmt.normals();
         if (!shape.tangents.empty()) fmt.tangents();
         if (!shape.texcoords.empty()) fmt.texCoords0();
-        if (!shape.colors.empty()) fmt.colors();
+        if (!shape.colors.empty()) fmt.colors(4);
 
         TriMesh triMesh(fmt);
         if (!shape.triangles.empty())
