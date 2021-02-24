@@ -955,6 +955,8 @@ struct MeloViewer : public App
         log::makeLogger<log::LoggerFileRotating>(fs::path(), "melo-%Y-%m-%d.log");
         mUiLogger = log::makeLogger<ImGui::DearLogger>();
 
+        CI_LOG_I("========================================================");
+
         am::addAssetDirectory(getAppPath() / "../assets");
         am::addAssetDirectory(getAppPath() / "../../assets");
         am::addAssetDirectory(getAppPath() / "../../../assets");
