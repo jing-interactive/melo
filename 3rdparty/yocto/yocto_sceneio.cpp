@@ -3859,7 +3859,7 @@ static bool load_gltf_scene(const string& filename, scene_scene& scene,
             auto  dcomponents = components;
             auto  count       = gaccessor.value("count", (size_t)0);
             auto  data        = (float*)nullptr;
-            if (gname == "JOINTS_0" || gname == "WEIGHTS_0") {
+            if (gname == "JOINTS_0" || gname == "WEIGHTS_0" || gname == "TEXCOORD_1") {
                 continue;
             }
             if (gname == "POSITION") {
