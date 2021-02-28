@@ -289,12 +289,22 @@ struct GltfScene : melo::Node
 
     void predraw(melo::DrawOrder order) override
     {
+        auto folderPath = path.parent_path().filename();
+        auto folderName = folderPath.string();
+        rmt_BeginCPUSampleDynamic(folderName.c_str(), 0);
+        rmt_BeginOpenGLSampleDynamic(folderName.c_str());
         if (GltfScene::brdfLUTTexture && GltfScene::irradianceTexture && GltfScene::radianceTexture)
         {
             GltfScene::radianceTexture->bind(7);
             GltfScene::irradianceTexture->bind(8);
             GltfScene::brdfLUTTexture->bind(9);
         }
+    }
+
+    void postdraw(melo::DrawOrder order) override
+    {
+        rmt_EndCPUSample();
+        rmt_EndOpenGLSample();
     }
 
     bool isMaterialDirty = false;
@@ -1159,6 +1169,7 @@ struct MeloViewer : public App
 #endif
             if (GUI_VISIBLE)
             {
+                rmt_ScopedCPUSample(drawGUI, RMTSF_None);
                 drawGUI();
             }
 
@@ -1280,13 +1291,7 @@ struct MeloViewer : public App
     void loadMeshFromFile(fs::path path)
     {
         Timer timer(true);
-        //if (melo::Node::radianceTexture == nullptr)
-        //{
-        //    melo::Node::radianceTexture = am::textureCubeMap(RADIANCE_TEX);
-        //    melo::Node::irradianceTexture = am::textureCubeMap(IRRADIANCE_TEX);
-        //    melo::Node::brdfLUTTexture = am::texture2d(BRDF_LUT_TEX);
-        //}
-
+        
         auto newModel = GltfScene::create(path);
         if (newModel)
         {
@@ -1295,7 +1300,6 @@ struct MeloViewer : public App
         }
         CI_LOG_I(path << " loaded in " << timer.getSeconds() << " seconds");
     }
-
 
     bool loadMeshFromZip(const fs::path& filePath)
     {
@@ -1388,6 +1392,12 @@ void GltfScene::update(double elapsed)
 
 void GltfNode::draw(melo::DrawOrder order)
 {
+    if (PROFILE_NODE_DRAW)
+    {
+        rmt_ScopedCPUSample(nodeDraw, RMTSF_None);
+        rmt_ScopedOpenGLSample(nodeDraw);
+    }
+
     auto app = (MeloViewer*)App::get();
     if (scene->isMaterialDirty)
     {
