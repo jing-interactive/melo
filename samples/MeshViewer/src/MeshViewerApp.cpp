@@ -36,6 +36,7 @@
 #include "RenderDocHelper.h"
 
 #include "NvOptimusEnablement.h"
+#include "CinderRemotery.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -593,6 +594,9 @@ struct ShadowMapPass
     const gl::Texture2dRef& draw(melo::NodeRef scene)
     {
         gl::ScopedDepth enableDepthRW(true);
+        rmt_ScopedCPUSample(shadowMap, RMTSF_None);
+        rmt_ScopedOpenGLSample(shadowMap);
+
         gl::ScopedDebugGroup group("gen shadow map");
         // Offset to help combat surface acne (self-shadowing)
         gl::ScopedState enable(GL_POLYGON_OFFSET_FILL, GL_TRUE);
@@ -616,6 +620,7 @@ struct MeloViewer : public App
 {
     RenderDocHelper mRdc;
     bool mToCaptureRdc = false;
+    Remotery* rmt = nullptr;
 
     CameraPersp2 mMayaCam;
     CameraUi mMayaCamUi;
@@ -695,20 +700,7 @@ struct MeloViewer : public App
                     setPickedNode(nullptr);
                 }
 
-                if (ImGui::Button("Add Cube"))
-                {
-                    auto node = melo::createMeshNode("Cube");
-                    mScene->addChild(node);
-                    setPickedNode(node);
-                }
-
-                if (ImGui::Button("Add Sphere"))
-                {
-                    auto node = melo::createMeshNode("Sphere");
-                    mScene->addChild(node);
-                    setPickedNode(node);
-                }
-
+                ImGui::SameLine();
                 if (ImGui::Button("Load"))
                 {
                     auto newScene = melo::loadScene(path.generic_string());
@@ -719,9 +711,25 @@ struct MeloViewer : public App
                     }
                 }
 
+                ImGui::SameLine();
                 if (ImGui::Button("Save"))
                 {
                     melo::writeScene(mScene, path.generic_string());
+                }
+
+                if (ImGui::Button("+ Cube"))
+                {
+                    auto node = melo::createMeshNode("Cube");
+                    mScene->addChild(node);
+                    setPickedNode(node);
+                }
+
+                ImGui::SameLine();
+                if (ImGui::Button("+ Sphere"))
+                {
+                    auto node = melo::createMeshNode("Sphere");
+                    mScene->addChild(node);
+                    setPickedNode(node);
                 }
 
                 ImGui::Separator();
@@ -961,6 +969,19 @@ struct MeloViewer : public App
         am::addAssetDirectory(getAppPath() / "../../assets");
         am::addAssetDirectory(getAppPath() / "../../../assets");
 
+        rmtError error;
+        error = rmt_CreateGlobalInstance(&rmt);
+        _rmt_SetCurrentThreadName("master");
+        _rmt_BindOpenGL();
+        if (RMT_ERROR_NONE != error) {
+            CI_LOG_V("Error launching Remotery" << error);
+        }
+
+        getSignalCleanup().connect([&] {
+            _rmt_UnbindOpenGL();
+            rmt_DestroyGlobalInstance(rmt);
+        });
+
         mMayaCam.lookAt({ CAM_POS_X, CAM_POS_Y, CAM_POS_Z }, { CAM_DIR_X, CAM_DIR_Y, CAM_DIR_Z }, vec3(0, 1, 0));
         mFpsCam.lookAt({ CAM_POS_X, CAM_POS_Y, CAM_POS_Z }, { CAM_DIR_X, CAM_DIR_Y, CAM_DIR_Z }, vec3(0, 1, 0));
         mFpsCam.setEyePoint({ CAM_POS_X, CAM_POS_Y, CAM_POS_Z });
@@ -1084,6 +1105,8 @@ struct MeloViewer : public App
 
         getSignalUpdate().connect([&] {
 
+            rmt_ScopedCPUSample(update, RMTSF_None);
+
             mSkyNode->setVisible(ENV_VISIBLE);
             mGridNode->setVisible(XYZ_VISIBLE);
 
@@ -1158,6 +1181,8 @@ struct MeloViewer : public App
             });
 
         getWindow()->getSignalDraw().connect([&] {
+            rmt_ScopedCPUSample(draw, RMTSF_None);
+            rmt_ScopedOpenGLSample(draw);
 
             gl::ScopedDebugGroup scp(string("f") + toString(getElapsedFrames()));
             if (mToCaptureRdc)
@@ -1168,6 +1193,8 @@ struct MeloViewer : public App
             {
                 // main pass
                 gl::ScopedDebugGroup group("mFboMain");
+                rmt_ScopedCPUSample(mFboMain, RMTSF_None);
+                rmt_ScopedOpenGLSample(mFboMain);
                 gl::ScopedFramebuffer fbo(mFboMain);
                 if (mSnapshotMode)
                     gl::clear(ColorA::gray(0.0f, 0.0f));
@@ -1186,6 +1213,9 @@ struct MeloViewer : public App
 
                 {
                     gl::ScopedDebugGroup group("solid");
+                    rmt_ScopedCPUSample(solid, RMTSF_None);
+                    rmt_ScopedOpenGLSample(solid);
+
                     gl::enableDepthRead();
                     gl::disableAlphaBlending();
                     mScene->treeDraw(melo::DRAW_SOLID);
@@ -1193,6 +1223,9 @@ struct MeloViewer : public App
                 
                 {
                     gl::ScopedDebugGroup group("transparency");
+                    rmt_ScopedCPUSample(transparency, RMTSF_None);
+                    rmt_ScopedOpenGLSample(transparency);
+
                     gl::enableAlphaBlending();
                     gl::disableDepthRead();
                     mScene->treeDraw(melo::DRAW_TRANSPARENCY);
@@ -1216,7 +1249,11 @@ struct MeloViewer : public App
 
             auto blitTexture = mFboMain->getColorTexture();
             if (IS_SMAA)
+            {
+                rmt_ScopedCPUSample(SMAA, RMTSF_None);
+                rmt_ScopedOpenGLSample(SMAA);
                 blitTexture = mAAPass.draw(mFboMain);
+            }
 
             {
                 // blit
