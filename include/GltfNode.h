@@ -1,126 +1,152 @@
 #pragma once
 
-#include "../3rdparty/cgltf/cgltf.h"
+#undef near
+#undef far
+#include "../3rdparty/yocto/yocto_sceneio.h"
 #include "../include/Node.h"
 #include <filesystem>
+#include <Cinder/gl/gl.h>
 
 namespace fs = std::filesystem;
 
-typedef std::shared_ptr<struct GltfData> GltfDataRef;
+typedef std::shared_ptr<struct GltfScene> GltfSceneRef;
 
-struct GltfSubMesh
+const int LightType_Directional = 0;
+const int LightType_Point = 1;
+const int LightType_Spot = 2;
+
+#define DebugTypeList \
+    ENTRY(DEBUG_NONE, None) \
+    ENTRY(DEBUG_BASECOLOR, BaseColor) \
+    ENTRY(DEBUG_ALPHA, Alpha) \
+    ENTRY(DEBUG_NORMAL, Normal) \
+    ENTRY(DEBUG_TANGENT, Tangent) \
+    ENTRY(DEBUG_BITANGENT, Bitangent) \
+    ENTRY(DEBUG_METALLIC, Metallic) \
+    ENTRY(DEBUG_ROUGHNESS, Roughness) \
+    ENTRY(DEBUG_OCCLUSION, Occulussion) \
+    ENTRY(DEBUG_F0, F0) \
+    ENTRY(DEBUG_FEMISSIVE, Emissive) \
+    ENTRY(DEBUG_FSPECULAR, Specular) \
+    ENTRY(DEBUG_FDIFFUSE, Diffuse) \
+    ENTRY(DEBUG_FSHEEN, Sheen) \
+    ENTRY(DEBUG_FCLEARCOAT, ClearCoat) \
+    ENTRY(DEBUG_FSUBSURFACE, Subsurface) \
+    ENTRY(DEBUG_THICKNESS, Thickness) \
+    ENTRY(DEBUG_FTRANSMISSION, Transmission)
+
+#define ENTRY(flag, name) flag,
+enum DebugType
 {
-    typedef std::shared_ptr<GltfSubMesh> Ref;
+    DebugTypeList
 
-    static Ref create(GltfDataRef data, const cgltf_primitive& property);
-
-    cgltf_primitive property;
+    DEBUG_COUNT,
 };
+#undef ENTRY
 
-struct GltfMesh
+struct GltfLight
 {
-    typedef std::shared_ptr<GltfMesh> Ref;
+    glm::vec3 direction = { 0,1.0f, 0 };
+    float range = { 999 };
 
-    static Ref create(GltfDataRef data, const cgltf_mesh& property);
-    
-    cgltf_mesh property;
+    glm::vec3 color = { 1, 1, 1 };
+    float intensity = 10;
 
-    std::vector<GltfSubMesh::Ref> subMeshes;
-};
+    glm::vec3 position;
+    float innerConeCos = 0.1;
 
-struct GltfTexture
-{
-    typedef std::shared_ptr<GltfTexture> Ref;
+    float outerConeCos = 0.5;
+    int type = LightType_Directional;
 
-    static Ref create(GltfDataRef data, const cgltf_texture& property);
-    virtual ~GltfTexture();
-    
-    cgltf_texture property;
-
-    int w = 0;
-    int h = 0;
-    int comp = 4;
-    uint8_t* pixels = nullptr;
-};
-
-struct GltfAccessor
-{
-    typedef std::shared_ptr<GltfAccessor> Ref;
-    static Ref create(GltfDataRef data, const cgltf_accessor& property)
-    {
-        auto ref = std::make_shared<GltfAccessor>();
-
-        return ref;
-    }
-};
-
-struct GltfBuffer
-{
-    typedef std::shared_ptr<GltfBuffer> Ref;
-    static Ref create(GltfDataRef data, const cgltf_buffer& property);
-
-    uint8_t* data = nullptr;
-    int size;
-};
-
-struct GltfBufferView
-{
-    typedef std::shared_ptr<GltfBufferView> Ref;
-    static Ref create(GltfDataRef data, const cgltf_buffer_view& property);
-
-    cgltf_buffer_view property;
-    GltfBuffer::Ref buffer;
+    glm::vec2 padding;
 };
 
 struct GltfMaterial
 {
     typedef std::shared_ptr<GltfMaterial> Ref;
-    static Ref create(GltfDataRef data, const cgltf_material& property)
-    {
-        auto ref = std::make_shared<GltfMaterial>();
+    static Ref create(GltfScene* scene, yocto::scene_material& property, DebugType debugType = DEBUG_NONE);
 
-        return ref;
-    }
+    yocto::scene_material property;
+
+    ci::gl::Texture2dRef emission_tex;
+    ci::gl::Texture2dRef color_tex;
+    ci::gl::Texture2dRef roughness_tex;
+    ci::gl::Texture2dRef scattering_tex;
+    ci::gl::Texture2dRef normal_tex;
+    ci::gl::Texture2dRef occulusion_tex;
+
+    void bind();
+
+    void unbind();
+
+    ci::gl::GlslProgRef glsl;
 };
 
 struct GltfNode : melo::Node
 {
     typedef std::shared_ptr<GltfNode> Ref;
-    static Ref create(GltfDataRef data, const cgltf_node& property);
+    static Ref create(GltfScene* scene, yocto::scene_instance& property);
 
-    void setup() override;
+    ci::gl::VboMeshRef mesh;
+    GltfMaterial::Ref material;
 
-    GltfMesh::Ref mesh;
-    cgltf_node property;
-    GltfDataRef data;
+    void draw(melo::DrawOrder order) override;
+    void reloadMaterial();
+
+    GltfScene* scene;
+    yocto::scene_instance property;
 };
 
-struct GltfScene : GltfNode
+struct GltfScene : melo::Node
 {
-    typedef std::shared_ptr<GltfScene> Ref;
-    static Ref create(GltfDataRef data, const cgltf_scene& property);
-};
+    static void progress_callback(const std::string& message, int current, int total);
 
-struct GltfData : melo::Node
-{
-    static GltfDataRef create(const fs::path& meshPath);
+    static GltfSceneRef create(const fs::path& path);
 
-    virtual ~GltfData()
-    {
-        if (property)
-            cgltf_free(property);
-    }
-
-    cgltf_data* property = nullptr;
     fs::path path;
 
+    GltfLight lights[1] = {};
+    std::vector<ci::gl::VboMeshRef> meshes;
+    std::vector<ci::gl::Texture2dRef> textures;
     std::vector<GltfMaterial::Ref> materials;
-    std::vector<GltfAccessor::Ref> accessors;
-    std::vector<GltfBuffer::Ref> buffers;
-    std::vector<GltfBufferView::Ref> bufferViews;
-    std::vector<GltfSubMesh::Ref> subMeshes;
-    std::vector<GltfMesh::Ref> meshes;
-    std::vector<GltfTexture::Ref> textures;
 
-    std::vector<GltfNode::Ref> nodes;
+    yocto::scene_scene property;
+
+    static ci::gl::TextureCubeMapRef radianceTexture;
+    static ci::gl::TextureCubeMapRef irradianceTexture;
+    static ci::gl::Texture2dRef brdfLUTTexture;
+
+    void createMaterials(DebugType debugType = DEBUG_NONE);
+
+    ci::gl::Texture2dRef getTexture(yocto::texture_handle handle)
+    {
+        if (handle == yocto::invalid_handle) return {};
+        return textures[handle];
+    }
+
+    ci::gl::VboMeshRef getMesh(yocto::shape_handle handle)
+    {
+        if (handle == yocto::invalid_handle) return {};
+        return meshes[handle];
+    }
+
+    GltfMaterial::Ref getMaterial(yocto::material_handle handle)
+    {
+        if (handle == yocto::invalid_handle) return {};
+        return materials[handle];
+    }
+
+    void update(double elapsed) override;
+
+    void predraw(melo::DrawOrder order) override;
+
+    void postdraw(melo::DrawOrder order) override;
+
+    bool isMaterialDirty = false;
+
+private:
+
+    ci::gl::Texture2dRef createTexture(const yocto::scene_texture& texture);
+
+    ci::gl::VboMeshRef createMesh(const yocto::scene_shape& shape);
 };

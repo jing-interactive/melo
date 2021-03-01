@@ -168,6 +168,9 @@
     <ClCompile Include="..\..\..\..\Cinder-VNM\ui\CinderRemotery.cpp">
       <Filter>Blocks\vnm\ui</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\GltfNode.cpp">
+      <Filter>Blocks\melo</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Resources.h">
@@ -277,6 +280,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\Cinder-VNM\include\CinderRemotery.h">
       <Filter>Blocks\vnm\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\GltfNode.h">
+      <Filter>Blocks\melo</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
