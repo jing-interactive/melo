@@ -55,7 +55,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\..\include;..\..\..\3rdparty\rapidjson;..\include;..\..\..\..\..\include;..\..\..\..\..\include\imgui;..\..\..\..\Cinder-VNM\include;..\..\..\..</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\src\vfspp\include;..\..\..\include;..\..\..\3rdparty\rapidjson;..\include;..\..\..\..\..\include;..\..\..\..\..\include\imgui;..\..\..\..\Cinder-VNM\include;..\..\..\..</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WIN32_WINNT=0x0601;_WINDOWS;NOMINMAX;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -80,7 +80,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\..\..\include;..\..\..\3rdparty\rapidjson;..\include;..\..\..\..\..\include;..\..\..\..\..\include\imgui;..\..\..\..\Cinder-VNM\include;..\..\..\..</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\src\vfspp\include;..\..\..\include;..\..\..\3rdparty\rapidjson;..\include;..\..\..\..\..\include;..\..\..\..\..\include\imgui;..\..\..\..\Cinder-VNM\include;..\..\..\..</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WIN32_WINNT=0x0601;_WINDOWS;NOMINMAX;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader />
@@ -163,8 +163,20 @@
     <ClInclude Include="..\..\..\..\Cinder-VNM\include\StateMachine.h" />
     <ClInclude Include="..\..\..\..\Cinder-VNM\include\TextureHelper.h" />
     <ClInclude Include="..\..\..\..\Cinder-VNM\include\TuioHelper.h" />
-    <ClInclude Include="..\src\miniz\miniz.h" />
     <ClInclude Include="..\src\ShadowMap.h" />
+    <ClInclude Include="..\src\vfspp\include\CFileInfo.h" />
+    <ClInclude Include="..\src\vfspp\include\CMemoryFile.h" />
+    <ClInclude Include="..\src\vfspp\include\CMemoryFileSystem.h" />
+    <ClInclude Include="..\src\vfspp\include\CNativeFile.h" />
+    <ClInclude Include="..\src\vfspp\include\CNativeFileSystem.h" />
+    <ClInclude Include="..\src\vfspp\include\CVirtualFileSystem.h" />
+    <ClInclude Include="..\src\vfspp\include\CZipFile.h" />
+    <ClInclude Include="..\src\vfspp\include\CZipFileSystem.h" />
+    <ClInclude Include="..\src\vfspp\include\IFile.h" />
+    <ClInclude Include="..\src\vfspp\include\IFileSystem.h" />
+    <ClInclude Include="..\src\vfspp\include\VFS.h" />
+    <ClInclude Include="..\src\vfspp\src\CStringUtilsVFS.h" />
+    <ClInclude Include="..\src\vfspp\src\miniz.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\Cinder-VNM\ui\CinderGuizmo.cpp" />
@@ -192,7 +204,16 @@
     <ClCompile Include="..\src\MeshViewerApp.cpp" />
     <ClCompile Include="..\..\..\..\Cinder-VNM\src\AssetManager.cpp" />
     <ClCompile Include="..\..\..\..\Cinder-VNM\src\MiniConfig.cpp" />
-    <ClCompile Include="..\src\miniz\miniz.c" />
+    <ClCompile Include="..\src\vfspp\src\CFileInfo.cpp" />
+    <ClCompile Include="..\src\vfspp\src\CMemoryFile.cpp" />
+    <ClCompile Include="..\src\vfspp\src\CMemoryFileSystem.cpp" />
+    <ClCompile Include="..\src\vfspp\src\CNativeFile.cpp" />
+    <ClCompile Include="..\src\vfspp\src\CNativeFileSystem.cpp" />
+    <ClCompile Include="..\src\vfspp\src\CStringUtilsVFS.cpp" />
+    <ClCompile Include="..\src\vfspp\src\CVirtualFileSystem.cpp" />
+    <ClCompile Include="..\src\vfspp\src\CZipFile.cpp" />
+    <ClCompile Include="..\src\vfspp\src\CZipFileSystem.cpp" />
+    <ClCompile Include="..\src\vfspp\src\miniz.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

@@ -8,7 +8,7 @@
 #include <cinder/FileWatcher.h>
 #include <cinder/Timer.h>
 
-#include "miniz/miniz.h"
+#include "VFS.h"
 
 // vnm
 #include "AssetManager.h"
@@ -849,6 +849,7 @@ struct MeloViewer : public App
 
     bool loadMeshFromZip(const fs::path& filePath)
     {
+#if 0
         miniz_zip_archive zip_archive;
         memset(&zip_archive, 0, sizeof(zip_archive));
         miniz_bool status = miniz_zip_reader_init_file(&zip_archive, filePath.string().c_str(), 0);
@@ -888,7 +889,7 @@ struct MeloViewer : public App
         // Close the archive, freeing any resources it was using
         miniz_zip_reader_end(&zip_archive);
         loadMeshFromFile(filePath);
-
+#endif
         return true;
     }
 

@@ -34,11 +34,11 @@
     <Filter Include="Blocks\melo\postprocess">
       <UniqueIdentifier>{bb6585b9-e70c-4948-a5e4-c948e1dd9f3a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Blocks\miniz">
-      <UniqueIdentifier>{b00341a0-5244-46ce-a36d-d49b763466a1}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Blocks\yocto">
       <UniqueIdentifier>{de19712f-d78b-43e8-94e8-592536a7f8e5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blocks\vfspp">
+      <UniqueIdentifier>{55ea9e8c-bd56-4b5e-b79a-d4860c137ba6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -135,9 +135,6 @@
     <ClCompile Include="..\..\..\src\postprocess\FXAA.cpp">
       <Filter>Blocks\melo\postprocess</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\miniz\miniz.c">
-      <Filter>Blocks\miniz</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\3rdparty\yocto\ext\stb_image.cpp">
       <Filter>Blocks\yocto</Filter>
     </ClCompile>
@@ -170,6 +167,36 @@
     </ClCompile>
     <ClCompile Include="..\..\..\src\GltfNode.cpp">
       <Filter>Blocks\melo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\vfspp\src\CFileInfo.cpp">
+      <Filter>Blocks\vfspp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\vfspp\src\CMemoryFile.cpp">
+      <Filter>Blocks\vfspp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\vfspp\src\CMemoryFileSystem.cpp">
+      <Filter>Blocks\vfspp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\vfspp\src\CNativeFile.cpp">
+      <Filter>Blocks\vfspp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\vfspp\src\CNativeFileSystem.cpp">
+      <Filter>Blocks\vfspp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\vfspp\src\CStringUtilsVFS.cpp">
+      <Filter>Blocks\vfspp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\vfspp\src\CVirtualFileSystem.cpp">
+      <Filter>Blocks\vfspp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\vfspp\src\CZipFile.cpp">
+      <Filter>Blocks\vfspp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\vfspp\src\CZipFileSystem.cpp">
+      <Filter>Blocks\vfspp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\vfspp\src\miniz.c">
+      <Filter>Blocks\vfspp</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -208,9 +235,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\include\postprocess\SMAA.h">
       <Filter>Blocks\melo\postprocess</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\miniz\miniz.h">
-      <Filter>Blocks\miniz</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ShadowMap.h">
       <Filter>Source Files</Filter>
@@ -283,6 +307,45 @@
     </ClInclude>
     <ClInclude Include="..\..\..\include\GltfNode.h">
       <Filter>Blocks\melo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\vfspp\include\CFileInfo.h">
+      <Filter>Blocks\vfspp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\vfspp\include\CMemoryFile.h">
+      <Filter>Blocks\vfspp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\vfspp\include\CMemoryFileSystem.h">
+      <Filter>Blocks\vfspp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\vfspp\include\CNativeFile.h">
+      <Filter>Blocks\vfspp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\vfspp\include\CNativeFileSystem.h">
+      <Filter>Blocks\vfspp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\vfspp\include\CVirtualFileSystem.h">
+      <Filter>Blocks\vfspp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\vfspp\include\CZipFile.h">
+      <Filter>Blocks\vfspp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\vfspp\include\CZipFileSystem.h">
+      <Filter>Blocks\vfspp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\vfspp\include\IFile.h">
+      <Filter>Blocks\vfspp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\vfspp\include\IFileSystem.h">
+      <Filter>Blocks\vfspp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\vfspp\include\VFS.h">
+      <Filter>Blocks\vfspp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\vfspp\src\CStringUtilsVFS.h">
+      <Filter>Blocks\vfspp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\vfspp\src\miniz.h">
+      <Filter>Blocks\vfspp</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
