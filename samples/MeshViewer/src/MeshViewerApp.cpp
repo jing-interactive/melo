@@ -8,7 +8,8 @@
 #include <cinder/FileWatcher.h>
 #include <cinder/Timer.h>
 
-#include "VFS.h"
+#include "CZipFileSystem.h"
+#include "CVirtualFileSystem.h"
 
 // vnm
 #include "AssetManager.h"
@@ -40,6 +41,7 @@
 using namespace ci;
 using namespace ci::app;
 using namespace std;
+using namespace vfspp;
 
 struct AAPass
 {
@@ -849,6 +851,27 @@ struct MeloViewer : public App
 
     bool loadMeshFromZip(const fs::path& filePath)
     {
+        {
+            vfs_initialize();
+
+            IFileSystemPtr zip_fs(new CZipFileSystem(filePath.string().c_str(), "/"));
+            zip_fs->Initialize();
+
+            CVirtualFileSystemPtr vfs = vfs_get_global();
+            vfs->AddFileSystem("/", zip_fs);
+
+            IFilePtr memFile = vfs->openFile(CFileInfo("/scene.gltf"), IFile::In);
+            if (memFile && memFile->IsOpened())
+            {
+                loadMeshFromFile(filePath);
+                char data[256];
+                memFile->Read(reinterpret_cast<uint8_t*>(data), 256);
+
+                printf("%s\n", data);
+            }
+
+            vfs_shutdown();
+        }
 #if 0
         miniz_zip_archive zip_archive;
         memset(&zip_archive, 0, sizeof(zip_archive));
@@ -900,10 +923,24 @@ struct MeloViewer : public App
         if (args.size() > 1)
         {
             // /path/to/MeloViewer.exe file.obj
-            auto filePath = args[1];
-            dispatchAsync([&, filePath] {
-                loadMeshFromFile(filePath);
+            auto filePath = fs::path(args[1]);
+            if (melo::isMeshPathSupported(filePath))
+            {
+                dispatchAsync([&, filePath] {
+                    loadMeshFromFile(filePath);
                 });
+            }
+            else
+            {
+                auto ext = filePath.extension().string();
+                if (ext == ".zip")
+                {
+                    dispatchAsync([&, filePath] {
+                        loadMeshFromZip(filePath);
+                    });
+                }
+            }
+
             if (args.size() > 2)
             {
                 // MeloViewer.exe file.obj snapshot.png
