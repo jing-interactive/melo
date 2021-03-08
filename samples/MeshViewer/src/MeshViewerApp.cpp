@@ -43,6 +43,33 @@ using namespace ci::app;
 using namespace std;
 using namespace vfspp;
 
+struct ScopedMarker
+{
+    ScopedMarker(const string& msg, bool sample_opengl = false)
+    {
+        if (!_REMOTERY_ENABLED) return;
+        this->sample_opengl = sample_opengl;
+        _rmt_BeginCPUSample(msg.c_str(), 0, NULL);
+        if (sample_opengl)
+        {
+            gl::pushDebugGroup(msg);
+            _rmt_BeginOpenGLSample(msg.c_str(), NULL);
+        }
+    }
+
+    ~ScopedMarker()
+    {
+        if (!_REMOTERY_ENABLED) return;
+        _rmt_EndCPUSample();
+        if (sample_opengl)
+        {
+            gl::popDebugGroup();
+            _rmt_EndOpenGLSample();
+        }
+    }
+    bool sample_opengl = false;
+};
+
 struct AAPass
 {
     unique_ptr<FXAA> mFXAA;
@@ -148,10 +175,8 @@ struct ShadowMapPass
     const gl::Texture2dRef& draw(melo::NodeRef scene)
     {
         gl::ScopedDepth enableDepthRW(true);
-        rmt_ScopedCPUSample(shadowMap, RMTSF_None);
-        rmt_ScopedOpenGLSample(shadowMap);
+        ScopedMarker scp("shadowMap", true);
 
-        gl::ScopedDebugGroup group("gen shadow map");
         // Offset to help combat surface acne (self-shadowing)
         gl::ScopedState enable(GL_POLYGON_OFFSET_FILL, GL_TRUE);
         glPolygonOffset(mPolygonOffsetFactor, mPolygonOffsetUnits);
@@ -524,16 +549,22 @@ struct MeloViewer : public App
         am::addAssetDirectory(getAppPath() / "../../../assets");
 
         rmtError error;
-        error = rmt_CreateGlobalInstance(&rmt);
-        _rmt_SetCurrentThreadName("master");
-        _rmt_BindOpenGL();
-        if (RMT_ERROR_NONE != error) {
-            CI_LOG_V("Error launching Remotery" << error);
+        if (_REMOTERY_ENABLED)
+        {
+            error = rmt_CreateGlobalInstance(&rmt);
+            _rmt_SetCurrentThreadName("master");
+            _rmt_BindOpenGL();
+            if (RMT_ERROR_NONE != error) {
+                CI_LOG_V("Error launching Remotery" << error);
+            }
         }
 
         getSignalCleanup().connect([&] {
-            _rmt_UnbindOpenGL();
-            rmt_DestroyGlobalInstance(rmt);
+            if (rmt)
+            {
+                _rmt_UnbindOpenGL();
+                rmt_DestroyGlobalInstance(rmt);
+            }
         });
 
         mMayaCam.lookAt({ CAM_POS_X, CAM_POS_Y, CAM_POS_Z }, { CAM_DIR_X, CAM_DIR_Y, CAM_DIR_Z }, vec3(0, 1, 0));
@@ -663,7 +694,7 @@ struct MeloViewer : public App
 
         getSignalUpdate().connect([&] {
 
-            rmt_ScopedCPUSample(update, RMTSF_None);
+            ScopedMarker scp("update", false);
 
             mSkyNode->setVisible(ENV_VISIBLE);
             mGridNode->setVisible(XYZ_VISIBLE);
@@ -717,7 +748,7 @@ struct MeloViewer : public App
 #endif
             if (GUI_VISIBLE)
             {
-                rmt_ScopedCPUSample(drawGUI, RMTSF_None);
+                ScopedMarker scp("drawGUI", false);
                 drawGUI();
             }
 
@@ -740,10 +771,8 @@ struct MeloViewer : public App
             });
 
         getWindow()->getSignalDraw().connect([&] {
-            rmt_ScopedCPUSample(draw, RMTSF_None);
-            rmt_ScopedOpenGLSample(draw);
+            ScopedMarker scp(string("f") + toString(getElapsedFrames()), true);
 
-            gl::ScopedDebugGroup scp(string("f") + toString(getElapsedFrames()));
             if (mToCaptureRdc)
                 mRdc.startCapture();
 
@@ -751,9 +780,7 @@ struct MeloViewer : public App
 
             {
                 // main pass
-                gl::ScopedDebugGroup group("mFboMain");
-                rmt_ScopedCPUSample(mFboMain, RMTSF_None);
-                rmt_ScopedOpenGLSample(mFboMain);
+                ScopedMarker scp("mFboMain", true);
                 gl::ScopedFramebuffer fbo(mFboMain);
                 if (mSnapshotMode)
                     gl::clear(ColorA::gray(0.0f, 0.0f));
@@ -771,9 +798,7 @@ struct MeloViewer : public App
                     gl::setMatrices(mMayaCam);
 
                 {
-                    gl::ScopedDebugGroup group("solid");
-                    rmt_ScopedCPUSample(solid, RMTSF_None);
-                    rmt_ScopedOpenGLSample(solid);
+                    ScopedMarker scp("solid", true);
 
                     gl::enableDepthRead();
                     gl::disableAlphaBlending();
@@ -781,9 +806,7 @@ struct MeloViewer : public App
                 }
                 
                 {
-                    gl::ScopedDebugGroup group("transparency");
-                    rmt_ScopedCPUSample(transparency, RMTSF_None);
-                    rmt_ScopedOpenGLSample(transparency);
+                    ScopedMarker scp("transparency", true);
 
                     gl::enableAlphaBlending();
                     gl::disableDepthRead();
@@ -809,8 +832,7 @@ struct MeloViewer : public App
             auto blitTexture = mFboMain->getColorTexture();
             if (IS_SMAA)
             {
-                rmt_ScopedCPUSample(SMAA, RMTSF_None);
-                rmt_ScopedOpenGLSample(SMAA);
+                ScopedMarker scp("SMAA", true);
                 blitTexture = mAAPass.draw(mFboMain);
             }
 
@@ -977,10 +999,10 @@ void GltfScene::update(double elapsed)
 
 void GltfNode::draw(melo::DrawOrder order)
 {
+    unique_ptr<ScopedMarker> scp;
     if (PROFILE_NODE_DRAW)
     {
-        rmt_ScopedCPUSample(nodeDraw, RMTSF_None);
-        rmt_ScopedOpenGLSample(nodeDraw);
+        scp = make_unique<ScopedMarker>("nodeDraw", true);
     }
 
     auto app = (MeloViewer*)App::get();

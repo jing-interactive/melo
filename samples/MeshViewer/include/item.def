@@ -10,6 +10,7 @@ ITEM_DEF(bool, FPS_CAMERA, false)
 ITEM_DEF(bool, CONSOLE_ENABLED, false)
 ITEM_DEF(bool, RENDER_DOC_ENABLED, false)
 ITEM_DEF(bool, PROFILE_NODE_DRAW, false)
+ITEM_DEF(bool, _REMOTERY_ENABLED, false)
 
 GROUP_DEF(Scene)
 ITEM_DEF(string, IRRADIANCE_TEX, "CathedralIrradiance.dds")
