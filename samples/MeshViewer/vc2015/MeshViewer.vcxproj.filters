@@ -40,6 +40,9 @@
     <Filter Include="Blocks\vfspp">
       <UniqueIdentifier>{55ea9e8c-bd56-4b5e-b79a-d4860c137ba6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Blocks\ufbx">
+      <UniqueIdentifier>{1cfabfb5-2615-45b5-a79e-2a00c658da9c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\MeshViewerApp.cpp">
@@ -198,6 +201,9 @@
     <ClCompile Include="..\src\vfspp\src\miniz.c">
       <Filter>Blocks\vfspp</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\ufbx\ufbx.c">
+      <Filter>Blocks\ufbx</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Resources.h">
@@ -346,6 +352,9 @@
     </ClInclude>
     <ClInclude Include="..\src\vfspp\src\miniz.h">
       <Filter>Blocks\vfspp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\ufbx\ufbx.h">
+      <Filter>Blocks\ufbx</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

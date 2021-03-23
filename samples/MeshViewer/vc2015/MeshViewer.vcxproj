@@ -116,6 +116,7 @@
     <ClInclude Include="..\..\..\..\Cinder-VNM\include\CinderRemotery.h" />
     <ClInclude Include="..\..\..\..\Cinder-VNM\ui\ImGuizmo\ImGuizmo.h" />
     <ClInclude Include="..\..\..\..\Cinder-VNM\ui\remotery\Remotery.h" />
+    <ClInclude Include="..\..\..\3rdparty\ufbx\ufbx.h" />
     <ClInclude Include="..\..\..\3rdparty\vox\read_vox.h" />
     <ClInclude Include="..\..\..\3rdparty\yocto\ext\json.hpp" />
     <ClInclude Include="..\..\..\3rdparty\yocto\ext\stb_image.h" />
@@ -183,6 +184,7 @@
     <ClCompile Include="..\..\..\..\Cinder-VNM\ui\CinderRemotery.cpp" />
     <ClCompile Include="..\..\..\..\Cinder-VNM\ui\DearLogger.cpp" />
     <ClCompile Include="..\..\..\..\Cinder-VNM\ui\ImGuizmo\ImGuizmo.cpp" />
+    <ClCompile Include="..\..\..\3rdparty\ufbx\ufbx.c" />
     <ClCompile Include="..\..\..\3rdparty\vox\read_vox.cpp" />
     <ClCompile Include="..\..\..\3rdparty\yocto\ext\stb_image.cpp" />
     <ClCompile Include="..\..\..\3rdparty\yocto\ext\tinyexr.cpp" />
