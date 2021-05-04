@@ -48,13 +48,13 @@ GltfMaterial::Ref GltfMaterial::create(GltfScene* scene, yocto::scene_material& 
     fmt.define("HAS_UV_SET1");
     fmt.define("USE_PUNCTUAL");
     fmt.define("LIGHT_COUNT", "1");
+    if (GltfScene::brdfLUTTexture && GltfScene::irradianceTexture && GltfScene::radianceTexture)
+    {
+        fmt.define("USE_IBL");
+    }
     if (property.type == yocto::material_type::metallic)
     {
         fmt.define("MATERIAL_METALLICROUGHNESS");
-        if (GltfScene::brdfLUTTexture && GltfScene::irradianceTexture && GltfScene::radianceTexture)
-        {
-            fmt.define("USE_IBL");
-        }
     }
     else if (property.type == yocto::material_type::subsurface)
     {
@@ -75,7 +75,7 @@ GltfMaterial::Ref GltfMaterial::create(GltfScene* scene, yocto::scene_material& 
         fmt.define("MATERIAL_METALLICROUGHNESS");
         fmt.define("MATERIAL_SHEEN");
         if (ref->scattering_tex)
-            fmt.define("HAS_SHEEN_COLOR_INTENSITY_MAP");
+            fmt.define("HAS_SHEEN_COLOR_MAP");
     }
     else
         fmt.define("MATERIAL_UNLIT");
@@ -183,10 +183,9 @@ void GltfMaterial::bind()
     }
     else if (property.type == yocto::material_type::leaves)
     {
-        glsl->uniform("u_SheenIntensityFactor", 1.0f);
         glsl->uniform("u_SheenColorFactor", (glm::vec3&)property.scattering);
-        glsl->uniform("u_SheenRoughness", property.ior);
-        glsl->uniform("u_SheenColorIntensitySampler", 5);
+        glsl->uniform("u_SheenRoughnessFactor", property.ior);
+        glsl->uniform("u_SheenColorSampler", 5);
     }
 
     if (property.opacity < 0)
@@ -304,8 +303,9 @@ void GltfScene::createMaterials(DebugType debugType)
 gl::Texture2dRef GltfScene::createTexture(const yocto::scene_texture& texture)
 {
     CI_ASSERT(texture.pixelsf.empty());
-    return ci::gl::Texture2d::create(texture.pixelsb.data(),
-        GL_RGBA, texture.width, texture.height);
+    auto fmt = gl::Texture2d::Format().mipmap(true);
+    return gl::Texture2d::create(texture.pixelsb.data(),
+        GL_RGBA, texture.width, texture.height, fmt);
 }
 
 gl::VboMeshRef GltfScene::createMesh(const yocto::scene_shape& shape)

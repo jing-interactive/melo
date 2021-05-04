@@ -1012,6 +1012,8 @@ void GltfNode::draw(melo::DrawOrder order)
     }
     if (material && material->glsl)
     {
+        mat3 rotMatrix3 = {};
+        material->glsl->uniform("u_envRotation", rotMatrix3);
         material->glsl->uniform("u_Camera", app->mCurrentCam->getEyePoint());
         material->glsl->uniform("u_Exposure", EXPOSURE);
         material->glsl->uniform("u_MipCount", IBL_MIP);
