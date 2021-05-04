@@ -1,6 +1,4 @@
-#version 130
-
-#include "animation.glsl"
+#include <animation.glsl>
 
 in vec3 a_Position;
 out vec3 v_Position;

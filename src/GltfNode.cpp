@@ -167,6 +167,7 @@ void GltfMaterial::bind()
 
     if (property.type == yocto::material_type::subsurface)
     {
+        // TODO: use MATERIAL_VOLUME / HAS_THICKNESS_MAP
         glsl->uniform("u_SubsurfaceScale", 5.0f);
         glsl->uniform("u_SubsurfaceDistortion", 0.2f);
         glsl->uniform("u_SubsurfacePower", 4.0f);

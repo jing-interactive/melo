@@ -1,6 +1,16 @@
 in vec2 v_UVCoord1;
 in vec2 v_UVCoord2;
 
+// IBL
+uniform int u_MipCount;
+uniform samplerCube u_LambertianEnvSampler;
+uniform samplerCube u_GGXEnvSampler;
+uniform sampler2D u_GGXLUT;
+uniform samplerCube u_CharlieEnvSampler;
+uniform sampler2D u_CharlieLUT;
+uniform sampler2D u_SheenELUT;
+uniform mat3 u_envRotation;
+
 // General Material
 uniform sampler2D u_NormalSampler;
 uniform float u_NormalScale;
@@ -35,15 +45,7 @@ uniform sampler2D u_SpecularGlossinessSampler;
 uniform int u_SpecularGlossinessUVSet;
 uniform mat3 u_SpecularGlossinessUVTransform;
 
-// IBL
-uniform int u_MipCount;
-uniform samplerCube u_LambertianEnvSampler;
-uniform samplerCube u_GGXEnvSampler;
-uniform sampler2D u_GGXLUT;
-uniform samplerCube u_CharlieEnvSampler;
-uniform sampler2D u_CharlieLUT;
-
-//clearcoat
+// Clearcoat Material
 uniform sampler2D u_ClearcoatSampler;
 uniform int u_ClearcoatUVSet;
 uniform mat3 u_ClearcoatUVTransform;
@@ -55,49 +57,35 @@ uniform mat3 u_ClearcoatRoughnessUVTransform;
 uniform sampler2D u_ClearcoatNormalSampler;
 uniform int u_ClearcoatNormalUVSet;
 uniform mat3 u_ClearcoatNormalUVTransform;
+uniform float u_ClearcoatNormalScale;
 
-//sheen
-uniform sampler2D u_SheenColorIntensitySampler;
-uniform int u_SheenColorIntensityUVSet;
-uniform mat3 u_SheenColorIntensityUVTransform;
+// Sheen Material
+uniform sampler2D u_SheenColorSampler;
+uniform int u_SheenColorUVSet;
+uniform mat3 u_SheenColorUVTransform;
+uniform sampler2D u_SheenRoughnessSampler;
+uniform int u_SheenRoughnessUVSet;
+uniform mat3 u_SheenRoughnessUVTransform;
 
-//specular
-uniform sampler2D u_MetallicRoughnessSpecularSampler;
-uniform int u_MetallicRougnessSpecularTextureUVSet;
-uniform mat3 u_MetallicRougnessSpecularUVTransform;
+// Specular Material
+uniform sampler2D u_SpecularSampler;
+uniform int u_SpecularUVSet;
+uniform mat3 u_SpecularUVTransform;
+uniform sampler2D u_SpecularColorSampler;
+uniform int u_SpecularColorUVSet;
+uniform mat3 u_SpecularColorUVTransform;
 
-//subsurface
-uniform sampler2D u_SubsurfaceColorSampler;
-uniform int u_SubsurfaceColorUVSet;
-uniform mat3 u_SubsurfaceColorUVTransform;
+// Transmission Material
+uniform sampler2D u_TransmissionSampler;
+uniform int u_TransmissionUVSet;
+uniform mat3 u_TransmissionUVTransform;
+uniform sampler2D u_TransmissionFramebufferSampler;
+uniform ivec2 u_TransmissionFramebufferSize;
 
-uniform sampler2D u_SubsurfaceThicknessSampler;
-uniform int u_SubsurfaceThicknessUVSet;
-uniform mat3 u_SubsurfaceThicknessUVTransform;
-
-//thin film
-uniform sampler2D u_ThinFilmLUT;
-
-uniform sampler2D u_ThinFilmSampler;
-uniform int u_ThinFilmUVSet;
-uniform mat3 u_ThinFilmUVTransform;
-
-uniform sampler2D u_ThinFilmThicknessSampler;
-uniform int u_ThinFilmThicknessUVSet;
-uniform mat3 u_ThinFilmThicknessUVTransform;
-
-// Thickness:
+// Volume Material
 uniform sampler2D u_ThicknessSampler;
 uniform int u_ThicknessUVSet;
 uniform mat3 u_ThicknessUVTransform;
-
-// Anisotropy:
-uniform sampler2D u_AnisotropySampler;
-uniform int u_AnisotropyUVSet;
-uniform mat3 u_AnisotropyUVTransform;
-uniform sampler2D u_AnisotropyDirectionSampler;
-uniform int u_AnisotropyDirectionUVSet;
-uniform mat3 u_AnisotropyDirectionUVTransform;
 
 vec2 getNormalUV()
 {
@@ -203,93 +191,56 @@ vec2 getClearcoatNormalUV()
     return uv.xy;
 }
 
-vec2 getSheenUV()
+vec2 getSheenColorUV()
 {
-    vec3 uv = vec3(u_SheenColorIntensityUVSet < 1 ? v_UVCoord1 : v_UVCoord2, 1.0);
-    #ifdef HAS_SHEENCOLORINTENSITY_UV_TRANSFORM
-    uv *= u_SheenUVTransform;
+    vec3 uv = vec3(u_SheenColorUVSet < 1 ? v_UVCoord1 : v_UVCoord2, 1.0);
+    #ifdef HAS_SHEENCOLOR_UV_TRANSFORM
+    uv *= u_SheenColorUVTransform;
     #endif
     return uv.xy;
 }
 
-vec2 getMetallicRoughnessSpecularUV()
+vec2 getSheenRoughnessUV()
 {
-    vec3 uv = vec3(u_MetallicRougnessSpecularTextureUVSet < 1 ? v_UVCoord1 : v_UVCoord2, 1.0);
-    #ifdef HAS_METALLICROUGHNESSSPECULAR_UV_TRANSFORM
-    uv *= u_MetallicRougnessSpecularUVTransform;
+    vec3 uv = vec3(u_SheenRoughnessUVSet < 1 ? v_UVCoord1 : v_UVCoord2, 1.0);
+    #ifdef HAS_SHEENROUGHNESS_UV_TRANSFORM
+    uv *= u_SheenRoughnessUVTransform;
     #endif
     return uv.xy;
 }
 
-vec2 getSubsurfaceColorUV()
+vec2 getTransmissionUV()
 {
-    vec3 uv = vec3(u_SubsurfaceColorUVSet < 1 ? v_UVCoord1 : v_UVCoord2, 1.0);
-    #ifdef HAS_SUBSURFACECOLOR_UV_TRANSFORM
-    uv *= u_SubsurfaceColorUVTransform;
+    vec3 uv = vec3(u_TransmissionUVSet < 1 ? v_UVCoord1 : v_UVCoord2, 1.0);
+    #ifdef HAS_TRANSMISSION_UV_TRANSFORM
+    uv *= u_TransmissionUVTransform;
     #endif
     return uv.xy;
 }
 
-vec2 getSubsurfaceThicknessUV()
+vec2 getSpecularUV()
 {
-    vec3 uv = vec3(u_SubsurfaceThicknessUVSet < 1 ? v_UVCoord1 : v_UVCoord2, 1.0);
-    #ifdef HAS_SUBSURFACETHICKNESS_UV_TRANSFORM
-    uv *= u_SubsurfaceThicknessUVTransform;
+    vec3 uv = vec3(u_SpecularUVSet < 1 ? v_UVCoord1 : v_UVCoord2, 1.0);
+    #ifdef HAS_SPECULAR_UV_TRANSFORM
+    uv *= u_SpecularUVTransform;
     #endif
     return uv.xy;
 }
 
-vec2 getThinFilmUV()
+vec2 getSpecularColorUV()
 {
-    vec3 uv = vec3(u_ThinFilmUVSet < 1 ? v_UVCoord1 : v_UVCoord2, 1.0);
-
-    #ifdef HAS_THIN_FILM_UV_TRANSFORM
-    uv *= u_ThinFilmUVTransform;
+    vec3 uv = vec3(u_SpecularColorUVSet < 1 ? v_UVCoord1 : v_UVCoord2, 1.0);
+    #ifdef HAS_SPECULARCOLOR_UV_TRANSFORM
+    uv *= u_SpecularColorUVTransform;
     #endif
-
-    return uv.xy;
-}
-
-vec2 getThinFilmThicknessUV()
-{
-    vec3 uv = vec3(u_ThinFilmThicknessUVSet < 1 ? v_UVCoord1 : v_UVCoord2, 1.0);
-
-    #ifdef HAS_THIN_FILM_THICKNESS_UV_TRANSFORM
-    uv *= u_ThinFilmThicknessUVTransform;
-    #endif
-
     return uv.xy;
 }
 
 vec2 getThicknessUV()
 {
     vec3 uv = vec3(u_ThicknessUVSet < 1 ? v_UVCoord1 : v_UVCoord2, 1.0);
-
     #ifdef HAS_THICKNESS_UV_TRANSFORM
     uv *= u_ThicknessUVTransform;
     #endif
-
-    return uv.xy;
-}
-
-vec2 getAnisotropyUV()
-{
-    vec3 uv = vec3(u_AnisotropyUVSet < 1 ? v_UVCoord1 : v_UVCoord2, 1.0);
-
-    #ifdef HAS_ANISOTROPY_UV_TRANSFORM
-    uv *= u_AnisotropyUVTransform;
-    #endif
-
-    return uv.xy;
-}
-
-vec2 getAnisotropyDirectionUV()
-{
-    vec3 uv = vec3(u_AnisotropyDirectionUVSet < 1 ? v_UVCoord1 : v_UVCoord2, 1.0);
-
-    #ifdef HAS_ANISOTROPY_DIRECTION_UV_TRANSFORM
-    uv *= u_AnisotropyDirectionUVTransform;
-    #endif
-
     return uv.xy;
 }
